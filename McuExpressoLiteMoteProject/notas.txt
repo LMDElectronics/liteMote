@@ -55,6 +55,9 @@ RW datos de paquetes en flash: COMPLETO
 cositas restantes:
 ------------------
 	
+	URGENTE
+	- pasar direcciones a 1 byte (compatibilidad con STACK packet de s2lp)
+	
 	- driver radio
 		-> configurar s2lp 
 			-> seguir configurando modulos
