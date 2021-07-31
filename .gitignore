@@ -1,3 +1,6 @@
+*.o
+*.d
 *.ld
+*.axf
 *.map
-
+makefile
