@@ -1,5 +1,3 @@
-*.ld
-*.o
-*.map
-makefile
-McuExpressoLiteMoteProject/debug/
+McuExpressoLiteMoteProject/Debug
+
+
