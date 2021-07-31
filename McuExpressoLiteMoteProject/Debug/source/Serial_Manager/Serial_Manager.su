@@ -1,0 +1,6 @@
+../source/Serial_Manager/Serial_Manager.c:52:7:Serial_Manager_Init	16	static
+../source/Serial_Manager/Serial_Manager.c:100:6:Serial_Manager_Flush_Encoded_Frame	8	static
+../source/Serial_Manager/Serial_Manager.c:122:11:From_Serial_Frame_To_Packet	144	static
+../source/Serial_Manager/Serial_Manager.c:171:7:From_Packet_To_Serial_Frame	24	static
+../source/Serial_Manager/Serial_Manager.c:216:6:Serial_Manager_RX_Motor	256	static
+../source/Serial_Manager/Serial_Manager.c:421:6:Serial_Manager_Tx_Motor	264	static

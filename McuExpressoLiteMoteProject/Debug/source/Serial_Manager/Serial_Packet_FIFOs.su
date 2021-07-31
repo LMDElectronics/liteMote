@@ -1,0 +1,8 @@
+../source/Serial_Manager/Serial_Packet_FIFOs.c:44:6:Serial_Packet_Rx_FIFO_Init	16	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:75:7:Is_Serial_Rx_FIFO_Empty	8	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:103:11:Get_Serial_Rx_FIFO_Packet	152	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:161:6:Push_Serial_Rx_FIFO_Packet	24	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:211:6:Serial_Packet_Tx_FIFO_Init	16	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:242:7:Is_Serial_Tx_FIFO_Empty	8	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:270:11:Get_Serial_Tx_FIFO_Packet	152	static
+../source/Serial_Manager/Serial_Packet_FIFOs.c:328:6:Push_Serial_Tx_FIFO_Packet	24	static

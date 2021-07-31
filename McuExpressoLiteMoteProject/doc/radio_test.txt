@@ -1,0 +1,29 @@
+LiteMote radio test
+
+1 gateway test
+
+	1-visual studio project for gateeway
+	C:\Users\MAX PC\source\repos\LiteMote_Gateway
+	
+2 load mcu project MKL82Z128xxx7_Project
+	- C:\Users\MAX PC\Documents\MCUXpressoIDE_10.3.0_2200\workspace\MKL82Z128xxx7_Project
+	- comment the following main functions:
+		//s2lp_Test_Tx_RC();
+  		//s2lp_Test_Rx_RC();			
+	
+	- debug the mcu target
+
+3 gateway serial test
+	ping test -> interface_ping_example.png
+	
+4 configure radio parameters from litemote gateway app	
+
+5 load mcu project MKL82Z128xxx7_Project
+	- C:\Users\MAX PC\Documents\MCUXpressoIDE_10.3.0_2200\workspace\MKL82Z128xxx7_Project
+	- uncomment one the following main functions:
+		s2lp_Test_Tx_RC();
+  		s2lp_Test_Rx_RC();			
+
+6 launch radio software defined program:
+sdrsharp	
+		

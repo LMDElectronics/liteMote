@@ -1,0 +1,86 @@
+duties:
+-------
+
+Molaría usar el led RGB para mostrar en colores el campo magnetico medido con el fxos87
+
+Este driver es el que sabe como esta estructurada la informacion en flash interna y usara los drivers de bajo nivel
+para realizar las operaciones de lectura y escritura de datos de la aplicacion
+
+RW datos de paquetes en flash: COMPLETO
+
+	Driver SPI: COMPLETO
+	--------------------
+
+		Comunica la info desde el sistema al peroiferico spi HW
+
+	Driver Flash: COMPLETO
+	----------------------
+
+		escribe y lee datos donde se le ordene
+		
+	Driver External flash manager COMPLETO:
+	---------------------------------------
+		
+	 	Decide la gestion de las operaciones a realizar por la flash cuando hay que grabar y leer datos de sistema
+	 	
+	Driver Configuration manager COMPLETO:
+	--------------------------------------
+		
+		Se le pasa el payload y el tipo de mensaje para que guarde el pauload en flash externa
+
+	- Driver de radio:
+	------------------
+
+		- NUCLEO S2868A1SPI PINOUT:
+		
+		SPI_CLK:         		[SCK]:	(CN9,D3)  BLUE
+		SPI_MOSI				[SDI]: 	(CN5,D11) GREEN
+		SPI_MISO				[SDO]: 	(CN5,D12) YELLOW
+		SPI_CS:					[CS] : 	(CN8,A2)  VIOLET
+		SHUTODWN				[SDN]: 	(CN9,D7)  WHITE			
+		GPIO0 as interrupt:		[irq]:	(CN8,A1)  GREY	
+		VDD:							(CN6,4)	  ORANGE	
+		GND:							(CN6,6,7) BLACK
+		
+		- Fredom board kl82 RF Header
+		1 - GND
+		2 - Vdd
+		3 - RF Chip enabled (shutdown), PTC12
+		4 - Chip select, PTD4
+		5 - SCK 	(SPI0)
+		6 - MOSI 	(SPI0)
+		7-  MISO	(SPI0)
+		8 - RF IRQ, PTC16   
+				
+cositas restantes:
+------------------
+	
+	- driver radio
+		-> configurar s2lp 
+			-> seguir configurando modulos
+					-> ver con el sdr si enviamos algo 			-> OK, el espectro a 868Mhz se ve que se envian datos continuamente
+					-> revisar datarate y validar el correcto 	-> EN ELLO,generar datarate con la equacion darate_e > 0 pero no = 15 y probar
+						-> revisar aFC
+											
+			-> usar 4GFSK BT=1 -> OK
+			-> variar dataRate hasta el maximo que deje gfsk4 125 Ksymb/s
+										
+
+	- gestor paquetes radio
+	
+	- añadir carrier sense para saber si el medio está ocupado antes de transmitir 	
+ 			
+RGB LED:
+--------
+	
+	- Driver para el LED RGB (usando PWM en cada pin para poder conseguir RGB real con persistencia )
+		
+		FALTA: 
+			-> todo el drive
+			-> diferentes colores para avisar de lo que hace la mota base 
+		
+		
+		
+			
+
+

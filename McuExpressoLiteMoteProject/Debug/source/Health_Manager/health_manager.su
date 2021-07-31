@@ -1,0 +1,7 @@
+../source/Health_Manager/health_manager.c:16:6:Health_Manager_Motor	256	static
+../source/Health_Manager/health_manager.c:45:6:Health_Manager_Init	8	static
+../source/Health_Manager/health_manager.c:54:8:Health_Manager_Get_Bat_Voltage	16	static
+../source/Health_Manager/health_manager.c:72:8:Health_Manager_Get_Voltage_Ref	16	static
+../source/Health_Manager/health_manager.c:102:8:Health_Manager_Get_Temperature	16	static
+../source/Health_Manager/health_manager.c:150:6:Health_Manager_Set_Data	40	static
+../source/Health_Manager/health_manager.c:185:6:Health_Manager_Reload_Timer	16	static

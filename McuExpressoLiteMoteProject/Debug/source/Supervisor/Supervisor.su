@@ -1,0 +1,9 @@
+../drivers/fsl_clock.h:639:20:CLOCK_EnableClock	24	static
+../drivers/fsl_port.h:346:20:PORT_SetPinMux	24	static
+../drivers/fsl_gpio.h:173:20:GPIO_PortSet	16	static
+../drivers/fsl_gpio.h:184:20:GPIO_PortClear	16	static
+../source/Supervisor/Supervisor.c:11:6:Init_Pinout_Error_Supervisor	16	static
+../source/Supervisor/Supervisor.c:28:6:Init_Supervisor	8	static
+../source/Supervisor/Supervisor.c:36:6:Supervisor_SetLed_RED	8	static
+../source/Supervisor/Supervisor.c:41:6:Supervisor_ClearLed_RED	8	static
+../source/Supervisor/Supervisor.c:47:6:SignalStopError	16	static

@@ -1,0 +1,13 @@
+../CMSIS/core_cm0plus.h:733:22:__NVIC_EnableIRQ	16	static
+../CMSIS/core_cm0plus.h:840:22:__NVIC_SetPriority	24	static
+../drivers/fsl_common.h:414:28:EnableIRQ	16	static
+../drivers/fsl_clock.h:639:20:CLOCK_EnableClock	24	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:16:6:Health_Timer_Init	16	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:59:6:Health_Timer_Load_Counter_CMP	16	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:69:6:Health_Timer_Start	16	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:84:6:Health_Timer_Stop	8	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:93:6:Health_Timer_Test	8	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:104:6:Reset_Tx_Health_Flag	8	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:113:7:Get_Tx_Health_Flag	8	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:122:6:INTMUX0_1_IRQHandler	16	static
+../source/MCU_Drivers/lptmr1_timer/lptmr1.c:138:6:LPTMR1_IRQHandler	8	static

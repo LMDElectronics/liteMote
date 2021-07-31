@@ -1,0 +1,5 @@
+../source/FlashManager/FlashDataRWInterface/FlashDataRWInterface.c:18:7:getSP	16	static
+../source/FlashManager/FlashDataRWInterface/FlashDataRWInterface.c:26:6:FlashInterface_Init	8	static
+../source/FlashManager/FlashDataRWInterface/FlashDataRWInterface.c:35:6:FlashInterface_Save_SystemData_InFlash	816	static
+../source/FlashManager/FlashDataRWInterface/FlashDataRWInterface.c:134:7:FlashInterface_Load_SystemData_FromFlash	40	static
+../source/FlashManager/FlashDataRWInterface/FlashDataRWInterface.c:172:6:FlashInterface_Save_FWTableData_InFlash	16	static

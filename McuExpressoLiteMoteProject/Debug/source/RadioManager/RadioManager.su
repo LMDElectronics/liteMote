@@ -1,0 +1,4 @@
+../source/RadioManager/RadioManager.c:12:6:Radio_Manager_Config	8	static
+../source/RadioManager/RadioManager.c:21:6:Radio_Interface_Load_Parameters	16	static
+../source/RadioManager/RadioManager.c:62:6:Radio_Manager_Init	8	static
+../source/RadioManager/RadioManager.c:71:6:Radio_Manager_Tx_Task	8	static

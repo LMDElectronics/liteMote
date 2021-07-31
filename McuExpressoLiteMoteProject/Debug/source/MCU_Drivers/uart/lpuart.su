@@ -1,0 +1,16 @@
+../CMSIS/core_cm0plus.h:733:22:__NVIC_EnableIRQ	16	static
+../CMSIS/core_cm0plus.h:840:22:__NVIC_SetPriority	24	static
+../drivers/fsl_clock.h:639:20:CLOCK_EnableClock	24	static
+../drivers/fsl_clock.h:681:20:CLOCK_SetLpuartClock	16	static
+../drivers/fsl_common.h:414:28:EnableIRQ	16	static
+../drivers/fsl_lpuart.h:590:20:LPUART_WriteByte	16	static
+../drivers/fsl_lpuart.h:604:23:LPUART_ReadByte	16	static
+../drivers/fsl_port.h:346:20:PORT_SetPinMux	24	static
+../source/MCU_Drivers/uart/lpuart.c:49:7:Uart_HW_Init	16	static
+../source/MCU_Drivers/uart/lpuart.c:122:7:Get_UART_Byte_Received_Flag	8	static
+../source/MCU_Drivers/uart/lpuart.c:143:6:Clear_UART_Byte_Received_Flag	8	static
+../source/MCU_Drivers/uart/lpuart.c:164:7:Get_Byte_RX_From_Comm_UART	8	static
+../source/MCU_Drivers/uart/lpuart.c:186:8:Get_Comm_UART_Hw_BaudRate	8	static
+../source/MCU_Drivers/uart/lpuart.c:208:7:Get_Frame_Sending_Flag	8	static
+../source/MCU_Drivers/uart/lpuart.c:231:6:Send_UART_Frame	16	static
+../source/MCU_Drivers/uart/lpuart.c:258:6:LPUART0_IRQHandler	8	static

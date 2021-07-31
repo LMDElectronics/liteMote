@@ -1,0 +1,11 @@
+../source/Configuration_Manager/configuration_manager.c:19:6:CnfManager_Init	8	static
+../source/Configuration_Manager/configuration_manager.c:28:7:CnfManager_Load_Mote_Identity_Config	152	static
+../source/Configuration_Manager/configuration_manager.c:86:7:Cnf_Manager_Load_Mote_Health_Config	152	static
+../source/Configuration_Manager/configuration_manager.c:121:7:Cnf_Manager_Load_ADC_Calibration_Config	152	static
+../source/Configuration_Manager/configuration_manager.c:169:7:Cnf_Manager_Load_Radio_Config	152	static
+../source/Configuration_Manager/configuration_manager.c:212:7:CnfManager_Load_Mote_Default_Config	16	static
+../source/Configuration_Manager/configuration_manager.c:236:8:CnfManager_Get_My_Address	8	static
+../source/Configuration_Manager/configuration_manager.c:245:8:CnfManager_Get_Health_Msg_Period	8	static
+../source/Configuration_Manager/configuration_manager.c:254:7:CnfManager_Update_Node_Config	32	static
+../source/Configuration_Manager/configuration_manager.c:287:6:CnfManager_Save_Data	32	static
+../source/Configuration_Manager/configuration_manager.c:332:7:CnfManager_Load_Data	32	static

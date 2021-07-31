@@ -1,0 +1,12 @@
+../drivers/fsl_clock.h:639:20:CLOCK_EnableClock	24	static
+../source/MCU_Drivers/adc/adc.c:16:6:ADC_Pinout_Init	8	static
+../source/MCU_Drivers/adc/adc.c:25:6:ADC_DeInit	8	static
+../source/MCU_Drivers/adc/adc.c:39:6:ADC_Init	8	static
+../source/MCU_Drivers/adc/adc.c:82:7:ADC_AutoCalibration	16	static
+../source/MCU_Drivers/adc/adc.c:139:6:ADC_Set_Calibration_Manually	24	static
+../source/MCU_Drivers/adc/adc.c:150:6:ADC_Get_Calibration_Manually	16	static
+../source/MCU_Drivers/adc/adc.c:168:6:ADC_StartConversion	16	static
+../source/MCU_Drivers/adc/adc.c:181:6:ADC_Disable	8	static
+../source/MCU_Drivers/adc/adc.c:191:7:ADC_WaitForConversion	16	static
+../source/MCU_Drivers/adc/adc.c:212:8:ADC_GetData	16	static
+../source/MCU_Drivers/adc/adc.c:226:6:ADC_Test	24	static

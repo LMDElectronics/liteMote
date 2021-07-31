@@ -1,0 +1,2 @@
+../source/CRC_tools/crc_tools.c:60:8:crc16_byte	16	static
+../source/CRC_tools/crc_tools.c:70:8:Crc16Calc	24	static

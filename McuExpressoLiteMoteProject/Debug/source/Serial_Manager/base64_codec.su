@@ -1,0 +1,7 @@
+../source/Serial_Manager/base64_codec.c:19:7:B64Encode	56	static
+../source/Serial_Manager/base64_codec.c:73:7:B64Decode	56	static
+../source/Serial_Manager/base64_codec.c:138:5:B64EncodedLength	24	static
+../source/Serial_Manager/base64_codec.c:147:5:B64DecodedLength	24	static
+../source/Serial_Manager/base64_codec.c:162:6:B64a3_to_a4	16	static
+../source/Serial_Manager/base64_codec.c:170:6:B64a4_to_a3	16	static
+../source/Serial_Manager/base64_codec.c:177:15:B64_lookup	16	static
