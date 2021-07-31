@@ -989,91 +989,91 @@ Discarded input sections
  .debug_macro   0x00000000      0xa84 ./source/CRC_tools/crc_tools.o
  .debug_macro   0x00000000       0x2e ./source/CRC_tools/crc_tools.o
  .debug_macro   0x00000000       0x40 ./source/CRC_tools/crc_tools.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .group         0x00000000        0xc ./source/MKL82Z128xxx7_Project.o
- .text          0x00000000        0x0 ./source/MKL82Z128xxx7_Project.o
- .data          0x00000000        0x0 ./source/MKL82Z128xxx7_Project.o
- .bss           0x00000000        0x0 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0xa84 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x2e ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x40 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x22 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x10 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x22 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x76 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x10 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x1c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x22 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0x12d ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0x5b2 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x22 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x10 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x3f ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x1c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x22 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0xb5 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0x37c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x40 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000     0xc6d7 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000     0x12ee ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x52 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0x127 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x7b ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x1c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x10 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x34 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x1c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000      0x213 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x1c ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x46 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0xd2 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x10 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x16 ./source/MKL82Z128xxx7_Project.o
- .debug_macro   0x00000000       0x40 ./source/MKL82Z128xxx7_Project.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .group         0x00000000        0xc ./source/LiteMote.o
+ .text          0x00000000        0x0 ./source/LiteMote.o
+ .data          0x00000000        0x0 ./source/LiteMote.o
+ .bss           0x00000000        0x0 ./source/LiteMote.o
+ .debug_macro   0x00000000      0xa84 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x2e ./source/LiteMote.o
+ .debug_macro   0x00000000       0x40 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x22 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x10 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x22 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x76 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x10 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x1c ./source/LiteMote.o
+ .debug_macro   0x00000000       0x22 ./source/LiteMote.o
+ .debug_macro   0x00000000      0x12d ./source/LiteMote.o
+ .debug_macro   0x00000000      0x5b2 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x22 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x10 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x3f ./source/LiteMote.o
+ .debug_macro   0x00000000       0x1c ./source/LiteMote.o
+ .debug_macro   0x00000000       0x22 ./source/LiteMote.o
+ .debug_macro   0x00000000       0xb5 ./source/LiteMote.o
+ .debug_macro   0x00000000      0x37c ./source/LiteMote.o
+ .debug_macro   0x00000000       0x40 ./source/LiteMote.o
+ .debug_macro   0x00000000     0xc6d7 ./source/LiteMote.o
+ .debug_macro   0x00000000     0x12ee ./source/LiteMote.o
+ .debug_macro   0x00000000       0x52 ./source/LiteMote.o
+ .debug_macro   0x00000000      0x127 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x7b ./source/LiteMote.o
+ .debug_macro   0x00000000       0x1c ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x10 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x34 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x1c ./source/LiteMote.o
+ .debug_macro   0x00000000      0x213 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x1c ./source/LiteMote.o
+ .debug_macro   0x00000000       0x46 ./source/LiteMote.o
+ .debug_macro   0x00000000       0xd2 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x10 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x16 ./source/LiteMote.o
+ .debug_macro   0x00000000       0x40 ./source/LiteMote.o
  .group         0x00000000        0xc ./source/mtb.o
  .group         0x00000000        0xc ./source/mtb.o
  .group         0x00000000        0xc ./source/mtb.o
@@ -2463,7 +2463,7 @@ LOAD ./source/External_HW_Drivers/s2lp/s2lp.o
 LOAD ./source/External_HW_Drivers/mx25l128/mx25l128.o
 LOAD ./source/Configuration_Manager/configuration_manager.o
 LOAD ./source/CRC_tools/crc_tools.o
-LOAD ./source/MKL82Z128xxx7_Project.o
+LOAD ./source/LiteMote.o
 LOAD ./source/mtb.o
 LOAD ./source/semihost_hardfault.o
 LOAD ./drivers/fsl_clock.o
@@ -3306,7 +3306,7 @@ END GROUP
  .text.Crc16Calc
                 0x000079f6       0x4c ./source/CRC_tools/crc_tools.o
                 0x000079f6                Crc16Calc
- .text.main     0x00007a42       0x56 ./source/MKL82Z128xxx7_Project.o
+ .text.main     0x00007a42       0x56 ./source/LiteMote.o
                 0x00007a42                main
  .text.OSC_SetExtRefClkConfig
                 0x00007a98       0x4a ./drivers/fsl_clock.o
@@ -3801,7 +3801,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_info    0x000086f2      0xd6d ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .debug_info    0x0000945f      0x4f3 ./source/Configuration_Manager/configuration_manager.o
  .debug_info    0x00009952       0xe6 ./source/CRC_tools/crc_tools.o
- .debug_info    0x00009a38      0x57b ./source/MKL82Z128xxx7_Project.o
+ .debug_info    0x00009a38      0x57b ./source/LiteMote.o
  .debug_info    0x00009fb3       0x52 ./source/mtb.o
  .debug_info    0x0000a005       0x3b ./source/semihost_hardfault.o
  .debug_info    0x0000a040     0x208d ./drivers/fsl_clock.o
@@ -3830,7 +3830,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_abbrev  0x00001c0a      0x261 ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .debug_abbrev  0x00001e6b      0x158 ./source/Configuration_Manager/configuration_manager.o
  .debug_abbrev  0x00001fc3       0xa9 ./source/CRC_tools/crc_tools.o
- .debug_abbrev  0x0000206c      0x144 ./source/MKL82Z128xxx7_Project.o
+ .debug_abbrev  0x0000206c      0x144 ./source/LiteMote.o
  .debug_abbrev  0x000021b0       0x44 ./source/mtb.o
  .debug_abbrev  0x000021f4       0x2f ./source/semihost_hardfault.o
  .debug_abbrev  0x00002223      0x307 ./drivers/fsl_clock.o
@@ -3878,7 +3878,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_aranges
                 0x00000a40       0x28 ./source/CRC_tools/crc_tools.o
  .debug_aranges
-                0x00000a68       0x20 ./source/MKL82Z128xxx7_Project.o
+                0x00000a68       0x20 ./source/LiteMote.o
  .debug_aranges
                 0x00000a88       0x18 ./source/mtb.o
  .debug_aranges
@@ -3915,7 +3915,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_ranges  0x00000820       0xb0 ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .debug_ranges  0x000008d0       0x60 ./source/Configuration_Manager/configuration_manager.o
  .debug_ranges  0x00000930       0x18 ./source/CRC_tools/crc_tools.o
- .debug_ranges  0x00000948       0x10 ./source/MKL82Z128xxx7_Project.o
+ .debug_ranges  0x00000948       0x10 ./source/LiteMote.o
  .debug_ranges  0x00000958       0x10 ./source/semihost_hardfault.o
  .debug_ranges  0x00000968      0x1e8 ./drivers/fsl_clock.o
  .debug_ranges  0x00000b50       0x58 ./drivers/fsl_gpio.o
@@ -3976,7 +3976,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_macro   0x00001d8b       0xbb ./source/Configuration_Manager/configuration_manager.o
  .debug_macro   0x00001e46       0x1c ./source/Configuration_Manager/configuration_manager.o
  .debug_macro   0x00001e62       0x33 ./source/CRC_tools/crc_tools.o
- .debug_macro   0x00001e95      0x250 ./source/MKL82Z128xxx7_Project.o
+ .debug_macro   0x00001e95      0x250 ./source/LiteMote.o
  .debug_macro   0x000020e5       0x2f ./source/mtb.o
  .debug_macro   0x00002114       0x82 ./source/mtb.o
  .debug_macro   0x00002196       0x10 ./source/mtb.o
@@ -3989,7 +3989,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_macro   0x000026c0       0x97 ./device/system_MKL82Z7.o
  .debug_macro   0x00002757      0x139 ./board/clock_config.o
 
-.debug_line     0x00000000     0x6fdd
+.debug_line     0x00000000     0x6fd0
  .debug_line    0x00000000      0x17c ./startup/startup_mkl82z7.o
  .debug_line    0x0000017c      0x41e ./source/packet_manager/packet_manager.o
  .debug_line    0x0000059a      0x386 ./source/Supervisor/Supervisor.o
@@ -4008,17 +4008,17 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_line    0x00003c60      0x585 ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .debug_line    0x000041e5      0x4e6 ./source/Configuration_Manager/configuration_manager.o
  .debug_line    0x000046cb       0x9a ./source/CRC_tools/crc_tools.o
- .debug_line    0x00004765      0x707 ./source/MKL82Z128xxx7_Project.o
- .debug_line    0x00004e6c       0xd1 ./source/mtb.o
- .debug_line    0x00004f3d       0x54 ./source/semihost_hardfault.o
- .debug_line    0x00004f91      0xaa3 ./drivers/fsl_clock.o
- .debug_line    0x00005a34      0x387 ./drivers/fsl_gpio.o
- .debug_line    0x00005dbb      0x91a ./drivers/fsl_lpuart.o
- .debug_line    0x000066d5      0x31f ./drivers/fsl_pit.o
- .debug_line    0x000069f4      0x297 ./device/system_MKL82Z7.o
- .debug_line    0x00006c8b      0x352 ./board/clock_config.o
+ .debug_line    0x00004765      0x6fa ./source/LiteMote.o
+ .debug_line    0x00004e5f       0xd1 ./source/mtb.o
+ .debug_line    0x00004f30       0x54 ./source/semihost_hardfault.o
+ .debug_line    0x00004f84      0xaa3 ./drivers/fsl_clock.o
+ .debug_line    0x00005a27      0x387 ./drivers/fsl_gpio.o
+ .debug_line    0x00005dae      0x91a ./drivers/fsl_lpuart.o
+ .debug_line    0x000066c8      0x31f ./drivers/fsl_pit.o
+ .debug_line    0x000069e7      0x297 ./device/system_MKL82Z7.o
+ .debug_line    0x00006c7e      0x352 ./board/clock_config.o
 
-.debug_str      0x00000000    0x72520
+.debug_str      0x00000000    0x72513
  .debug_str     0x00000000     0x32be ./startup/startup_mkl82z7.o
                                0x336b (size before relaxing)
  .debug_str     0x000032be      0xce2 ./source/packet_manager/packet_manager.o
@@ -4055,23 +4055,23 @@ OUTPUT(LiteMote.axf elf32-littlearm)
                                0x3c3b (size before relaxing)
  .debug_str     0x0006f84c       0x41 ./source/CRC_tools/crc_tools.o
                                0x2eca (size before relaxing)
- .debug_str     0x0006f88d      0x393 ./source/MKL82Z128xxx7_Project.o
-                              0x6ae47 (size before relaxing)
- .debug_str     0x0006fc20      0x532 ./source/mtb.o
+ .debug_str     0x0006f88d      0x386 ./source/LiteMote.o
+                              0x6ae3a (size before relaxing)
+ .debug_str     0x0006fc13      0x532 ./source/mtb.o
                                0x323d (size before relaxing)
- .debug_str     0x00070152       0x1f ./source/semihost_hardfault.o
+ .debug_str     0x00070145       0x1f ./source/semihost_hardfault.o
                                0x2d2a (size before relaxing)
- .debug_str     0x00070171     0x17d6 ./drivers/fsl_clock.o
+ .debug_str     0x00070164     0x17d6 ./drivers/fsl_clock.o
                               0x6b188 (size before relaxing)
- .debug_str     0x00071947       0xea ./drivers/fsl_gpio.o
+ .debug_str     0x0007193a       0xea ./drivers/fsl_gpio.o
                               0x69365 (size before relaxing)
- .debug_str     0x00071a31      0x673 ./drivers/fsl_lpuart.o
+ .debug_str     0x00071a24      0x673 ./drivers/fsl_lpuart.o
                               0x6a837 (size before relaxing)
- .debug_str     0x000720a4       0xa0 ./drivers/fsl_pit.o
+ .debug_str     0x00072097       0xa0 ./drivers/fsl_pit.o
                               0x694c3 (size before relaxing)
- .debug_str     0x00072144       0xbd ./device/system_MKL82Z7.o
+ .debug_str     0x00072137       0xbd ./device/system_MKL82Z7.o
                               0x67cc2 (size before relaxing)
- .debug_str     0x00072201      0x31f ./board/clock_config.o
+ .debug_str     0x000721f4      0x31f ./board/clock_config.o
                               0x69a99 (size before relaxing)
 
 .comment        0x00000000       0x7f
@@ -4094,7 +4094,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .comment       0x0000007f       0x80 ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .comment       0x0000007f       0x80 ./source/Configuration_Manager/configuration_manager.o
  .comment       0x0000007f       0x80 ./source/CRC_tools/crc_tools.o
- .comment       0x0000007f       0x80 ./source/MKL82Z128xxx7_Project.o
+ .comment       0x0000007f       0x80 ./source/LiteMote.o
  .comment       0x0000007f       0x80 ./source/mtb.o
  .comment       0x0000007f       0x80 ./source/semihost_hardfault.o
  .comment       0x0000007f       0x80 ./drivers/fsl_clock.o
@@ -4169,7 +4169,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .ARM.attributes
                 0x00000352       0x32 ./source/CRC_tools/crc_tools.o
  .ARM.attributes
-                0x00000384       0x32 ./source/MKL82Z128xxx7_Project.o
+                0x00000384       0x32 ./source/LiteMote.o
  .ARM.attributes
                 0x000003b6       0x32 ./source/mtb.o
  .ARM.attributes
@@ -4284,7 +4284,7 @@ OUTPUT(LiteMote.axf elf32-littlearm)
  .debug_frame   0x00001ce4      0x284 ./source/External_HW_Drivers/mx25l128/mx25l128.o
  .debug_frame   0x00001f68      0x174 ./source/Configuration_Manager/configuration_manager.o
  .debug_frame   0x000020dc       0x50 ./source/CRC_tools/crc_tools.o
- .debug_frame   0x0000212c       0x30 ./source/MKL82Z128xxx7_Project.o
+ .debug_frame   0x0000212c       0x30 ./source/LiteMote.o
  .debug_frame   0x0000215c       0x20 ./source/semihost_hardfault.o
  .debug_frame   0x0000217c      0x750 ./drivers/fsl_clock.o
  .debug_frame   0x000028cc      0x150 ./drivers/fsl_gpio.o
