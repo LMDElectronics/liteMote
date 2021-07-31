@@ -19,7 +19,7 @@
 					<folderInfo id="com.crt.advproject.config.exe.debug.1858947637." name="/" resourcePath="">
 						<toolChain errorParsers="" id="com.crt.advproject.toolchain.exe.debug.1333447987" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.504470581" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
-							<builder buildPath="${workspace_loc:/MKL82Z128xxx7_Project}/Debug" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="com.crt.advproject.builder.exe.debug.1329616838" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
+							<builder buildPath="${workspace_loc:/LiteMote}/Debug" errorParsers="org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.CWDLocator" id="com.crt.advproject.builder.exe.debug.1329616838" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
 							<tool id="com.crt.advproject.cpp.exe.debug.1404683358" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug">
 								<option id="com.crt.advproject.cpp.arch.692602027" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="true" value="com.crt.advproject.cpp.target.cm0plus" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.misc.dialect.985511901" name="Language standard" superClass="com.crt.advproject.cpp.misc.dialect" useByScannerDiscovery="true"/>
@@ -94,7 +94,7 @@
 									<listOptionValue builtIn="false" value="../component/lists"/>
 								</option>
 								<option id="gnu.c.compiler.option.include.files.1034583379" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false"/>
-								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.728329012" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.728329012" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.optimization.flags.895190688" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-fno-common" valueType="string"/>
 								<option id="com.crt.advproject.gcc.exe.debug.option.debugging.level.633668991" name="Debug Level" superClass="com.crt.advproject.gcc.exe.debug.option.debugging.level" useByScannerDiscovery="false"/>
 								<option id="gnu.c.compiler.option.debugging.other.535940000" name="Other debugging flags" superClass="gnu.c.compiler.option.debugging.other" useByScannerDiscovery="false"/>
@@ -232,7 +232,7 @@
 								<option id="com.crt.advproject.link.gcc.lto.optmization.level.242377949" name="Link-time optimization level" superClass="com.crt.advproject.link.gcc.lto.optmization.level" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.fpu.930062823" name="Floating point" superClass="com.crt.advproject.link.fpu" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.manage.31162576" name="Manage linker script" superClass="com.crt.advproject.link.manage" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.287306470" name="Linker script" superClass="com.crt.advproject.link.script" useByScannerDiscovery="false" value="MKL82Z128xxx7_Project_Debug.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.script.287306470" name="Linker script" superClass="com.crt.advproject.link.script" useByScannerDiscovery="false" value="LiteMote_Debug.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.scriptdir.2061678345" name="Script path" superClass="com.crt.advproject.link.scriptdir" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.crpenable.395844927" name="Enable automatic placement of Code Read Protection field in image" superClass="com.crt.advproject.link.crpenable" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.flashconfigenable.2025853810" name="Enable automatic placement of Flash Configuration field in image" superClass="com.crt.advproject.link.flashconfigenable" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -291,7 +291,7 @@
 					<folderInfo id="com.crt.advproject.config.exe.release.1612699190." name="/" resourcePath="">
 						<toolChain id="com.crt.advproject.toolchain.exe.release.1259939503" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.release">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.release.795035892" name="ARM-based MCU (Release)" superClass="com.crt.advproject.platform.exe.release"/>
-							<builder buildPath="${workspace_loc:/MKL82Z128xxx7_Project}/Release" id="com.crt.advproject.builder.exe.release.1962820546" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.release"/>
+							<builder buildPath="${workspace_loc:/LiteMote}/Release" id="com.crt.advproject.builder.exe.release.1962820546" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.release"/>
 							<tool id="com.crt.advproject.cpp.exe.release.1273330455" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.release">
 								<option id="com.crt.advproject.cpp.arch.1290307083" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="true" value="com.crt.advproject.cpp.target.cm0plus" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.misc.dialect.221634113" name="Language standard" superClass="com.crt.advproject.cpp.misc.dialect" useByScannerDiscovery="true"/>
@@ -500,7 +500,7 @@
 								<option id="com.crt.advproject.link.gcc.lto.optmization.level.954216364" name="Link-time optimization level" superClass="com.crt.advproject.link.gcc.lto.optmization.level" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.fpu.761129125" name="Floating point" superClass="com.crt.advproject.link.fpu" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.manage.1374565920" name="Manage linker script" superClass="com.crt.advproject.link.manage" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.1389412640" name="Linker script" superClass="com.crt.advproject.link.script" useByScannerDiscovery="false" value="MKL82Z128xxx7_Project_Release.ld" valueType="string"/>
+								<option id="com.crt.advproject.link.script.1389412640" name="Linker script" superClass="com.crt.advproject.link.script" useByScannerDiscovery="false" value="LiteMote_Release.ld" valueType="string"/>
 								<option id="com.crt.advproject.link.scriptdir.1093185753" name="Script path" superClass="com.crt.advproject.link.scriptdir" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.crpenable.193350280" name="Enable automatic placement of Code Read Protection field in image" superClass="com.crt.advproject.link.crpenable" useByScannerDiscovery="false"/>
 								<option id="com.crt.advproject.link.flashconfigenable.1631334153" name="Enable automatic placement of Flash Configuration field in image" superClass="com.crt.advproject.link.flashconfigenable" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -541,7 +541,7 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="MKL82Z128xxx7_Project.null.1975580866" name="MKL82Z128xxx7_Project" projectType="com.crt.advproject.projecttype.exe"/>
+		<project id="LiteMote.null.1975580866" name="LiteMote" projectType="com.crt.advproject.projecttype.exe"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="scannerConfiguration">
@@ -562,7 +562,7 @@
 	<storageModule moduleId="com.crt.config">
 		<projectStorage>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#13;
 &lt;TargetConfig&gt;&#13;
-&lt;Properties property_3="NXP" property_4="MKL82Z128xxx7" property_count="5" version="100300"/&gt;&#13;
+&lt;Properties property_3="NXP" property_4="MKL82Z128xxx7" property_count="5" version="100200"/&gt;&#13;
 &lt;infoList vendor="NXP"&gt;&#13;
 &lt;info chip="MKL82Z128xxx7" name="MKL82Z128xxx7"&gt;&#13;
 &lt;chip&gt;&#13;
@@ -585,7 +585,7 @@
 	</storageModule>
 	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
 		<sdkName>SDK_2.x_FRDM-KL82Z</sdkName>
-		<sdkExample>MKL82Z128xxx7_Project</sdkExample>
+		<sdkExample>LiteMote</sdkExample>
 		<sdkVersion>2.5.0</sdkVersion>
 		<sdkComponents>platform.drivers.intmux.MKL82Z7;device.MKL82Z7_CMSIS.MKL82Z7;platform.Include_common.MKL82Z7;platform.Include_core_cm0plus.MKL82Z7;platform.drivers.clock.MKL82Z7;platform.drivers.common.MKL82Z7;platform.drivers.port.MKL82Z7;platform.drivers.dspi.MKL82Z7;utility.debug_console.MKL82Z7;component.serial_manager.MKL82Z7;component.lpuart_adapter.MKL82Z7;platform.drivers.lpuart.MKL82Z7;component.serial_manager_uart.MKL82Z7;component.lists.MKL82Z7;device.MKL82Z7_startup.MKL82Z7;platform.drivers.smc.MKL82Z7;platform.drivers.gpio.MKL82Z7;platform.utilities.assert.MKL82Z7;MKL82Z128xxx7_Project;</sdkComponents>
 		<boardId>frdmkl82z</boardId>
@@ -595,7 +595,7 @@
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/MKL82Z128xxx7_Project"/>
+			<resource resourceType="PROJECT" workspacePath="/LiteMote"/>
 		</configuration>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/MKL82Z128xxx7_Project"/>
