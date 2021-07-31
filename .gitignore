@@ -1,1 +1,5 @@
+*.ld
+*.o
+*.map
+makefile
 McuExpressoLiteMoteProject/debug/
