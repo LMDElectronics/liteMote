@@ -126,12 +126,7 @@ TS_packet From_Serial_Frame_To_Packet(UINT8 *dataBuffer)
 
   //marshalling
   serial_rx_packet.header.origin_node = dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET];
-  serial_rx_packet.header.origin_node <<= 8;
-  serial_rx_packet.header.origin_node |= dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET + 1];
-
   serial_rx_packet.header.destination_node = dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET];
-  serial_rx_packet.header.destination_node <<= 8;
-  serial_rx_packet.header.destination_node |= dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET + 1];
 
   serial_rx_packet.header.send_time = dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET];
   serial_rx_packet.header.send_time <<= 8;
@@ -174,11 +169,8 @@ UINT8 From_Packet_To_Serial_Frame(TS_packet serial_tx_packet, UINT8 *dataBuffer)
   UINT8 length = 0;
 
   //marshalling
-  dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET] = (UINT8)((serial_tx_packet.header.origin_node & (0xFF00)) >> 8); length++;
-  dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET + 1] = (UINT8)(serial_tx_packet.header.origin_node & (0x00FF)); length++;
-
-  dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET] = (UINT8)((serial_tx_packet.header.destination_node & (0xFF00)) >> 8); length++;
-  dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET + 1] = (UINT8)(serial_tx_packet.header.destination_node & (0x00FF)); length++;
+  dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET] = serial_tx_packet.header.origin_node; length++;
+  dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET] = serial_tx_packet.header.destination_node; length++;
 
   dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET] = (UINT8)((serial_tx_packet.header.send_time & (0xFF00)) >> 8); length++;
   dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET + 1] = (UINT8)(serial_tx_packet.header.send_time & (0x00FF)); length++;

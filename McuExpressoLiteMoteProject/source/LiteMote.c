@@ -91,7 +91,7 @@ int main(void)
   //Health_Timer_Test();
   //S2lp_Test();
 
-  s2lp_Test_Tx_RC();
+  //s2lp_Test_Tx_RC();
   //s2lp_Test_Rx_RC();
 
   while(1)

@@ -19,8 +19,8 @@
 
 typedef struct TS_packet_header
 {
-  UINT16 origin_node;
-  UINT16 destination_node;
+  UINT8 origin_node;
+  UINT8 destination_node;
   UINT16 send_time;
   UINT16 msg_type;
   UINT8  frame_payload_lenght;
