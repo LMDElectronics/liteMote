@@ -3,4 +3,5 @@
 *.ld
 *.mk
 *.axf
+*.map
 makefile
