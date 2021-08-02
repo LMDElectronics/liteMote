@@ -55,6 +55,32 @@ RW datos de paquetes en flash: COMPLETO
 cositas restantes:
 ------------------
 	
+  -Urgente:
+  	- Documentación de capas:
+  	
+  		Packet_manager:
+  			Process_Motor:
+  				Checks Rx serial received packets
+  				Checks Rx radio received packets
+  				
+  				creates Tx serial packets to be sent
+  				creates Tx radio packets to be sent
+  		 
+  			SerialManager
+  				Rx serial port
+  				Tx serial port
+  				  	
+  			RadioMAnager
+  				Rx radio 
+  				Tx radio  	 
+	 
+	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base
+		inicializar Radio Manager en mota base
+		
+	- pruebas de recepción de paquetes radio y envio via serie para ver la info recibida
+
+- No tan urgente:
+  	
 	- driver radio
 		-> configurar s2lp 
 			-> seguir configurando modulos

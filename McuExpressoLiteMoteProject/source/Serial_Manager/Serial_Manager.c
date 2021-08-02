@@ -136,9 +136,9 @@ TS_packet From_Serial_Frame_To_Packet(UINT8 *dataBuffer)
   serial_rx_packet.header.msg_type <<= 8;
   serial_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];
 
-  serial_rx_packet.header.frame_payload_lenght = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
+  serial_rx_packet.header.frame_payload_length = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
 
-  for(i=0; i<serial_rx_packet.header.frame_payload_lenght; i++)
+  for(i=0; i<serial_rx_packet.header.frame_payload_length; i++)
   {
     serial_rx_packet.payload[i] = dataBuffer[DATA_BUFFER_PAYLOAD_START_OFFSET + i];
   }
@@ -178,9 +178,9 @@ UINT8 From_Packet_To_Serial_Frame(TS_packet serial_tx_packet, UINT8 *dataBuffer)
   dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET] = (UINT8)((serial_tx_packet.header.msg_type & (0xFF00)) >> 8); length++;
   dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1] = (UINT8)(serial_tx_packet.header.msg_type & (0x00FF)); length++;
 
-  dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET] = serial_tx_packet.header.frame_payload_lenght; length++;
+  dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET] = serial_tx_packet.header.frame_payload_length; length++;
 
-  for(i=0; i<serial_tx_packet.header.frame_payload_lenght; i++)
+  for(i=0; i<serial_tx_packet.header.frame_payload_length; i++)
   {
     dataBuffer[DATA_BUFFER_PAYLOAD_START_OFFSET + i] = serial_tx_packet.payload[i];
     length++;
@@ -447,13 +447,13 @@ void Serial_Manager_Tx_Motor(void)
           serial_Tx_decoded_Frame[serial_Frame_Tx_decoded_Index] = (UINT8)((serial_tx_crc & (0x00ff)));
           serial_Frame_Tx_decoded_Index++;
 
-          //generate encoded payload lenght
+          //generate encoded payload length
           serial_Frame_Tx_encoded_Index = B64EncodedLength(serial_Frame_Tx_decoded_Index);
 
           //encode frame
           B64Encode((char *)serial_Tx_decoded_Frame,serial_Frame_Tx_decoded_Index,(char *)&serial_Tx_encoded_Frame[1],serial_Frame_Tx_encoded_Index);
 
-          //sum and start bit lenght
+          //sum and start bit length
           serial_Frame_Tx_encoded_Index = serial_Frame_Tx_encoded_Index + 1;
 
           //add start and stop bits

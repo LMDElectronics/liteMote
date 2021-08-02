@@ -11,7 +11,7 @@
 #include <Serial_Manager/Serial_Packet_FIFOs.h>
 #include "globals.h"
 
-#define MSG_PING_LENGHT     sizeof(TMote_Ping_Data)
+#define MSG_PING_LENGTH     sizeof(TMote_Ping_Data)
 #define PING_PAYLOAD_VALUE  0xAAAA
 
 typedef struct __attribute__((packed)) TMote_Ping_Data

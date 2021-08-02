@@ -962,12 +962,8 @@ void S2lp_Config_Interrupt(void)
   //read the irq_status is useful to know if the interrupt has been triggered also
   //irq_status registers should be clear to clear the interrupt flag
 
-  //S2lp_Write_Register(IRQ_MASK0, 0x01); //Rx data received interrupt
-  S2lp_Write_Register(IRQ_MASK0, 0x00);
-  //S2lp_Write_Register(IRQ_MASK0, 0x04); //Tx data sent interrupt
-
+  S2lp_Write_Register(IRQ_MASK0, 0x05); //Rx data received interrupt, Tx data Sent
   S2lp_Write_Register(IRQ_MASK1, 0x00);
-  S2lp_Write_Register(IRQ_MASK1, 0x10);  //Rx data valid preamble detected
   S2lp_Write_Register(IRQ_MASK2, 0x00);
   S2lp_Write_Register(IRQ_MASK3, 0x00);
 }

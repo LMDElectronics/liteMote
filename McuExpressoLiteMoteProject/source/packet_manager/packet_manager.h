@@ -9,6 +9,7 @@
 #define PACKET_MANAGER_PACKET_MANAGER_H_
 
 #include <Serial_Manager/Serial_Packet_FIFOs.h>
+
 #include "packet_ack/packet_ack.h"
 #include "packet_ping/packet_ping.h"
 #include "packet_identity/packet_identity.h"
@@ -25,7 +26,7 @@ enum
 
 #define HOST_SERIAL_ADDR 0
 
-//data msg types
+//packet data msg types
 enum
 {
   MSG_PING = 1,

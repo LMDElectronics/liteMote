@@ -35,8 +35,8 @@ UINT8 Packet_Manager_Init(void)
 }
 
 /******************************************************************************
-UINT8 Get_Canonical_Payload_Lenght(UINT16 current_msg_type)
-   Gets the lenght of payload according to msg type
+UINT8 Get_Canonical_Payload_length(UINT16 current_msg_type)
+   Gets the length of payload according to msg type
 
   Pre condition:
     None
@@ -50,14 +50,14 @@ UINT8 Get_Canonical_Payload_Lenght(UINT16 current_msg_type)
     INIT_OK or INIT_FAILED
 
 *******************************************************************************/
-UINT8 Get_Canonical_Payload_Lenght(UINT16 current_msg_type)
+UINT8 Get_Canonical_Payload_length(UINT16 current_msg_type)
 {
   UINT8 length = 0;
 
   switch(current_msg_type)
   {
     case MSG_ACK:                       length = MSG_ACK_LENGTH;                    break;
-    case MSG_PING:                      length = MSG_PING_LENGHT;                   break;
+    case MSG_PING:                      length = MSG_PING_LENGTH;                   break;
 
     case MSG_IDENTITY_SEND:             length = MSG_IDENTITY_SEND_LENGTH;          break;
     case MSG_IDENTITY_RETRIEVE:         length = MSG_IDENTITY_RETRIEVE_LENGTH;      break;
@@ -78,7 +78,6 @@ UINT8 Get_Canonical_Payload_Lenght(UINT16 current_msg_type)
 
   return length;
 }
-
 
 /******************************************************************************
 TS_packet Build_Ping_Packet_Serial(void)
@@ -106,9 +105,9 @@ TS_packet Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
   serial_packet.header.destination_node = HOST_SERIAL_ADDR;
   serial_packet.header.send_time = 0;
   serial_packet.header.msg_type = msgType;
-  serial_packet.header.frame_payload_lenght = Get_Canonical_Payload_Lenght(msgType);
+  serial_packet.header.frame_payload_length = Get_Canonical_Payload_length(msgType);
 
-  for(i=0; i < serial_packet.header.frame_payload_lenght; i++)
+  for(i=0; i < serial_packet.header.frame_payload_length; i++)
   {
     serial_packet.payload[i] = payload[i];
   }
@@ -138,10 +137,10 @@ void Process_Packet(TS_packet packet_to_process)
 
   UINT8 data=0;
 
-  //check msg payload lenght
-  if(packet_to_process.header.frame_payload_lenght != Get_Canonical_Payload_Lenght(packet_to_process.header.msg_type))
+  //check msg payload length
+  if(packet_to_process.header.frame_payload_length != Get_Canonical_Payload_length(packet_to_process.header.msg_type))
   {
-    //discard packet, lenght error
+    //discard packet, length error
   }
   else
   {
@@ -254,15 +253,22 @@ void Process_Packet(TS_packet packet_to_process)
     }
     else
     {
-      //serial packet is not for this mote
+      //check conditions to discard the packet received
+      //if packet received 0 leap node
+      //if packet received 0 leap repeater
 
       /*
          TODO:
-         - check if message is for local mote (static table)
-         - check if message is for local repeater (repeater table)
-         - spread message to local repeaters
+        1 - Radio send the packet received
+        2 - check if message is for local mote (static table)
+        3 - check if message is for local repeater (repeater table)
+        4 - spread message to local repeaters
       */
-      data = 1;
+
+      //testing step 1
+        //fill radio packet [packet_length, origin, destination,ACK needed byte, payload]
+        //store radio packet into Tx fifo to be sent
+
     }
   }
 }

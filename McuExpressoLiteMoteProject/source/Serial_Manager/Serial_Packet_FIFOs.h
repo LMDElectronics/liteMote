@@ -8,8 +8,6 @@
 #ifndef SERIAL_MANAGER_SERIAL_PACKET_FIFOS_H_
 #define SERIAL_MANAGER_SERIAL_PACKET_FIFOS_H_
 
-//#include "stdio.h"
-//#include "string.h"
 #include "globals.h"
 
 #define MAX_PACKET_SIZE 128
@@ -23,7 +21,7 @@ typedef struct TS_packet_header
   UINT8 destination_node;
   UINT16 send_time;
   UINT16 msg_type;
-  UINT8  frame_payload_lenght;
+  UINT8  frame_payload_length;
 }TS_packet_header;
 
 typedef struct TS_packet
