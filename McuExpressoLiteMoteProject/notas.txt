@@ -56,7 +56,7 @@ cositas restantes:
 ------------------
 	
   -Urgente:
-  	- Documentación de capas:
+  	- Documentación de capas TODO
   	
   		Packet_manager:
   			Process_Motor:
@@ -74,12 +74,13 @@ cositas restantes:
   				Rx radio 
   				Tx radio  	 
 	 
-	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base
+	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base EN ELLO
 		inicializar Radio Manager en mota base
-		
-	- pruebas de recepción de paquetes radio y envio via serie para ver la info recibida
+				
 
 - No tan urgente:
+  	
+  	el s2lp tiene problemas para configurar datarates altos EN ELLO
   	
 	- driver radio
 		-> configurar s2lp 
@@ -89,8 +90,7 @@ cositas restantes:
 						-> revisar aFC
 											
 			-> usar 4GFSK BT=1 -> OK
-			-> variar dataRate hasta el maximo que deje gfsk4 125 Ksymb/s
-										
+			-> variar dataRate hasta el maximo que deje gfsk4 125 Ksymb/s									
 
 	- gestor paquetes radio
 	
