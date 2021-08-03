@@ -80,8 +80,8 @@ UINT8 Get_Canonical_Payload_length(UINT16 current_msg_type)
 }
 
 /******************************************************************************
-TS_packet Build_Ping_Packet_Serial(void)
-   Builds ping packet [serial format]
+TS_packet Build_Packet_Serial(...)
+   Builds serial packet [serial format]
 
   Pre condition:
     None
@@ -116,6 +116,46 @@ TS_packet Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
 }
 
 /******************************************************************************
+TR_packet Build_Packet_Radio(...)
+   Builds radio packet [radio format]
+
+  Pre condition:
+    None
+
+  Post condition:
+    None
+
+  Params:
+    None
+
+  Return:
+   formatted radio packet
+
+*******************************************************************************/
+TR_packet Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT16 send_time, UINT8 ackNeeded, UINT16 msgType, UINT8 *payload)
+{
+  UINT8 i=0;
+  UINT8 j=0;
+  TR_packet radio_packet;
+
+  radio_packet.header.origin_node = origin_address;
+  radio_packet.header.destination_node = destination_Address;
+  radio_packet.header.send_time = send_time;
+  radio_packet.header.ackNeeded = ackNeeded;
+  radio_packet.header.frame_payload_length = Get_Canonical_Payload_length(msgType) + 2; /*msg type length*/
+
+  radio_packet.payload[0] = (UINT8)((msgType & 0xFF00) >> 8);
+  radio_packet.payload[1] = (UINT8)(msgType & 0x00FF);
+
+  for(i=2; i < radio_packet.header.frame_payload_length; i++)
+  {
+    radio_packet.payload[i] = payload[j++];
+  }
+
+  return radio_packet;
+}
+
+/******************************************************************************
 void Process_Packet(TS_packet packet_to_process)
    Proces the serial packet
 
@@ -145,7 +185,7 @@ void Process_Packet(TS_packet packet_to_process)
   else
   {
     //check destination
-    if(packet_to_process.header.destination_node == CnfManager_Get_My_Address() || packet_to_process.header.origin_node == BACKDOOR_BASE_ADDR)
+    if( (packet_to_process.header.destination_node == (UINT8)(CnfManager_Get_My_Address()) ) || (packet_to_process.header.origin_node == BACKDOOR_BASE_ADDR))
     {
       //serial packet is for this mote or comes from host, process the packet
       //check the crc
@@ -269,6 +309,7 @@ void Process_Packet(TS_packet packet_to_process)
         //fill radio packet [packet_length, origin, destination,ACK needed byte, payload]
         //store radio packet into Tx fifo to be sent
 
+      Push_Radio_Tx_FIFO_Packet(Build_Packet_Radio(packet_to_process.header.origin_node, packet_to_process.header.destination_node, packet_to_process.header.send_time, NO_ACK_NEEDED, packet_to_process.header.msg_type, packet_to_process.payload));
     }
   }
 }

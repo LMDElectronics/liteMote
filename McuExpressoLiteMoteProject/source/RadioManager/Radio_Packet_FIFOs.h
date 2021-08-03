@@ -11,7 +11,6 @@
 #include "globals.h"
 
 #define MAX_RADIO_PAYLOAD       128
-#define MAX_RADIO_PACKET_BYTES  MAX_RADIO_PAYLOAD + sizeof(TR_packet_header)
 
 typedef struct TR_packet_header
 {

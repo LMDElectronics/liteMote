@@ -33,7 +33,7 @@ void CnfManager_Init(void);
 
 UINT8 CnfManager_Load_Mote_Default_Config(void);
 
-UINT16 CnfManager_Get_My_Address(void);
+UINT8 CnfManager_Get_My_Address(void);
 UINT16 CnfManager_Get_Health_Msg_Period(void);
 
 void CnfManager_Save_Data(void *dataBuffer, UINT16 msgType);

@@ -34,8 +34,7 @@
  */
 #include <MCU_Drivers/adc/adc.h>
 #include <MCU_Drivers/lptmr1_timer/lptmr1.h>
-//#include <External_HW_Drivers/mx25l128/mx25l128.h>
-//#include <External_HW_Drivers/s2lp/s2lp.h>
+
 #include <FlashManager/FlashDataRWInterface/FlashDataRWInterface.h>
 #include <RadioManager/RadioManager.h>
 #include <MCU_Drivers/spi/spi.h>
@@ -51,7 +50,6 @@
 #include "globals.h"
 #include "packet_manager/packet_manager.h"
 #include "Configuration_Manager/configuration_manager.h"
-
 
 #include "Health_Manager/health_manager.h"
 
@@ -84,7 +82,8 @@ int main(void)
   Health_Manager_Init();
   Radio_Manager_Init();
 
-  //TODO: just for test
+  //just for test
+
   //Send_byte_per_second();
   //mx25l128_test();
   //ADC_Test();
@@ -104,7 +103,7 @@ int main(void)
 
     //data output motors
     Serial_Manager_Tx_Motor(); // Send serial packets if any
-    //Radio_Manager_Tx_Task(); //Send radio packets if any
+    Radio_Manager_Tx_Motor(); //Send radio packets if any
 
     //periodically report health data to host
     Health_Manager_Motor();

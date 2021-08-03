@@ -75,7 +75,9 @@ cositas restantes:
   				Tx radio  	 
 	 
 	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base EN ELLO
-		inicializar Radio Manager en mota base
+		- el CnfManager_Get_My_Address() en packet_manager.c no da la direccion correctamente (tendra que ver con el alineamiento de bytes del struct?) URGENTE!!!!!!!!!!!!!  
+		- inicializar Radio Manager en mota base
+		- añadir timer de envio en RadioManager.c (usado para generar la ventana de Tx deseada)
 				
 
 - No tan urgente:

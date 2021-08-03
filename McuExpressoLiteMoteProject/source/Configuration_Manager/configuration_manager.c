@@ -69,7 +69,7 @@ UINT8 CnfManager_Load_Mote_Identity_Config(void)
   else
   {
     //load data from flash, load mote default parameters if flash data load fails
-    current_Identity_Config.NodeID        = 10333;
+    current_Identity_Config.NodeID        = 1;
     current_Identity_Config.NodeType      = 0;
     current_Identity_Config.fw_version    = 11;
     current_Identity_Config.fw_CRC        = 12345;
@@ -233,12 +233,14 @@ UINT8 CnfManager_Load_Mote_Default_Config(void)
 }
 
 //*****************************************************************************
-UINT16 CnfManager_Get_My_Address(void)
+UINT8 CnfManager_Get_My_Address(void)
 //*****************************************************************************
 // gets the current address of the mote
 //*****************************************************************************
 {
-  return current_Identity_Config.NodeID;
+  UINT8 retVal=0;
+  retVal = (UINT8)(current_Identity_Config.NodeID & 0x00FF);
+  return retVal;
 }
 
 //*****************************************************************************

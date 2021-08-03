@@ -8,6 +8,9 @@
 #include <RadioManager/RadioManager.h>
 #include "External_HW_Drivers/s2lp/s2lp.h"
 
+UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+TR_packet radio_packet_to_Tx;
+
 //*****************************************************************************
 void Radio_Manager_Config(void)
 //*****************************************************************************
@@ -65,22 +68,94 @@ void Radio_Manager_Init(void)
 //****************************************************************************
 {
   S2lp_Init();
+
+  radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 }
 
 //****************************************************************************
-void Radio_Manager_Tx_Task(void)
+void Radio_Manager_Tx_Motor(void)
 //*****************************************************************************
 // Motor to Tx the radio packets ready
 //*****************************************************************************
 {
+  switch(radio_manager_Tx_state)
+  {
+    case RADIO_MANAGER_TX_CHECK_TO_SEND:
 
+      if(Is_Radio_Tx_FIFO_Empty() == TRUE)
+      {
+        //nothing to do radio fifo empty
+      }
+      else
+      {
+        //TODO:
+        //1 - radio fifo is not empty load packet into radio transceiver
+        //2 - load send time timer
+        //3 - start timer
+        //4 - send the packet
+        //5 - go to next state to wait until send time has been completed
 
+        radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
+        //s2lp_Load_Data_Packet();
+        //start_Tx_Window_Timer();
+        //s2lp_Start_Tx();
+
+        radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+      }
+
+    break;
+
+    case RADIO_MANAGER_TX_SENDING_PACKET:
+
+      if(Is_Send_Timer_Timeout_Flag_Set())
+      {
+        //TODO:
+        //send time window finish, stop Tx
+        //s2lp_Stop_Tx();
+        //start_Tx_Window_Timer();
+
+        radio_manager_Tx_state = RADIO_MANAGER_TX_FINISHED;
+      }
+      else
+      {
+        if( s2lp_Get_Operating_State() == STATE_READY )
+        {
+          //Tx timeout window not reached, start Tx again
+          //s2lp_Start_Tx();
+        }
+
+        radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+      }
+    break;
+
+    case RADIO_MANAGER_TX_FINISHED:
+      //clean state
+      radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+    break;
+
+    default:
+    break;
+  }
 }
 
-//****************************************************************************
+//*****************************************************************************
+// Tx send timer functions
+//*****************************************************************************
+
+//*****************************************************************************
+UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
+//*****************************************************************************
+// Checks if radio Tx window has finished
+//*****************************************************************************
+{
+  UINT8 retVal=FALSE;
+  return retVal;
+}
+
+//*****************************************************************************
 //void Radio_Manager_ISR
 //*****************************************************************************
-// Motor to Tx the radio packets ready
+// Motor to Rx the radio packets received
 //*****************************************************************************
 
 
