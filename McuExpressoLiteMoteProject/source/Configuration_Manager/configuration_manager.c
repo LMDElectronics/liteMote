@@ -30,11 +30,22 @@ UINT8 CnfManager_Load_Mote_Identity_Config(void)
 // Loads identity config persistent data
 //*****************************************************************************
 {
-  UINT8 dataRead[MAX_PAYLOAD_BYTES];
+  UINT8 dataRead[MSG_IDENTITY_SEND_LENGTH];
 
   UINT8 dataOffset      = MSG_IDENTITY_FLASH_OFFSET;
   UINT8 numBytesToRead  = MSG_IDENTITY_SEND_LENGTH;
   UINT16 flashPage      = FLASH_PAGE_SYSTEM_DATA;
+
+  /*UINT8 data = sizeof(TMote_Identity_Data);
+  UINT8 data1 = sizeof(TMote_Health_Conf_Data);
+  UINT8 data2 = sizeof(TMote_ADC_Cal_Data);
+  UINT8 data3 = sizeof(TMote_Radio_Conf_Data);
+  UINT8 data5 = 0;
+
+  UINT8 data6 = MSG_IDENTITY_FLASH_OFFSET;
+  UINT8 data7 = MSG_HEALTH_CONF_FLASH_OFFSET;
+  UINT8 data8 = MSG_ADC_CALIBRATION_FLASH_OFFSET;
+  UINT8 data9 = MSG_RADIO_CONFIG_FLASH_OFFSET;*/
 
   UINT8 retVal=FAILED;
 
@@ -88,7 +99,7 @@ UINT8 Cnf_Manager_Load_Mote_Health_Config(void)
 // Loads health config persistent data
 //*****************************************************************************
 {
-  UINT8 dataRead[MAX_PAYLOAD_BYTES];
+  UINT8 dataRead[MSG_HEALTH_CONF_SEND_LENGTH];
 
   UINT8 dataOffset      = MSG_HEALTH_CONF_FLASH_OFFSET;
   UINT8 numBytesToRead  = MSG_HEALTH_CONF_SEND_LENGTH;
@@ -98,9 +109,9 @@ UINT8 Cnf_Manager_Load_Mote_Health_Config(void)
 
   if(FlashInterface_Load_SystemData_FromFlash(dataRead, flashPage, dataOffset, numBytesToRead) == OK)
   {
-    current_Health_Config.healthPeriod = (UINT32)dataRead[0];
+    current_Health_Config.healthPeriod = (UINT16)dataRead[0];
     current_Health_Config.healthPeriod <<=8;
-    current_Health_Config.healthPeriod |= (UINT32)dataRead[1];
+    current_Health_Config.healthPeriod |= (UINT16)dataRead[1];
 
     retVal = OK;
   }
@@ -123,7 +134,7 @@ UINT8 Cnf_Manager_Load_ADC_Calibration_Config(void)
 // Loads health config persistent data
 //*****************************************************************************
 {
-  UINT8 dataRead[MAX_PAYLOAD_BYTES];
+  UINT8 dataRead[MSG_ADC_CAL_SEND_LENGTH];
 
   UINT8 dataOffset      = MSG_ADC_CALIBRATION_FLASH_OFFSET;
   UINT8 numBytesToRead  = MSG_ADC_CAL_SEND_LENGTH;
@@ -171,7 +182,7 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
 // Loads health config persistent data
 //*****************************************************************************
 {
-  UINT8 dataRead[MAX_PAYLOAD_BYTES];
+  UINT8 dataRead[MSG_RADIO_CONF_SEND_LENGTH];
 
   UINT8 dataOffset      = MSG_RADIO_CONFIG_FLASH_OFFSET;
   UINT8 numBytesToRead  = MSG_RADIO_CONF_SEND_LENGTH;
@@ -233,14 +244,12 @@ UINT8 CnfManager_Load_Mote_Default_Config(void)
 }
 
 //*****************************************************************************
-UINT8 CnfManager_Get_My_Address(void)
+UINT16 CnfManager_Get_My_Address(void)
 //*****************************************************************************
 // gets the current address of the mote
 //*****************************************************************************
 {
-  UINT8 retVal=0;
-  retVal = (UINT8)(current_Identity_Config.NodeID & 0x00FF);
-  return retVal;
+  return current_Identity_Config.NodeID;
 }
 
 //*****************************************************************************

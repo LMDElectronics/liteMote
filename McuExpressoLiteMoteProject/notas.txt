@@ -75,7 +75,41 @@ cositas restantes:
   				Tx radio  	 
 	 
 	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base EN ELLO
-		- el CnfManager_Get_My_Address() en packet_manager.c no da la direccion correctamente (tendra que ver con el alineamiento de bytes del struct?) URGENTE!!!!!!!!!!!!!  
+		- se sobreesribe el current_identity cuando se carga el health.period mirar porque, se sobreescribe en ram
+		
+------>		0x1FFFAC38  00020001 00050304 08090607 00000000 00000000 00000000  ........................
+			0x1FFFAC50  00000000 00000000 00B71B00 00000000 00000000 00000000  ..........·.............
+			0x1FFFAC68  00000000 00000000 1FFFAC94 00000000 00000000 00000401  .........¬ÿ.............
+			0x1FFFAC80  1FFFAC94 00000000                                      .¬ÿ.....
+			
+			
+------>		0x1FFFAC38  03000100 00050304 08090607 0000001E 82B4FFFD 0000827F  ................ýÿ´.....
+			0x1FFFAC50  00000000 0000003C 00B71B00 00000000 00000000 00000000  ....<.....·.............
+			0x1FFFAC68  00000000 00000000 1FFFAC94 00000000 00000000 00000401  .........¬ÿ.............
+			0x1FFFAC80  1FFFAC94 00000000                                      .¬ÿ.....
+			
+			*fill*         0x1fffab32        0x2 
+			 .bss.dataToTxRx
+			                0x1fffab34      0x104 ./source/External_HW_Drivers/mx25l128/mx25l128.o
+			                0x1fffab34                dataToTxRx
+			 .bss.current_Identity_Config
+			                0x1fffac38        0xc ./source/Configuration_Manager/configuration_manager.o
+			                0x1fffac38                current_Identity_Config
+			 .bss.current_Health_Config
+			                0x1fffac44        0x2 ./source/Configuration_Manager/configuration_manager.o
+			                0x1fffac44                current_Health_Config
+			 *fill*         0x1fffac46        0x2 
+			 .bss.current_ADC_Cal_Data
+			                0x1fffac48        0x6 ./source/Configuration_Manager/configuration_manager.o
+			                0x1fffac48                current_ADC_Cal_Data
+			 *fill*         0x1fffac4e        0x2 
+			 .bss.current_Radio_Conf_Data
+			                0x1fffac50        0x5 ./source/Configuration_Manager/configuration_manager.o
+			                0x1fffac50                current_Radio_Conf_Data
+			 *fill*         0x1fffac55        0x3 
+			 .bss.g_xtal0Freq
+			                0x1fffac58        0x4 ./drivers/fsl_clock.o		
+		 
 		- inicializar Radio Manager en mota base
 		- añadir timer de envio en RadioManager.c (usado para generar la ventana de Tx deseada)
 				

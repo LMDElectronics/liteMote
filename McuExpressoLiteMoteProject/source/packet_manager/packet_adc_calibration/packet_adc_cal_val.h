@@ -11,7 +11,7 @@
 #define MSG_ADC_CAL_SEND_LENGTH             sizeof(TMote_ADC_Cal_Data)
 #define MSG_ADC_CALHEALTH_RETRIEVE_LENGTH   0
 
-typedef struct __attribute__((packed)) TMote_ADC_Cal_Data
+typedef struct TMote_ADC_Cal_Data
 {
   //just for kl82 kinetis MCU calibration values
   UINT16 offsetCorrection;

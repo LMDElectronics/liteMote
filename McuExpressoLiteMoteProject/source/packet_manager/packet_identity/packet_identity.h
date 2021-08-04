@@ -14,7 +14,7 @@
 #define MSG_IDENTITY_SEND_LENGTH         sizeof(TMote_Identity_Data)
 #define MSG_IDENTITY_RETRIEVE_LENGTH     0
 
-typedef struct __attribute__((packed)) TMote_Identity_Data
+typedef struct TMote_Identity_Data
 {
   UINT16 NodeID;
   UINT16 NodeType;

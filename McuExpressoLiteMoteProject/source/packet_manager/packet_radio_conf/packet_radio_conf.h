@@ -32,7 +32,7 @@
 #define INDEXED_DATA_RATE_400_KBPS  5
 #define INDEXED_DATA_RATE_500_KBPS  6
 
-typedef struct __attribute__((packed)) TMote_Radio_Conf_Data
+typedef struct TMote_Radio_Conf_Data
 {
   UINT8 freq_Band;  //Mhz
   UINT8 modulation; //modulation type

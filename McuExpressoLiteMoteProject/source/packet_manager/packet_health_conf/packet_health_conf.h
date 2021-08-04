@@ -13,7 +13,7 @@
 #define MSG_HEALTH_CONF_SEND_LENGTH         sizeof(TMote_Health_Conf_Data)
 #define MSG_HEALTH_CONF_RETRIEVE_LENGTH     0
 
-typedef struct __attribute__((packed)) TMote_Health_Conf_Data
+typedef struct TMote_Health_Conf_Data
 {
   UINT16 healthPeriod; //minutes
 }TMote_Health_Conf_Data;
