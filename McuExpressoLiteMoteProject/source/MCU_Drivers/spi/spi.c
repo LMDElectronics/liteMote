@@ -368,6 +368,8 @@ void SPI1_IRQHandler(void)
         case CS_EXTERNAL_FLASH: mx25l128_SPI_Callback(txrx_Buffer_SPI1); break;
         default: break;
       }
+
+
     }
     else
     {

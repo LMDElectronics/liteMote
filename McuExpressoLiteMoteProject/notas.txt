@@ -110,6 +110,9 @@ cositas restantes:
 			 .bss.g_xtal0Freq
 			                0x1fffac58        0x4 ./drivers/fsl_clock.o		
 		 
+		 gotcha!! el puntero de datos del spi1 de la flash, llega a la posicion ac38, donde sobreescribe los datos... habrá que mirar 
+		 como poder solucionar el entuerto... sabemos porque pasa 
+		 
 		- inicializar Radio Manager en mota base
 		- añadir timer de envio en RadioManager.c (usado para generar la ventana de Tx deseada)
 				

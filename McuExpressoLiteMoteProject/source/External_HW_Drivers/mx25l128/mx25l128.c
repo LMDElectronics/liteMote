@@ -242,7 +242,7 @@ void mx25l128_Read_Page(UINT16 page)
   mx25l128_spi_header = PAGE_READ;
 
   Enable_CS(CS_EXTERNAL_FLASH);
-  SPI_Send_NonBlocking(SPI1, dataToTxRx, DATA_BUFFER_LENGTH + 4); //+4 bytes command & address
+  SPI_Send_NonBlocking(SPI1, dataToTxRx, DATA_BUFFER_LENGTH /*+ 4*/); //+4 bytes command & address
 }
 
 //*****************************************************************************
