@@ -7,9 +7,14 @@
 
 #include <RadioManager/RadioManager.h>
 #include "External_HW_Drivers/s2lp/s2lp.h"
+#include "fsl_port.h"
+#include "fsl_tpm.h"
+#include "fsl_common.h"
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 TR_packet radio_packet_to_Tx;
+
+volatile bool tpmIsrFlag = FALSE;
 
 //*****************************************************************************
 void Radio_Manager_Config(void)
@@ -89,9 +94,14 @@ void Radio_Manager_Tx_Motor(void)
       else
       {
         //TODO:
-        //1 - radio fifo is not empty load packet into radio transceiver
+        //radio fifo is not empty load packet into radio transceiver
+
         //2 - load send time timer
+        Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+
         //3 - start timer
+        Radio_Window_Timer_Start_Timer();
+
         //4 - send the packet
         //5 - go to next state to wait until send time has been completed
 
@@ -143,13 +153,47 @@ void Radio_Manager_Tx_Motor(void)
 //*****************************************************************************
 
 //*****************************************************************************
+void Radio_Window_Timer_Init(void)
+//*****************************************************************************
+// Inits the timer controlling the Tx window time
+//*****************************************************************************
+{
+  tpm_config_t tpmInfo;
+
+  CLOCK_SetTpmClock(1U);
+  TPM_GetDefaultConfig(&tpmInfo);
+  tpmInfo.prescale = TPM_PRESCALER;
+
+  TPM_Init(BOARD_TPM, &tpmInfo);
+
+  TPM_EnableInterrupts(BOARD_TPM, kTPM_TimeOverflowInterruptEnable);
+  EnableIRQ(BOARD_TPM_IRQ_NUM);
+}
+
+//*****************************************************************************
+void Radio_Window_Timer_Set_Tx_Window(UINT16 timeout)
+//*****************************************************************************
+// Sets the timeWindow in which the radio will be transmitting the current packet
+// to be transmitted
+//*****************************************************************************
+{
+  TPM_SetTimerPeriod(BOARD_TPM, MSEC_TO_COUNT(timeout, TPM_SOURCE_CLOCK));
+}
+
+//*****************************************************************************
+void Radio_Window_Timer_Start_Timer(void)
+//*****************************************************************************
+{
+  TPM_StartTimer(BOARD_TPM, kTPM_SystemClock);
+}
+
+//*****************************************************************************
 UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 //*****************************************************************************
 // Checks if radio Tx window has finished
 //*****************************************************************************
 {
-  UINT8 retVal=FALSE;
-  return retVal;
+   return tpmIsrFlag;
 }
 
 //*****************************************************************************
@@ -157,7 +201,13 @@ UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 //*****************************************************************************
 // Motor to Rx the radio packets received
 //*****************************************************************************
-
+void BOARD_TPM_HANDLER(void)
+{
+    /* Clear interrupt flag.*/
+    TPM_ClearStatusFlags(BOARD_TPM, kTPM_TimeOverflowFlag);
+    tpmIsrFlag = true;
+    __DSB();
+}
 
 
 

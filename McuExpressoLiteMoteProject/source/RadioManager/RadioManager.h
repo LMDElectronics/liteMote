@@ -12,6 +12,12 @@
 #include <RadioManager/Radio_Packet_FIFOs.h>
 #include "packet_manager/packet_radio_conf/packet_radio_conf.h"
 
+#define BOARD_TPM TPM0
+#define TPM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_PllFllSelClk)/4)
+#define TPM_PRESCALER kTPM_Prescale_Divide_4
+#define BOARD_TPM_IRQ_NUM TPM0_IRQn
+#define BOARD_TPM_HANDLER TPM0_IRQHandler
+
 #define NO_ACK_NEEDED   0
 #define ACK_NEEDED      1
 
@@ -26,6 +32,9 @@ void Radio_Manager_Config(void);
 void Radio_Manager_Init(void);
 void Radio_Manager_Tx_Motor(void);
 
+//tx window function
 UINT8 Is_Send_Timer_Timeout_Flag_Set(void);
+void Radio_Window_Timer_Set_Tx_Window(UINT16 timeout);
+void Radio_Window_Timer_Start_Timer(void);
 
 #endif /* RADIOMANAGER_RADIOMANAGER_H_ */
