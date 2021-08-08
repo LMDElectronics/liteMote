@@ -10,6 +10,8 @@
 #include "fsl_port.h"
 #include "fsl_tpm.h"
 #include "fsl_common.h"
+#include "fsl_port.h"
+#include "fsl_gpio.h"
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 TR_packet radio_packet_to_Tx;
@@ -160,12 +162,23 @@ void Radio_Window_Timer_Init(void)
 {
   tpm_config_t tpmInfo;
 
-  CLOCK_SetTpmClock(1U);
+  //test
+  gpio_pin_config_t wp_config = {kGPIO_DigitalOutput, 1};
+  PORT_SetPinMux(PORTC, 10U, kPORT_MuxAsGpio);
+  GPIO_PinInit(GPIOC, 10, &wp_config);
+  GPIO_PortClear(GPIOC, 1u << 10);
+
+  //enabling clcok gate for tpm peripheral
+  //CLOCK_SetTpmClock(1U);
+  CLOCK_SetTpmClock(3U);
+
   TPM_GetDefaultConfig(&tpmInfo);
   tpmInfo.prescale = TPM_PRESCALER;
 
+  //init tpm peripheral
   TPM_Init(BOARD_TPM, &tpmInfo);
 
+  //enabling interrupts for tpm0
   TPM_EnableInterrupts(BOARD_TPM, kTPM_TimeOverflowInterruptEnable);
   EnableIRQ(BOARD_TPM_IRQ_NUM);
 }
@@ -185,6 +198,7 @@ void Radio_Window_Timer_Start_Timer(void)
 //*****************************************************************************
 {
   TPM_StartTimer(BOARD_TPM, kTPM_SystemClock);
+  GPIO_PortSet(GPIOC, 1u << 10);
 }
 
 //*****************************************************************************
@@ -210,14 +224,16 @@ UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 //*****************************************************************************
 void BOARD_TPM_HANDLER(void)
 {
-    /* Clear interrupt flag.*/
-    TPM_ClearStatusFlags(BOARD_TPM, kTPM_TimeOverflowFlag);
-    tpmIsrFlag = true;
+  /* Clear interrupt flag.*/
+  GPIO_PortClear(GPIOC, 1u << 10);
 
-    //stop timer
-    TPM_StopTimer(BOARD_TPM);
+  TPM_ClearStatusFlags(BOARD_TPM, kTPM_TimeOverflowFlag);
+  tpmIsrFlag = true;
 
-    __DSB();
+  //stop timer
+  TPM_StopTimer(BOARD_TPM);
+
+  __DSB();
 }
 
 

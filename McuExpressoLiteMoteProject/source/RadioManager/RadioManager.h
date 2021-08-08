@@ -13,7 +13,10 @@
 #include "packet_manager/packet_radio_conf/packet_radio_conf.h"
 
 #define BOARD_TPM TPM0
-#define TPM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_PllFllSelClk)/4)
+
+#define TPM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_McgInternalRefClk)/4)
+//#define TPM_SOURCE_CLOCK (CLOCK_GetFreq(kCLOCK_PllFllSelClk)/4)
+
 #define TPM_PRESCALER kTPM_Prescale_Divide_4
 #define BOARD_TPM_IRQ_NUM TPM0_IRQn
 #define BOARD_TPM_HANDLER TPM0_IRQHandler

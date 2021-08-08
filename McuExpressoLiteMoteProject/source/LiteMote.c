@@ -59,10 +59,15 @@
 int main(void)
 {
   UINT8 current_state = 0;
+  UINT32 clk_value = 0;
 
   //init HW peripherals
   //ADC_AutoCalibration();
   BOARD_BootClockRUN();
+
+  //check the clock value (just for test)
+  clk_value = CLOCK_GetFreq(kCLOCK_McgInternalRefClk);
+
   SPI_System_Init();
   Health_Timer_Init();
 
