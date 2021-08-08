@@ -74,7 +74,7 @@ cositas restantes:
   				Rx radio 
   				Tx radio  	 
 	 
-	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base EN ELLO
+	- pruebas de envio de paquetes radio via serie si la direccion destino no es para la base SOLUCIONADO
 		- se sobreesribe el current_identity cuando se carga el health.period mirar porque, se sobreescribe en ram
 		
 ------>		0x1FFFAC38  00020001 00050304 08090607 00000000 00000000 00000000  ........................
@@ -114,6 +114,9 @@ cositas restantes:
 		 como poder solucionar el entuerto... sabemos porque pasa 
 		 
 		- inicializar Radio Manager en mota base
+			- timer configurado
+			- validar el tiempo de la ventana de tx
+		
 		- añadir timer de envio en RadioManager.c (usado para generar la ventana de Tx deseada)
 				
 

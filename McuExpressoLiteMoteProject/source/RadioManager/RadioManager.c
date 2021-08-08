@@ -73,6 +73,7 @@ void Radio_Manager_Init(void)
 //****************************************************************************
 {
   S2lp_Init();
+  Radio_Window_Timer_Init();
 
   radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 }
@@ -95,6 +96,7 @@ void Radio_Manager_Tx_Motor(void)
       {
         //TODO:
         //radio fifo is not empty load packet into radio transceiver
+        radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
         //2 - load send time timer
         Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
@@ -104,8 +106,6 @@ void Radio_Manager_Tx_Motor(void)
 
         //4 - send the packet
         //5 - go to next state to wait until send time has been completed
-
-        radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
         //s2lp_Load_Data_Packet();
         //start_Tx_Window_Timer();
         //s2lp_Start_Tx();
@@ -188,6 +188,13 @@ void Radio_Window_Timer_Start_Timer(void)
 }
 
 //*****************************************************************************
+void Radio_Window_Timer_Stop_Timer(void)
+//*****************************************************************************
+{
+  TPM_StopTimer(BOARD_TPM);
+}
+
+//*****************************************************************************
 UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 //*****************************************************************************
 // Checks if radio Tx window has finished
@@ -206,6 +213,10 @@ void BOARD_TPM_HANDLER(void)
     /* Clear interrupt flag.*/
     TPM_ClearStatusFlags(BOARD_TPM, kTPM_TimeOverflowFlag);
     tpmIsrFlag = true;
+
+    //stop timer
+    TPM_StopTimer(BOARD_TPM);
+
     __DSB();
 }
 
