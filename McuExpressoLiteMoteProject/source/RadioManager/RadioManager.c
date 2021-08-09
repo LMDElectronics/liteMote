@@ -81,6 +81,15 @@ void Radio_Manager_Init(void)
 }
 
 //****************************************************************************
+void Radio_Manager_Load_Packet(UINT8 destination_addr, UINT8 payload)
+//****************************************************************************
+// Loads the packet into radio transmitter
+//****************************************************************************
+{
+
+}
+
+//****************************************************************************
 void Radio_Manager_Tx_Motor(void)
 //*****************************************************************************
 // Motor to Tx the radio packets ready
@@ -96,20 +105,19 @@ void Radio_Manager_Tx_Motor(void)
       }
       else
       {
-        //TODO:
-        //radio fifo is not empty load packet into radio transceiver
         radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
+
+        //1 - Load Radio packet
+        Radio_Manager_Load_Packet(radio_packet_to_Tx.header.destination_node, radio_packet_to_Tx.payload);
 
         //2 - load send time timer
         Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
         //3 - start timer
+        tpmIsrFlag = FALSE; //reset isr flag
         Radio_Window_Timer_Start_Timer();
 
-        //4 - send the packet
-        //5 - go to next state to wait until send time has been completed
-        //s2lp_Load_Data_Packet();
-        //start_Tx_Window_Timer();
+        //4 - start tx
         //s2lp_Start_Tx();
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
@@ -163,10 +171,10 @@ void Radio_Window_Timer_Init(void)
   tpm_config_t tpmInfo;
 
   //test
-  gpio_pin_config_t wp_config = {kGPIO_DigitalOutput, 1};
+  /*gpio_pin_config_t wp_config = {kGPIO_DigitalOutput, 1};
   PORT_SetPinMux(PORTC, 10U, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOC, 10, &wp_config);
-  GPIO_PortClear(GPIOC, 1u << 10);
+  GPIO_PortClear(GPIOC, 1u << 10);*/
 
   //enabling clcok gate for tpm peripheral
   //CLOCK_SetTpmClock(1U);
@@ -198,7 +206,7 @@ void Radio_Window_Timer_Start_Timer(void)
 //*****************************************************************************
 {
   TPM_StartTimer(BOARD_TPM, kTPM_SystemClock);
-  GPIO_PortSet(GPIOC, 1u << 10);
+  //GPIO_PortSet(GPIOC, 1u << 10);
 }
 
 //*****************************************************************************
@@ -225,7 +233,7 @@ UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 void BOARD_TPM_HANDLER(void)
 {
   /* Clear interrupt flag.*/
-  GPIO_PortClear(GPIOC, 1u << 10);
+  //GPIO_PortClear(GPIOC, 1u << 10);
 
   TPM_ClearStatusFlags(BOARD_TPM, kTPM_TimeOverflowFlag);
   tpmIsrFlag = true;

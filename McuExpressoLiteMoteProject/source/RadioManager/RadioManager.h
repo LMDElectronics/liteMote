@@ -40,5 +40,6 @@ void Radio_Window_Timer_Init(void);
 UINT8 Is_Send_Timer_Timeout_Flag_Set(void);
 void Radio_Window_Timer_Set_Tx_Window(UINT16 timeout);
 void Radio_Window_Timer_Start_Timer(void);
+void Radio_Manager_Load_Packet(UINT8 destination_addr, UINT8 payload);
 
 #endif /* RADIOMANAGER_RADIOMANAGER_H_ */
