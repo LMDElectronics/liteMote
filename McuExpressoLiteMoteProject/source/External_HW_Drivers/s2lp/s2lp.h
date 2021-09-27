@@ -250,6 +250,9 @@ SINT8 s2lp_Get_Tx_Power_Config(void);
 
 void s2lp_Set_Packet_Format_StAck(void);
 
+void s2lp_Set_RadioStackPacket_Source_Address(UINT8 sourceAddr);
+void s2lp_Set_RadioStackPacket_Destination_Address(UINT8 destinationAddr);
+
 void s2lp_Set_Tx_Packet_Length(UINT16 dataPacketLength);
 UINT16 s2lp_Get_Tx_Packet_Length(void);
 
@@ -270,6 +273,8 @@ void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer);
 
 UINT8 s2lp_Set_Operating_State(UINT8 newStateCommand);
 UINT8 s2lp_Get_Operating_State(void);
+
+void s2lp_Start_Tx(void);
 
 UINT32 s2lp_Check_IrqStatus(void);
 

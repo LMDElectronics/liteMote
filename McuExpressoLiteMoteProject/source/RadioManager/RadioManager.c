@@ -4,9 +4,9 @@
  *  Created on: 4 jun. 2020
  *      Author: MAX PC
  */
-
+#include <Configuration_Manager/configuration_manager.h>
 #include <RadioManager/RadioManager.h>
-#include "External_HW_Drivers/s2lp/s2lp.h"
+#include <External_HW_Drivers/s2lp/s2lp.h>
 #include "fsl_port.h"
 #include "fsl_tpm.h"
 #include "fsl_common.h"
@@ -81,12 +81,23 @@ void Radio_Manager_Init(void)
 }
 
 //****************************************************************************
-void Radio_Manager_Load_Packet(UINT8 destination_addr, UINT8 payload)
+void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *payload, UINT8 payloadLength, UINT8 ack)
 //****************************************************************************
 // Loads the packet into radio transmitter
 //****************************************************************************
 {
+  s2lp_Set_RadioStackPacket_Source_Address(myAddress);
+  s2lp_Set_RadioStackPacket_Destination_Address(destination_addr);
+  s2lp_Load_Tx_FIFO(payload, payloadLength);
 
+  if(ack == ACK_NEEDED)
+  {
+    s2lp_Enable_Ack_For_Tx_Packet();
+  }
+  else
+  {
+    s2lp_Disable_Ack_For_Tx_Packet();
+  }
 }
 
 //****************************************************************************
@@ -108,7 +119,12 @@ void Radio_Manager_Tx_Motor(void)
         radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
         //1 - Load Radio packet
-        Radio_Manager_Load_Packet(radio_packet_to_Tx.header.destination_node, radio_packet_to_Tx.payload);
+        Radio_Manager_Load_Packet(
+            (UINT8)CnfManager_Get_My_Address(),
+            radio_packet_to_Tx.header.destination_node,
+            radio_packet_to_Tx.payload,
+            radio_packet_to_Tx.header.frame_payload_length,
+            radio_packet_to_Tx.header.ackNeeded);
 
         //2 - load send time timer
         Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
@@ -118,7 +134,7 @@ void Radio_Manager_Tx_Motor(void)
         Radio_Window_Timer_Start_Timer();
 
         //4 - start tx
-        //s2lp_Start_Tx();
+        s2lp_Start_Tx();
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
       }
@@ -127,6 +143,7 @@ void Radio_Manager_Tx_Motor(void)
 
     case RADIO_MANAGER_TX_SENDING_PACKET:
 
+      //test transmit forever
       if(Is_Send_Timer_Timeout_Flag_Set())
       {
         //TODO:
@@ -141,7 +158,7 @@ void Radio_Manager_Tx_Motor(void)
         if( s2lp_Get_Operating_State() == STATE_READY )
         {
           //Tx timeout window not reached, start Tx again
-          //s2lp_Start_Tx();
+          s2lp_Start_Tx();
         }
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;

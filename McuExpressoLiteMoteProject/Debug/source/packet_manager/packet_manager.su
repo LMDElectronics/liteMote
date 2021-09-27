@@ -1,5 +1,6 @@
 ../source/packet_manager/packet_manager.c:31:7:Packet_Manager_Init	8	static
-../source/packet_manager/packet_manager.c:53:7:Get_Canonical_Payload_Lenght	24	static
-../source/packet_manager/packet_manager.c:100:11:Build_Packet_Serial	160	static
-../source/packet_manager/packet_manager.c:135:6:Process_Packet	1408	static
-../source/packet_manager/packet_manager.c:289:6:Packet_Manager_Process_Motor	256	static
+../source/packet_manager/packet_manager.c:53:7:Get_Canonical_Payload_length	24	static
+../source/packet_manager/packet_manager.c:99:11:Build_Packet_Serial	160	static
+../source/packet_manager/packet_manager.c:135:11:Build_Packet_Radio	168	static
+../source/packet_manager/packet_manager.c:174:6:Process_Packet	1560	static
+../source/packet_manager/packet_manager.c:336:6:Packet_Manager_Process_Motor	256	static

@@ -748,7 +748,7 @@ void S2lp_Init_Pinout(void)
 //*****************************************************************************
 {
   gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 1};
-  gpio_pin_config_t io_config_input = {kGPIO_DigitalInput, 1};
+  gpio_pin_config_t io_config_input = {kGPIO_DigitalInput, 0};
 
   /* PTC Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortC);
@@ -767,6 +767,12 @@ void S2lp_Init_Pinout(void)
   /* PORTD4 (pin 77) is configured as GPIO  for RF SPI Chip select*/
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOD, 4, &io_config_output);
+
+  //configuring PORTC8 for external interrupt
+  //PORT_SetPinInterruptConfig(BOARD_SW_PORT, BOARD_SW_GPIO_PIN, kPORT_InterruptFallingEdge);
+  PORT_SetPinInterruptConfig(PORTC, 8, kPORT_InterruptRisingEdge);
+  EnableIRQ(PORTC_IRQn);
+  GPIO_PinInit(GPIOA, 8, &io_config_input);
 }
 
 //*****************************************************************************
@@ -1054,6 +1060,23 @@ void s2lp_Set_Packet_Format_StAck(void)
   S2lp_Write_Register(SYNC_2_REG, SYNC_2_DATA);
   S2lp_Write_Register(SYNC_3_REG, SYNC_3_DATA);
 }
+
+//*****************************************************************************
+void s2lp_Set_RadioStackPacket_Source_Address(UINT8 sourceAddr)
+//*****************************************************************************
+// SEts the tx addr
+//*****************************************************************************
+{
+  S2lp_Write_Register(PCKT_FLT_GOALS0, sourceAddr);
+}
+
+//*****************************************************************************
+void s2lp_Set_RadioStackPacket_Destination_Address(UINT8 destinationAddr)
+//*****************************************************************************
+{
+  S2lp_Write_Register(PCKT_FLT_GOALS3, destinationAddr);
+}
+
 //*****************************************************************************
 void s2_lp_TestDataRate_RC(void)
 //*****************************************************************************
@@ -1113,6 +1136,18 @@ void s2lp_Set_Rx_Timer_Stop_Condition(UINT8 rxTimerStopCondition)
 }
 
 //*****************************************************************************
+void s2lp_Start_Tx(void)
+//*****************************************************************************
+// Sets the transceiver in Tx mode
+//*****************************************************************************
+{
+  if(s2lp_Get_Operating_State() == STATE_READY)
+  {
+    S2lp_Send_Command(TX);
+  }
+}
+
+//*****************************************************************************
 void s2lp_Test_Tx_RC()
 //*****************************************************************************
 // description: configures s2lp with radiocontrolli registers configuration
@@ -1125,7 +1160,6 @@ void s2lp_Test_Tx_RC()
   UINT8 s2lp_state = 0;
   UINT32 int_status = 0;
   UINT32 maxTxReached_counter = 0;
-
 
   /*
   RC config for Tx
@@ -1480,5 +1514,19 @@ void S2lp_Test(void)
   S2lp_Read_Register(DEVICE_INFO0);
 }
 
+//*****************************************************************************
+void PORTC_IRQHandler(void)
+//*****************************************************************************
+// External s2lp interrupt pin, Rx data available
+//*****************************************************************************
+{
+    /* Clear external interrupt flag. */
+    GPIO_PortClearInterruptFlags(GPIOC, 1U << 8U);
+    /* Change state of button. */
 
-
+/* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+  exception return operation might vector to incorrect interrupt */
+#if defined __CORTEX_M && (__CORTEX_M == 4U)
+    __DSB();
+#endif
+}
