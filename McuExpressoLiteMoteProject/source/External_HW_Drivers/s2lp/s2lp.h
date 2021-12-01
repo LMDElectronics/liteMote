@@ -276,6 +276,7 @@ UINT8 s2lp_Get_Operating_State(void);
 
 void s2lp_Start_Tx(void);
 
+void s2lp_Clear_IrqStatus(void);
 UINT32 s2lp_Check_IrqStatus(void);
 
 void S2lp_Enable_ShutDown_Mode(void);

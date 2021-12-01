@@ -719,6 +719,18 @@ UINT8 s2lp_Get_Operating_State(void)
 }
 
 //*****************************************************************************
+void s2lp_Clear_IrqStatus(void)
+//*****************************************************************************
+// description: read the interrupt status bits
+//*****************************************************************************
+{
+  S2lp_Read_Register(IRQ_STATUS3);
+  S2lp_Read_Register(IRQ_STATUS2);
+  S2lp_Read_Register(IRQ_STATUS1);
+  S2lp_Read_Register(IRQ_STATUS0);
+}
+
+//*****************************************************************************
 UINT32 s2lp_Check_IrqStatus(void)
 //*****************************************************************************
 // description: read the interrupt status bits
@@ -758,8 +770,8 @@ void S2lp_Init_Pinout(void)
   GPIO_PinInit(GPIOC, 12, &io_config_output);
 
   /* PORTC16 (pin 71) is configured as Input RF Interrupt */
-  PORT_SetPinMux(PORTC, 16U, kPORT_MuxAsGpio);
-  GPIO_PinInit(GPIOC, 16, &io_config_input);
+  //PORT_SetPinMux(PORTC, 16U, kPORT_MuxAsGpio);
+  //GPIO_PinInit(GPIOC, 16, &io_config_input);
 
   /* PTD Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortD);

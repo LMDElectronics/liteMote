@@ -15,6 +15,7 @@
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 TR_packet radio_packet_to_Tx;
+UINT8 radioTransceiverState = 0;
 
 volatile bool tpmIsrFlag = FALSE;
 
@@ -151,14 +152,9 @@ void Radio_Manager_Tx_Motor(void)
 
     case RADIO_MANAGER_TX_SENDING_PACKET:
 
-      //test transmit forever
       if(Is_Send_Timer_Timeout_Flag_Set())
       {
-        //TODO:
-        //send time window finish, stop Tx
-        //s2lp_Stop_Tx();
-        //start_Tx_Window_Timer();
-
+        tpmIsrFlag = false;
         radio_manager_Tx_state = RADIO_MANAGER_TX_FINISHED;
       }
       else
@@ -166,6 +162,7 @@ void Radio_Manager_Tx_Motor(void)
         if( s2lp_Get_Operating_State() == STATE_READY )
         {
           //Tx timeout window not reached, start Tx again
+          s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
         }
 
@@ -174,9 +171,12 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_TX_FINISHED:
-      //clean state
-      s2lp_Check_IrqStatus();
-      radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+      radioTransceiverState = s2lp_Get_Operating_State();
+      if(radioTransceiverState == STATE_READY)
+      {
+        s2lp_Clear_IrqStatus();
+        radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+      }
     break;
 
     default:
