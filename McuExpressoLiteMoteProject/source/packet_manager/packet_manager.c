@@ -138,6 +138,12 @@ TR_packet Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UI
   UINT8 j=0;
   TR_packet radio_packet;
 
+  //TEST clear buffer for debug purposes
+  /*for(i=0; i < radio_packet.header.frame_payload_length; i++)
+  {
+    radio_packet.payload[i] = 0;
+  }*/
+
   radio_packet.header.origin_node = origin_address;
   radio_packet.header.destination_node = destination_Address;
   radio_packet.header.send_time = send_time;

@@ -768,11 +768,11 @@ void S2lp_Init_Pinout(void)
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOD, 4, &io_config_output);
 
-  //configuring PORTC8 for external interrupt
+  //configuring PORTC8 (pin 71) for external interrupt
   //PORT_SetPinInterruptConfig(BOARD_SW_PORT, BOARD_SW_GPIO_PIN, kPORT_InterruptFallingEdge);
-  PORT_SetPinInterruptConfig(PORTC, 8, kPORT_InterruptRisingEdge);
+  PORT_SetPinInterruptConfig(PORTC, 16, kPORT_InterruptRisingEdge);
   EnableIRQ(PORTC_IRQn);
-  GPIO_PinInit(GPIOA, 8, &io_config_input);
+  GPIO_PinInit(GPIOC, 16, &io_config_input);
 }
 
 //*****************************************************************************
@@ -959,8 +959,7 @@ void S2lp_Config_Interrupt(void)
 {
   UINT8 dataRead=0;
 
-  //gipo0 routed as interrupt high power, routed gpio ->
-  //TODO testing if a valid preamble is received with 0x73
+  //gipo0 routed as interrupt high power, routed gpio -> GPIO0
   S2lp_Write_Register(GPIO0_CONF, 0x03);
   dataRead = S2lp_Read_Register(GPIO0_CONF);
 
@@ -968,7 +967,7 @@ void S2lp_Config_Interrupt(void)
   //read the irq_status is useful to know if the interrupt has been triggered also
   //irq_status registers should be clear to clear the interrupt flag
 
-  S2lp_Write_Register(IRQ_MASK0, 0x05); //Rx data received interrupt, Tx data Sent
+  S2lp_Write_Register(IRQ_MASK0, 0x04); //TX SENT
   S2lp_Write_Register(IRQ_MASK1, 0x00);
   S2lp_Write_Register(IRQ_MASK2, 0x00);
   S2lp_Write_Register(IRQ_MASK3, 0x00);
@@ -1141,10 +1140,13 @@ void s2lp_Start_Tx(void)
 // Sets the transceiver in Tx mode
 //*****************************************************************************
 {
-  if(s2lp_Get_Operating_State() == STATE_READY)
-  {
-    S2lp_Send_Command(TX);
-  }
+  UINT8 opState=0;
+
+  opState = s2lp_Get_Operating_State();
+
+  S2lp_Send_Command(TX);
+
+  opState = s2lp_Get_Operating_State();
 }
 
 //*****************************************************************************
@@ -1521,7 +1523,7 @@ void PORTC_IRQHandler(void)
 //*****************************************************************************
 {
     /* Clear external interrupt flag. */
-    GPIO_PortClearInterruptFlags(GPIOC, 1U << 8U);
+    GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
     /* Change state of button. */
 
 /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping

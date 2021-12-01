@@ -36,9 +36,9 @@ RW datos de paquetes en flash: COMPLETO
 		SPI_CLK:         		[SCK]:	(CN9,D3)  BLUE
 		SPI_MOSI				[SDI]: 	(CN5,D11) GREEN
 		SPI_MISO				[SDO]: 	(CN5,D12) YELLOW
-		SPI_CS:					[CS] : 	(CN8,A2)  VIOLET
+		SPI_CS:					[CS] : 	(CN8,A1)  VIOLET
 		SHUTODWN				[SDN]: 	(CN9,D7)  WHITE			
-		GPIO0 as interrupt:		[irq]:	(CN8,A1)  GREY	
+		GPIO0 as interrupt:		[irq]:	(CN8,A0)  GREY	
 		VDD:							(CN6,4)	  ORANGE	
 		GND:							(CN6,6,7) BLACK
 		
@@ -137,6 +137,30 @@ cositas restantes:
 	- gestor paquetes radio
 	
 	- añadir carrier sense para saber si el medio está ocupado antes de transmitir 	
+ 			
+TAREA en proceso:
+----------------
+	recepcion de radio:
+	-------------------
+		setup:
+		------
+			- 2 gateways visual abiertos
+			Receptor en debug: addr = 2
+			
+		Comprobar que interrupcion y gpio están bien configurados
+		
+			1-> interrupciones a configurar: 0x00003003 	
+				Data ready 		index 0
+				Data discarded 	index 1
+				Valid preamble 	index 12
+				Sync word 		index 13
+				
+			2-> configurar GPIO registro
+				-> TX sent ok
+		ERROR: -> No está cogiendo bien los datos de radio, ya que cambia la modulación al 2o envio, mirar porque
+				
+		
+							 									 			
  			
 RGB LED:
 --------

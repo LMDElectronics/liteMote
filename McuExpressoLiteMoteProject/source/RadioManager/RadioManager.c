@@ -116,27 +116,35 @@ void Radio_Manager_Tx_Motor(void)
       }
       else
       {
-        radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
+        //check if radio is not busy
+        if(s2lp_Get_Operating_State() == STATE_READY)
+        {
+          radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
-        //1 - Load Radio packet
-        Radio_Manager_Load_Packet(
-            (UINT8)CnfManager_Get_My_Address(),
-            radio_packet_to_Tx.header.destination_node,
-            radio_packet_to_Tx.payload,
-            radio_packet_to_Tx.header.frame_payload_length,
-            radio_packet_to_Tx.header.ackNeeded);
+          //1 - Load Radio packet
+          Radio_Manager_Load_Packet(
+              (UINT8)CnfManager_Get_My_Address(),
+              radio_packet_to_Tx.header.destination_node,
+              radio_packet_to_Tx.payload,
+              radio_packet_to_Tx.header.frame_payload_length,
+              radio_packet_to_Tx.header.ackNeeded);
 
-        //2 - load send time timer
-        Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+          //2 - load send time timer
+          Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
-        //3 - start timer
-        tpmIsrFlag = FALSE; //reset isr flag
-        Radio_Window_Timer_Start_Timer();
+          //3 - start timer
+          tpmIsrFlag = FALSE; //reset isr flag
+          Radio_Window_Timer_Start_Timer();
 
-        //4 - start tx
-        s2lp_Start_Tx();
+          //4 - start tx
+          s2lp_Start_Tx();
 
-        radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+          radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+        }
+        else
+        {
+          //cannot transmit, radio busy staying in this state
+        }
       }
 
     break;
@@ -167,6 +175,7 @@ void Radio_Manager_Tx_Motor(void)
 
     case RADIO_MANAGER_TX_FINISHED:
       //clean state
+      s2lp_Check_IrqStatus();
       radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
     break;
 
