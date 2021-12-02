@@ -285,6 +285,9 @@ void s2lp_Set_DataRate(UINT32 dataRate)
 
   UINT32 dataRateRead=0;
 
+  S2lp_Write_Register(MOD2,0xaa);
+  data = S2lp_Read_Register(MOD2);
+
   //to avoid jitter DATARATE_E will be set to 15
   //hence using equation (dataRate = fdig/8*DATARATE_M) if DATARATE_E = 15
 
@@ -883,11 +886,11 @@ void S2lp_Init(void)
   S2lp_Config_Power_Management();
 
   //default init configuration
-  S2lp_Set_Base_Center_Freq(868);
+  /*S2lp_Set_Base_Center_Freq(868);
   s2lp_Set_Modulation_Type(FOUR_GFSK_BT_05);
   s2lp_Set_DataRate(DATA_RATE_500_KBPS);
   s2lp_Set_Channel_Num(0);
-  s2lp_Set_Tx_Power_Config(0);
+  s2lp_Set_Tx_Power_Config(0);*/
 
   //config STACK packet type by default
   s2lp_Set_Packet_Format_StAck();

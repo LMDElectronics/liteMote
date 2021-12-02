@@ -73,6 +73,10 @@ int main(void)
 
   //init FW modules
   FlashInterface_Init();
+
+  //starting radio manager
+  Radio_Manager_Init();
+
   CnfManager_Init();
   if(CnfManager_Load_Mote_Default_Config() == FAILED)
   {
@@ -85,7 +89,6 @@ int main(void)
   Serial_Manager_Init();
   Packet_Manager_Init();
   Health_Manager_Init();
-  Radio_Manager_Init();
 
   //just for test
 
