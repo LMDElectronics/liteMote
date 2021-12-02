@@ -157,13 +157,10 @@ TAREA en proceso:
 				
 			2-> configurar GPIO registro
 				-> TX sent ok
-		ERROR: -> No está cogiendo bien los datos de radio, ya que cambia la modulación al 2o envio, mirar porque
-			-> es necesario revisar que modulacion tenemos para calcular correctamente el datarate
-			-> es neceario revisar:
-				1- como se recupera y carga el datarate desde flash al inicio
-				2- es necesario ver como se lee el datarate desde flash via serie 
-				3- es necesario ver como se graba el datarate desde serie a flash 
-				
+		
+			3-> comprobar si se recibe con el datarate mas bajo y la modulacion 2FSK
+				-> TX interrupcion
+				-> Rx				
 		
 							 									 			
  			

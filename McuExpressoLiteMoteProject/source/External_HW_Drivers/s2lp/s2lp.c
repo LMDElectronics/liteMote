@@ -285,9 +285,6 @@ void s2lp_Set_DataRate(UINT32 dataRate)
 
   UINT32 dataRateRead=0;
 
-  S2lp_Write_Register(MOD2,0xaa);
-  data = S2lp_Read_Register(MOD2);
-
   //to avoid jitter DATARATE_E will be set to 15
   //hence using equation (dataRate = fdig/8*DATARATE_M) if DATARATE_E = 15
 
