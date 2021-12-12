@@ -160,6 +160,9 @@ TAREA en proceso:
 		
 			3-> comprobar si se recibe con el datarate mas bajo y la modulacion 2FSK
 				-> TX interrupcion
+					-> OK
+					-> falta el poder configurar la interrupcion externa sin que se active al inicio, mirar porque ocurre				   					   
+					   
 				-> Rx				
 		
 							 									 			

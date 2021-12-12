@@ -19,6 +19,8 @@ UINT8 radioTransceiverState = 0;
 
 volatile bool tpmIsrFlag = FALSE;
 
+UINT32 myPacketsTx;
+
 //*****************************************************************************
 void Radio_Manager_Config(void)
 //*****************************************************************************
@@ -165,7 +167,6 @@ void Radio_Manager_Tx_Motor(void)
           s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
         }
-
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
       }
     break;
@@ -175,6 +176,10 @@ void Radio_Manager_Tx_Motor(void)
       if(radioTransceiverState == STATE_READY)
       {
         s2lp_Clear_IrqStatus();
+
+        myPacketsTx = s2lp_GetPacketsTx();
+        s2lp_ResetPacketsTx();
+
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
       }
     break;

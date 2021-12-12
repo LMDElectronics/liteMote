@@ -16,6 +16,22 @@ UINT8 s2lp_spi_header = 0;
 
 s2lp_parameters radioPArams;
 
+//external radio interrupt config
+const port_pin_config_t portc16_pin71_config = {/* Internal pull-up resistor is disabled */
+                                               kPORT_PullDisable,
+                                               /* Fast slew rate is configured */
+                                               kPORT_FastSlewRate,
+                                               /* Passive filter is disabled */
+                                               kPORT_PassiveFilterDisable,
+                                               /* Open drain is disabled */
+                                               kPORT_OpenDrainDisable,
+                                               /* Pin is configured as GPIO */
+                                               kPORT_MuxAsGpio,
+                                               /* Pin Control Register fields [15:0] are not locked */
+                                               kPORT_UnlockRegister};
+
+UINT32 packetsTx=0;
+
 //*****************************************************************************
 void S2lp_SPI_Callback(volatile UINT8 *dataReceived)
 //*****************************************************************************
@@ -761,6 +777,7 @@ void S2lp_Init_Pinout(void)
 {
   gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 1};
   gpio_pin_config_t io_config_input = {kGPIO_DigitalInput, 0};
+  gpio_pin_config_t io_config_Intinput = {kGPIO_DigitalInput, 0};
 
   /* PTC Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortC);
@@ -768,10 +785,6 @@ void S2lp_Init_Pinout(void)
   /* PORTC12 (pin 69) is configured as GPIO Output for RF Chip shutdown*/
   PORT_SetPinMux(PORTC, 12, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOC, 12, &io_config_output);
-
-  /* PORTC16 (pin 71) is configured as Input RF Interrupt */
-  //PORT_SetPinMux(PORTC, 16U, kPORT_MuxAsGpio);
-  //GPIO_PinInit(GPIOC, 16, &io_config_input);
 
   /* PTD Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortD);
@@ -781,10 +794,11 @@ void S2lp_Init_Pinout(void)
   GPIO_PinInit(GPIOD, 4, &io_config_output);
 
   //configuring PORTC8 (pin 71) for external interrupt
-  //PORT_SetPinInterruptConfig(BOARD_SW_PORT, BOARD_SW_GPIO_PIN, kPORT_InterruptFallingEdge);
-  PORT_SetPinInterruptConfig(PORTC, 16, kPORT_InterruptRisingEdge);
+  PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
+  PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);
+  GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
+  GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
   EnableIRQ(PORTC_IRQn);
-  GPIO_PinInit(GPIOC, 16, &io_config_input);
 }
 
 //*****************************************************************************
@@ -1161,6 +1175,17 @@ void s2lp_Start_Tx(void)
   opState = s2lp_Get_Operating_State();
 }
 
+UINT32 s2lp_GetPacketsTx(void)
+{
+  return packetsTx;
+}
+
+void s2lp_ResetPacketsTx(void)
+{
+  packetsTx = 0;
+}
+
+
 //*****************************************************************************
 void s2lp_Test_Tx_RC()
 //*****************************************************************************
@@ -1531,12 +1556,14 @@ void S2lp_Test(void)
 //*****************************************************************************
 void PORTC_IRQHandler(void)
 //*****************************************************************************
-// External s2lp interrupt pin, Rx data available
+// External s2lp interrupt pin
 //*****************************************************************************
 {
-    /* Clear external interrupt flag. */
-    GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
-    /* Change state of button. */
+  /* Clear external interrupt flag. */
+  GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
+  /* Change state of button. */
+
+  packetsTx++;
 
 /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
   exception return operation might vector to incorrect interrupt */

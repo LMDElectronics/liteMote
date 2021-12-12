@@ -34,7 +34,6 @@
  */
 #include <MCU_Drivers/adc/adc.h>
 #include <MCU_Drivers/lptmr1_timer/lptmr1.h>
-
 #include <FlashManager/FlashDataRWInterface/FlashDataRWInterface.h>
 #include <RadioManager/RadioManager.h>
 #include <MCU_Drivers/spi/spi.h>
@@ -46,15 +45,11 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MKL82Z7.h"
-
 #include "globals.h"
 #include "packet_manager/packet_manager.h"
 #include "Configuration_Manager/configuration_manager.h"
-
 #include "Health_Manager/health_manager.h"
-
 #include "Supervisor/Supervisor.h"
-
 
 int main(void)
 {
@@ -91,14 +86,14 @@ int main(void)
   Health_Manager_Init();
 
   //just for test
-
-  //Send_byte_per_second();
-  //mx25l128_test();
-  //ADC_Test();
-  //Health_Timer_Test();
-  //S2lp_Test();
-  //s2lp_Test_Tx_RC();
-  //s2lp_Test_Rx_RC();
+    //Send_byte_per_second();
+    //mx25l128_test();
+    //ADC_Test();
+    //Health_Timer_Test();
+    //S2lp_Test();
+    //s2lp_Test_Tx_RC();
+    //s2lp_Test_Rx_RC();
+  //end test
 
   while(1)
   {

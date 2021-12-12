@@ -291,6 +291,9 @@ UINT8 S2lp_Get_Register_Data_Read(void);
 void S2lp_Write_Register(UINT8 registerToWrite, UINT8 dataToWrite);
 void S2lp_Send_Command(UINT8 commandToSend);
 
+UINT32 s2lp_GetPacketsTx(void);
+void s2lp_ResetPacketsTx(void);
+
 void s2lp_Test_Tx_RC();
 void s2lp_Test_Rx_RC();
 
