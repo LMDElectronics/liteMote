@@ -181,8 +181,6 @@ void Process_Packet(TS_packet packet_to_process)
 {
   TS_packet packet_aux;
 
-  UINT8 data=0;
-
   //check msg payload length
   if(packet_to_process.header.frame_payload_length != Get_Canonical_Payload_length(packet_to_process.header.msg_type))
   {

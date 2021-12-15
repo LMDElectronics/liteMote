@@ -18,7 +18,7 @@ s2lp_parameters radioPArams;
 
 //external radio interrupt config
 const port_pin_config_t portc16_pin71_config = {/* Internal pull-up resistor is disabled */
-                                               kPORT_PullDisable,
+                                               kPORT_PullUp,
                                                /* Fast slew rate is configured */
                                                kPORT_FastSlewRate,
                                                /* Passive filter is disabled */
@@ -111,7 +111,7 @@ float s2lp_Get_Base_Center_Freq(void)
   }
 
   //retrieving d value
-  d = S2lp_Read_Register(XO_RCO_CONFIG0);
+  d = S2lp_Read_Register(XO_RCO_CONF0);
 
   if((d & D_MASK) == D_MASK)
   {
@@ -162,8 +162,8 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
     //RF synth freq inside the middle band, setting the BS field to 1, setting charge pump value PLL_CP_ISEL = 010
     //cleaning the low part of SYNTH3, will be set later
 
-    data = S2lp_Read_Register(SYNTH3) & 0xF0;
-    data = data | 0x40 | B_MASK;
+    data = S2lp_Read_Register(SYNTH3);
+    data = (data & 0xF0) | 0x40 | B_MASK;
 
     bs = BS_DEFAULT;
 
@@ -175,12 +175,13 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
     {
       //RF synth freq inside the high band, setting the BS field to 0, setting charge pump value PLL_CP_ISEL = 010
       //cleaning the low part of SYNTH3, will be set later
-      data = S2lp_Read_Register(SYNTH3) & 0xF0;
-      data = (data | 0x40) & ~B_MASK;
+      data = S2lp_Read_Register(SYNTH3);
+      data = ((data & 0xF0) | 0x40) & ~B_MASK;
 
       bs = BS_DEFAULT >> 1;
 
       S2lp_Write_Register(SYNTH3, data);
+
     }
     else
     {
@@ -198,8 +199,6 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
 
   //loading charge current and BS, taking
   S2lp_Write_Register(SYNTH3, data | ((synthValue & 0x0F000000) >> 24));
-
-  S2lp_Write_Register(XO_RCO_CONFIG0, 0x30);
 
   return OK;
 }
@@ -298,13 +297,16 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   float dataRate_m_f = 1;
   UINT8 modulation = 0;
   UINT8 xMultiplier = 1;
+  float dataRateRead=0;
 
-  UINT32 dataRateRead=0;
+  UINT8 mod0=0;
+  UINT8 mod1=0;
+  UINT8 mod2=0;
+  UINT8 mod3=0;
+  UINT8 mod4=0;
 
   //to avoid jitter DATARATE_E will be set to 15
   //hence using equation (dataRate = fdig/8*DATARATE_M) if DATARATE_E = 15
-
-  //read DATARATE_E to set to 15
   data = S2lp_Read_Register(MOD2);
 
   //setting DATARATE_E = 15
@@ -341,22 +343,25 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   S2lp_Write_Register(MOD4, (UINT8)((dataRate_m & 0xFF00) >> 8));
 
   //datarate test
-  /*S2lp_Write_Register(MOD2, 0xB9);
-  S2lp_Write_Register(MOD3, 0x00);
-  S2lp_Write_Register(MOD4, 0x48);*/
+//  S2lp_Write_Register(MOD0, 0xA3);
+//  S2lp_Write_Register(MOD1, 0x03);
+//  S2lp_Write_Register(MOD2, 0x53);
+//  S2lp_Write_Register(MOD3, 0x8B);
+//  S2lp_Write_Register(MOD4, 0x4F);
+  //END data rate test
 
-  dataRate_m = S2lp_Read_Register(MOD3);
-  dataRate_m = 0;
-
-  dataRate_m = S2lp_Read_Register(MOD4);
-  dataRate_m = 0;
+  mod0 = S2lp_Read_Register(MOD0);
+  mod1 = S2lp_Read_Register(MOD1);
+  mod2 = S2lp_Read_Register(MOD2);
+  mod3 = S2lp_Read_Register(MOD3);
+  mod4 = S2lp_Read_Register(MOD4);
 
   dataRateRead = s2lp_Get_DataRate();
   dataRateRead=0;
 }
 
 //*****************************************************************************
-UINT32 s2lp_Get_DataRate(void)
+float s2lp_Get_DataRate(void)
 //*****************************************************************************
 // Gets the data rate in kbps
 //*****************************************************************************
@@ -364,7 +369,7 @@ UINT32 s2lp_Get_DataRate(void)
   UINT16 dataRate_m = 0;
   UINT8 dataRate_e = 0;
 
-  UINT32 dataRate = 0;
+  float dataRate = 0;
   UINT8 xMultiplier = 1;
   UINT8 modulation = 0;
 
@@ -775,30 +780,39 @@ void S2lp_Init_Pinout(void)
 // start the s2lp module pinout
 //*****************************************************************************
 {
+  UINT32 d=0;
+
   gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 1};
-  gpio_pin_config_t io_config_input = {kGPIO_DigitalInput, 0};
   gpio_pin_config_t io_config_Intinput = {kGPIO_DigitalInput, 0};
 
   /* PTC Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortC);
 
+  /* PTD Clock Gate Control: Clock enabled */
+  CLOCK_EnableClock(kCLOCK_PortD);
+
   /* PORTC12 (pin 69) is configured as GPIO Output for RF Chip shutdown*/
   PORT_SetPinMux(PORTC, 12, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOC, 12, &io_config_output);
 
-  /* PTD Clock Gate Control: Clock enabled */
-  CLOCK_EnableClock(kCLOCK_PortD);
+  S2lp_Disable_ShutDown_Mode();
 
   /* PORTD4 (pin 77) is configured as GPIO  for RF SPI Chip select*/
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOD, 4, &io_config_output);
 
-  //configuring PORTC8 (pin 71) for external interrupt
+  //wait before setting the external interrupt
+  while( d < 0x0000ffff)
+  {
+    d++;
+  }
+
+  //configuring PORTC16 (pin 71) for external interrupt
   PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
   PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);
-  GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
-  GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
+  //GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
   EnableIRQ(PORTC_IRQn);
+  GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
 }
 
 //*****************************************************************************
@@ -831,7 +845,6 @@ void S2lp_Init(void)
   UINT8 dataRead = 0;
 
   S2lp_Init_Pinout();
-  S2lp_Disable_ShutDown_Mode();
 
   //11ms to wait for s2lp writing registers
   while( d < 0x000fffff)
@@ -862,16 +875,16 @@ void S2lp_Init(void)
   if((XTAL_FREQ >= 48) && (XTAL_FREQ <= 52))
   {
     //PD_CLKDIV = 0
-    //digital divider enabled
-    dataRead &= 0xF7;
+    //digital clock dividers enabled
+    dataRead &= 0xEF;
   }
   else
   {
     if((XTAL_FREQ >= 24) && (XTAL_FREQ <= 26))
     {
       //PD_CLKDIV = 1
-      //digital divider enabled
-      dataRead |= 0x80;
+      //digital clock dividers disabled
+      dataRead |= 0x10;
     }
     else
     {
@@ -880,7 +893,7 @@ void S2lp_Init(void)
     }
   }
 
-  S2lp_Write_Register(XO_RCO_CONF1, dataRead);
+   S2lp_Write_Register(XO_RCO_CONF1, dataRead);
 
   s2lp_Set_Operating_State(READY);
   //wait to set the s2lp in READY state
@@ -993,8 +1006,8 @@ void S2lp_Config_Interrupt(void)
   //read the irq_status is useful to know if the interrupt has been triggered also
   //irq_status registers should be clear to clear the interrupt flag
 
-  S2lp_Write_Register(IRQ_MASK0, 0x04); //TX SENT
-  S2lp_Write_Register(IRQ_MASK1, 0x00);
+  S2lp_Write_Register(IRQ_MASK0, 0x00);
+  S2lp_Write_Register(IRQ_MASK1, 0x10); //int 12, valid preamble detected
   S2lp_Write_Register(IRQ_MASK2, 0x00);
   S2lp_Write_Register(IRQ_MASK3, 0x00);
 }
@@ -1020,8 +1033,8 @@ void s2lp_Set_Packet_Format_StAck(void)
 
   //CrC poly 0x8005
   //TXSource: normal mode
-  //enable whitening
-  S2lp_Write_Register(PCKTCTRL1, 0x30);
+  //disable whitening
+  S2lp_Write_Register(PCKTCTRL1, 0x40);
   dataRead = S2lp_Read_Register(PCKTCTRL1);
 
   //variable packet length
@@ -1033,7 +1046,8 @@ void s2lp_Set_Packet_Format_StAck(void)
   //RX_MODE:        0 -> NORMAL_MODE
   //FSK4_SYM_SWAP:  0 -> S0 = b7b6, S1 = b5b4, S2 = b3b2, S3 = b1b0
   //BYTE_SWAP:      0 -> MSB first
-  S2lp_Write_Register(PCKTCTRL3, 0xC0);
+  //Preamble selection pattern [1] -> 1010 for ASK_OOK o 2GFSK, 0010 for 4GFSK
+  S2lp_Write_Register(PCKTCTRL3, 0xC1);
   dataRead = S2lp_Read_Register(PCKTCTRL3);
 
   //add address info data into packet (Rxaddr = 1byte + TxAddr = 1 byte + payload = x bytes)
@@ -1084,6 +1098,16 @@ void s2lp_Set_Packet_Format_StAck(void)
   S2lp_Write_Register(SYNC_1_REG, SYNC_1_DATA);
   S2lp_Write_Register(SYNC_2_REG, SYNC_2_DATA);
   S2lp_Write_Register(SYNC_3_REG, SYNC_3_DATA);
+
+  //Test pcktrl
+  S2lp_Write_Register(PCKTCTRL1, 0x20);
+  S2lp_Write_Register(PCKTCTRL2, 0x01);
+  S2lp_Write_Register(PCKTCTRL3, 0x01);
+  S2lp_Write_Register(PCKTCTRL4, 0x00);
+  S2lp_Write_Register(PCKTCTRL5, 0x10);
+  S2lp_Write_Register(PCKTCTRL6, 0x80);
+  //endTestPckCtrl
+
 }
 
 //*****************************************************************************

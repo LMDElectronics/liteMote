@@ -34,8 +34,6 @@
 #define IRQ_MASK2       0x51
 #define IRQ_MASK3       0x50
 
-#define XO_RCO_CONF1    0x6D
-
 #define PM_CONFIG0      0x79
 #define PM_CONFIG1      0x78
 #define PM_CONFIG2      0x77
@@ -47,7 +45,8 @@
 #define SYNTH2          0x06
 #define SYNTH3          0x05
 
-#define XO_RCO_CONFIG0  0x60
+#define XO_RCO_CONF1  0x6C
+#define XO_RCO_CONF0  0x6D
 
 #define CHSPACE         0x0c
 #define CHNUM           0x0d
@@ -143,7 +142,7 @@
 #define TWO_GFSK_BT_05  10
 #define FOUR_GFSK_BT_05 11
 
-
+#define DATA_RATE_2_KBPS  2
 #define DATA_RATE_25_KBPS  25
 #define DATA_RATE_50_KBPS  50
 #define DATA_RATE_100_KBPS  100
@@ -237,7 +236,7 @@ float s2lp_Get_Base_Center_Freq(void);
 float S2lp_Get_Tx_Freq(void);
 
 void s2lp_Set_DataRate(UINT32 dataRate);
-UINT32 s2lp_Get_DataRate(void);
+float s2lp_Get_DataRate(void);
 
 void s2lp_Set_Channel_Num(UINT8 channelNum);
 UINT8 s2lp_Get_Channel_Num(void);

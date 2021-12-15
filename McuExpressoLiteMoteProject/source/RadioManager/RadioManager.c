@@ -57,8 +57,9 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
 
   switch(current_Radio_Conf_Data.dataRate)
   {
-    case INDEXED_DATA_RATE_25_KBPS: s2lp_Set_DataRate(DATA_RATE_25_KBPS);     break;
-    case INDEXED_DATA_RATE_50_KBPS: s2lp_Set_DataRate(DATA_RATE_50_KBPS);     break;
+    case INDEXED_DATA_RATE_2_KBPS: s2lp_Set_DataRate(DATA_RATE_2_KBPS);         break;
+    case INDEXED_DATA_RATE_25_KBPS: s2lp_Set_DataRate(DATA_RATE_25_KBPS);       break;
+    case INDEXED_DATA_RATE_50_KBPS: s2lp_Set_DataRate(DATA_RATE_50_KBPS);       break;
     case INDEXED_DATA_RATE_100_KBPS: s2lp_Set_DataRate(DATA_RATE_100_KBPS);     break;
     case INDEXED_DATA_RATE_200_KBPS: s2lp_Set_DataRate(DATA_RATE_200_KBPS);     break;
     case INDEXED_DATA_RATE_300_KBPS: s2lp_Set_DataRate(DATA_RATE_300_KBPS);     break;
@@ -92,6 +93,9 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
   s2lp_Set_RadioStackPacket_Source_Address(myAddress);
   s2lp_Set_RadioStackPacket_Destination_Address(destination_addr);
   s2lp_Load_Tx_FIFO(payload, payloadLength);
+
+  //preamble + sync + address + payloadlength + CRC + postamble
+  s2lp_Set_Tx_Packet_Length(((STACK_PREAMBLE_BIT_PAIRS << 1)/8) + (STACK_SYNC_BITS/8) + 2 /* calcular address bytes*/ + payloadLength + 2 /*CRC*/ );
 
   if(ack == ACK_NEEDED)
   {
@@ -137,10 +141,13 @@ void Radio_Manager_Tx_Motor(void)
 
           //3 - start timer
           tpmIsrFlag = FALSE; //reset isr flag
-          Radio_Window_Timer_Start_Timer();
+          //Radio_Window_Timer_Start_Timer();
 
           //4 - start tx
           s2lp_Start_Tx();
+
+          //test to Tx just one packet
+          tpmIsrFlag = true;
 
           radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
         }
@@ -189,6 +196,25 @@ void Radio_Manager_Tx_Motor(void)
   }
 }
 
+void Radio_Manager_Rx_Motor(void)
+{
+  UINT8 i=0;
+
+  //test
+  if(s2lp_Get_Operating_State() == STATE_READY)
+  {
+    S2lp_Send_Command(RX);
+
+    while(s2lp_Get_Operating_State() != STATE_RX)
+    {
+
+    }
+
+    i = s2lp_Get_Operating_State();
+    i=0;
+  }
+}
+
 //*****************************************************************************
 // Tx send timer functions
 //*****************************************************************************
@@ -201,14 +227,6 @@ void Radio_Window_Timer_Init(void)
 {
   tpm_config_t tpmInfo;
 
-  //test
-  /*gpio_pin_config_t wp_config = {kGPIO_DigitalOutput, 1};
-  PORT_SetPinMux(PORTC, 10U, kPORT_MuxAsGpio);
-  GPIO_PinInit(GPIOC, 10, &wp_config);
-  GPIO_PortClear(GPIOC, 1u << 10);*/
-
-  //enabling clcok gate for tpm peripheral
-  //CLOCK_SetTpmClock(1U);
   CLOCK_SetTpmClock(3U);
 
   TPM_GetDefaultConfig(&tpmInfo);
@@ -259,7 +277,7 @@ UINT8 Is_Send_Timer_Timeout_Flag_Set(void)
 //*****************************************************************************
 //void Radio_Manager_ISR
 //*****************************************************************************
-// Motor to Rx the radio packets received
+// Tx timer isr
 //*****************************************************************************
 void BOARD_TPM_HANDLER(void)
 {

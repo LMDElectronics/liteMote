@@ -51,6 +51,8 @@
 #include "Health_Manager/health_manager.h"
 #include "Supervisor/Supervisor.h"
 
+#include "External_HW_Drivers/s2lp/s2lp.h"
+
 int main(void)
 {
   UINT8 current_state = 0;
@@ -111,7 +113,8 @@ int main(void)
     //periodically report health data to host
     Health_Manager_Motor();
 
-    //current_state = s2lp_Get_Operating_State();
+    current_state = s2lp_Get_Operating_State();
+    current_state  = 0;
 
   }
   return 0;

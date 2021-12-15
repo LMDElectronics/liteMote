@@ -34,6 +34,7 @@ enum
 void Radio_Manager_Config(void);
 void Radio_Manager_Init(void);
 void Radio_Manager_Tx_Motor(void);
+void Radio_Manager_Rx_Motor(void);
 
 //tx window function
 void Radio_Window_Timer_Init(void);
