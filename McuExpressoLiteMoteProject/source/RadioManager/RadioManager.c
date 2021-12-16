@@ -79,7 +79,7 @@ void Radio_Manager_Init(void)
 //****************************************************************************
 {
   S2lp_Init();
-  Radio_Window_Timer_Init();
+  Radio_Tx_Window_Timer_Init();
 
   radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 }
@@ -92,10 +92,19 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 {
   s2lp_Set_RadioStackPacket_Source_Address(myAddress);
   s2lp_Set_RadioStackPacket_Destination_Address(destination_addr);
+
+  S2lp_Send_Command(FLUSHRXFIFO);
+  S2lp_Send_Command(FLUSHTXFIFO);
+
+  while(s2lp_Get_Operating_State() != STATE_READY);
+
   s2lp_Load_Tx_FIFO(payload, payloadLength);
 
   //preamble + sync + address + payloadlength + CRC + postamble
-  s2lp_Set_Tx_Packet_Length(((STACK_PREAMBLE_BIT_PAIRS << 1)/8) + (STACK_SYNC_BITS/8) + 2 /* calcular address bytes*/ + payloadLength + 2 /*CRC*/ );
+  //s2lp_Set_Tx_Packet_Length(((STACK_PREAMBLE_BIT_PAIRS << 1)/8) + (STACK_SYNC_BITS/8) + 2 /* calcular address bytes*/ + payloadLength + 2 /*CRC*/ );
+
+  //test
+  s2lp_Set_Tx_Packet_Length(payloadLength);
 
   if(ack == ACK_NEEDED)
   {
@@ -128,6 +137,14 @@ void Radio_Manager_Tx_Motor(void)
         {
           radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
+          //test
+          radio_packet_to_Tx.payload[0] = (UINT8)('H');
+          radio_packet_to_Tx.payload[1] = (UINT8)('E');
+          radio_packet_to_Tx.payload[2] = (UINT8)('L');
+          radio_packet_to_Tx.payload[3] = (UINT8)('L');
+          radio_packet_to_Tx.payload[4] = (UINT8)('O');
+          radio_packet_to_Tx.header.frame_payload_length = 5;
+
           //1 - Load Radio packet
           Radio_Manager_Load_Packet(
               (UINT8)CnfManager_Get_My_Address(),
@@ -141,7 +158,7 @@ void Radio_Manager_Tx_Motor(void)
 
           //3 - start timer
           tpmIsrFlag = FALSE; //reset isr flag
-          //Radio_Window_Timer_Start_Timer();
+          //Radio_Tx_Window_Timer_Start_Timer();
 
           //4 - start tx
           s2lp_Start_Tx();
@@ -200,18 +217,10 @@ void Radio_Manager_Rx_Motor(void)
 {
   UINT8 i=0;
 
-  //test
   if(s2lp_Get_Operating_State() == STATE_READY)
   {
+    s2lp_Clear_IrqStatus();
     S2lp_Send_Command(RX);
-
-    while(s2lp_Get_Operating_State() != STATE_RX)
-    {
-
-    }
-
-    i = s2lp_Get_Operating_State();
-    i=0;
   }
 }
 
@@ -220,7 +229,7 @@ void Radio_Manager_Rx_Motor(void)
 //*****************************************************************************
 
 //*****************************************************************************
-void Radio_Window_Timer_Init(void)
+void Radio_Tx_Window_Timer_Init(void)
 //*****************************************************************************
 // Inits the timer controlling the Tx window time
 //*****************************************************************************
@@ -251,7 +260,7 @@ void Radio_Window_Timer_Set_Tx_Window(UINT16 timeout)
 }
 
 //*****************************************************************************
-void Radio_Window_Timer_Start_Timer(void)
+void Radio_Tx_Window_Timer_Start_Timer(void)
 //*****************************************************************************
 {
   TPM_StartTimer(BOARD_TPM, kTPM_SystemClock);

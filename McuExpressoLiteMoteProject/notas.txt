@@ -161,11 +161,12 @@ TAREA en proceso:
 			3-> comprobar si se recibe con el datarate mas bajo y la modulacion 2FSK
 				-> TX interrupcion
 					-> OK									  					   
-					-> analizar modulacion y datos con el universal radio hacker
-					-> tirar un paquete conocido 
+				
+				-> crear una funcion de test para poder configurar todos los registros como el s2lp de demo 
+				   e ir descartando que configuracion es la que no es correcta
 									
-				-> Rx (poner el receptor en Rx state) -> FALTA
-					-> configurar el primer timer de rx del s2lp sino no inicia la recepción
+					-> Rx (poner el receptor en Rx state) -> FALTA
+						-> configurar el primer timer de rx del s2lp sino no inicia la recepción
 								
 RGB LED:
 --------

@@ -62,19 +62,31 @@
 
 #define CHFLT   0x013
 
+#define AFC0    0x16
 #define AFC1    0x15
+#define AFC2    0x14
 
 #define RSSI_FLT    0x17
 #define RSSI_TH     0x18
 
+#define AGCCTRL5 0x19
+#define AGCCTRL4 0x1A
+#define AGCCTRL3 0x1B
+#define AGCCTRL2 0x1C
+#define AGCCTRL1 0x1D
+#define AGCCTRL0 0x1E
+
 #define ANT_SELECT_CONF 0x1F
+
+#define CLKREC2 0x20
+#define CLKREC1 0x21
 
 #define MC_STATE0   0x8E
 
 #define PA_POWER0   0x62
 #define PA_POWER8   0x5A
 
-#define PA_CONFIG1  0x63
+#define SYNTH_CONFIG2 0x65
 
 #define PCKTCTRL1   0x30
 #define PCKTCTRL2   0x2F
@@ -111,6 +123,9 @@
 #define PROTOCOL0   0x3B
 #define PROTOCOL1   0x3A
 #define PROTOCOL2   0x39
+
+#define PA_CONFIG0      0x64
+#define PA_CONFIG1      0x63
 
 #define TX_FIFO_STATUS  0x8F
 #define RX_FIFO_STATUS  0x90
@@ -163,10 +178,10 @@
 #define STACK_SYNC_BITS_SHIFT               0x02
 #define STACK_SYNC_BITS                     32 //number of sync bits [0-32], from s2lp datasheet
 
-#define SYNC_0_DATA                         0xAA
-#define SYNC_1_DATA                         0xBB
-#define SYNC_2_DATA                         0xCC
-#define SYNC_3_DATA                         0xDD
+#define SYNC_0_DATA                         0xF0
+#define SYNC_1_DATA                         0xF0
+#define SYNC_2_DATA                         0xF0
+#define SYNC_3_DATA                         0xF0
 
 #define TX_ACK_MASK                         0x04
 
@@ -233,7 +248,6 @@ UINT8 s2lp_Get_Modulation_Type(void);
 
 UINT8 S2lp_Set_Base_Center_Freq(float baseFreq);
 float s2lp_Get_Base_Center_Freq(void);
-float S2lp_Get_Tx_Freq(void);
 
 void s2lp_Set_DataRate(UINT32 dataRate);
 float s2lp_Get_DataRate(void);
@@ -270,7 +284,6 @@ UINT8 s2lp_Get_Tx_Source_Data_Mode(void);
 void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount);
 void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer);
 
-UINT8 s2lp_Set_Operating_State(UINT8 newStateCommand);
 UINT8 s2lp_Get_Operating_State(void);
 
 void s2lp_Start_Tx(void);
@@ -295,7 +308,7 @@ void s2lp_ResetPacketsTx(void);
 
 void s2lp_Test_Tx_RC();
 void s2lp_Test_Rx_RC();
-
+s2lp_Config_Test_Registers(void);
 void S2lp_Test(void);
 
 #endif /* MCU_DRIVERS_S2LP_S2LP_H_ */

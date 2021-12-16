@@ -32,6 +32,8 @@ const port_pin_config_t portc16_pin71_config = {/* Internal pull-up resistor is 
 
 UINT32 packetsTx=0;
 
+UINT8 rx_PacketReceived_Flag = 0;
+
 //*****************************************************************************
 void S2lp_SPI_Callback(volatile UINT8 *dataReceived)
 //*****************************************************************************
@@ -82,8 +84,9 @@ void S2lp_Config_Power_Management(void)
   //test
   S2lp_Write_Register(PM_CONFIG0, 0x42);
   S2lp_Write_Register(PM_CONFIG1, 0x39);
-  S2lp_Write_Register(PM_CONFIG2, 0xFC);
-  S2lp_Write_Register(PM_CONFIG3, 0x87);
+  S2lp_Write_Register(PM_CONFIG2, 0xF4);
+  S2lp_Write_Register(PM_CONFIG3, 0x9B);
+  //end test
 }
 
 //****************************************************************************
@@ -156,6 +159,11 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
   UINT8 data = 0;
   UINT8 bs = 8;
 
+  UINT8 synth0=0;
+  UINT8 synth1=1;
+  UINT8 synth2=2;
+  UINT8 synth3=3;
+
   //check the base freq param middle band[413 - 527]Mhz - high band[826 - 1055]Mhz
   if((baseFreq >= MIN_MIDDLE_BAND_RFSYNTH_FREQ) && (baseFreq <= MAX_MIDDLE_BAND_RFSYNTH_FREQ))
   {
@@ -199,6 +207,24 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
 
   //loading charge current and BS, taking
   S2lp_Write_Register(SYNTH3, data | ((synthValue & 0x0F000000) >> 24));
+
+  //test
+  S2lp_Write_Register(SYNTH0, 0x99);
+  S2lp_Write_Register(SYNTH1, 0x84);
+  S2lp_Write_Register(SYNTH2, 0x2b);
+  S2lp_Write_Register(SYNTH3, 0x62);
+
+  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
+  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
+
+  S2lp_Write_Register(CHFLT, 0x13);
+  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
+
+  synth0 = S2lp_Read_Register(SYNTH0);
+  synth1 = S2lp_Read_Register(SYNTH1);
+  synth2 = S2lp_Read_Register(SYNTH2);
+  synth3 = S2lp_Read_Register(SYNTH3);
+  //end test
 
   return OK;
 }
@@ -305,6 +331,10 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 mod3=0;
   UINT8 mod4=0;
 
+  UINT8 afc2 = 0;
+  UINT8 afc1 = 0;
+  UINT8 afc0 = 0;
+
   //to avoid jitter DATARATE_E will be set to 15
   //hence using equation (dataRate = fdig/8*DATARATE_M) if DATARATE_E = 15
   data = S2lp_Read_Register(MOD2);
@@ -342,19 +372,28 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   S2lp_Write_Register(MOD3, (UINT8)(dataRate_m & 0x00FF));
   S2lp_Write_Register(MOD4, (UINT8)((dataRate_m & 0xFF00) >> 8));
 
-  //datarate test
-//  S2lp_Write_Register(MOD0, 0xA3);
-//  S2lp_Write_Register(MOD1, 0x03);
-//  S2lp_Write_Register(MOD2, 0x53);
-//  S2lp_Write_Register(MOD3, 0x8B);
-//  S2lp_Write_Register(MOD4, 0x4F);
-  //END data rate test
+  //test
+  S2lp_Write_Register(MOD0, 0xA3);
+  S2lp_Write_Register(MOD1, 0x03);
+  S2lp_Write_Register(MOD2, 0x53);
+  S2lp_Write_Register(MOD3, 0x35);
+  S2lp_Write_Register(MOD4, 0x4F);
 
   mod0 = S2lp_Read_Register(MOD0);
   mod1 = S2lp_Read_Register(MOD1);
   mod2 = S2lp_Read_Register(MOD2);
   mod3 = S2lp_Read_Register(MOD3);
   mod4 = S2lp_Read_Register(MOD4);
+
+  S2lp_Write_Register(AFC2, 0xC8);
+  S2lp_Write_Register(AFC1, 0x18);
+  S2lp_Write_Register(AFC0, 0x25);
+
+  afc2 = S2lp_Read_Register(AFC2);
+  afc1 = S2lp_Read_Register(AFC1);
+  afc0 = S2lp_Read_Register(AFC0);
+
+  //end test
 
   dataRateRead = s2lp_Get_DataRate();
   dataRateRead=0;
@@ -460,26 +499,6 @@ UINT8 s2lp_Get_Channel_Space(void)
 //*****************************************************************************
 {
   return S2lp_Read_Register(CHSPACE);
-}
-
-//*****************************************************************************
-float S2lp_Get_Tx_Freq(void)
-//*****************************************************************************
-// Gets the Tx center frequency according to channel number and channel spacing
-//*****************************************************************************
-{
-  UINT8 channel_number = 0;
-  UINT8 channel_spacing = 0;
-  float baseFreq = 0;
-  float txFreq=0;
-
-  baseFreq = s2lp_Get_Base_Center_Freq();
-  channel_spacing = s2lp_Get_Channel_Space();
-  channel_number = s2lp_Get_Channel_Num();
-
-  txFreq = baseFreq + ((((float)(XTAL_FREQ * 1000)/(float)(32.768))*channel_spacing) * channel_number);
-
-  return txFreq;
 }
 
 //*****************************************************************************
@@ -624,7 +643,7 @@ void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount)
 
   for(i=0; i < byteCount; i++)
   {
-    S2lp_Write_Register(REG_FIFO, dataBuffer[byteCount]);
+    S2lp_Write_Register(REG_FIFO, dataBuffer[i]);
   }
 }
 
@@ -853,7 +872,7 @@ void S2lp_Init(void)
   }
 
   //setting up the divider for s2lp digital HW (in STANDBY STATE)
-  state = s2lp_Get_Operating_State();
+  /*state = s2lp_Get_Operating_State();
   if(state != STATE_STANDBY)
   {
     s2lp_Set_Operating_State(STANDBY);
@@ -904,20 +923,15 @@ void S2lp_Init(void)
     {
       break;
     }
-  }
+  }*/
 
+  //test
+  s2lp_Clear_IrqStatus();
   S2lp_Config_Interrupt();
-  S2lp_Config_Power_Management();
-
-  //default init configuration
-  /*S2lp_Set_Base_Center_Freq(868);
-  s2lp_Set_Modulation_Type(FOUR_GFSK_BT_05);
-  s2lp_Set_DataRate(DATA_RATE_500_KBPS);
-  s2lp_Set_Channel_Num(0);
-  s2lp_Set_Tx_Power_Config(0);*/
+  /*S2lp_Config_Power_Management();
 
   //config STACK packet type by default
-  s2lp_Set_Packet_Format_StAck();
+  s2lp_Set_Packet_Format_StAck();*/
 }
 
 //*****************************************************************************
@@ -1006,10 +1020,37 @@ void S2lp_Config_Interrupt(void)
   //read the irq_status is useful to know if the interrupt has been triggered also
   //irq_status registers should be clear to clear the interrupt flag
 
-  S2lp_Write_Register(IRQ_MASK0, 0x00);
+  //test rx preamble detected
+  /*S2lp_Write_Register(IRQ_MASK0, 0x00);
   S2lp_Write_Register(IRQ_MASK1, 0x10); //int 12, valid preamble detected
   S2lp_Write_Register(IRQ_MASK2, 0x00);
+  S2lp_Write_Register(IRQ_MASK3, 0x00);*/
+
+  //test rx preamble detected
+  S2lp_Write_Register(IRQ_MASK0, 0x01); //Rx data ready
+  S2lp_Write_Register(IRQ_MASK1, 0x00);
+  S2lp_Write_Register(IRQ_MASK2, 0x00);
   S2lp_Write_Register(IRQ_MASK3, 0x00);
+
+  //test rx preamble detected
+  /*S2lp_Write_Register(IRQ_MASK0, 0x00);
+  S2lp_Write_Register(IRQ_MASK1, 0x20); //int 12, valid sync word
+  S2lp_Write_Register(IRQ_MASK2, 0x00);
+  S2lp_Write_Register(IRQ_MASK3, 0x00);*/
+
+  //test Tx packet sent
+  /*S2lp_Write_Register(IRQ_MASK0, 0x04); //tx data sent
+  S2lp_Write_Register(IRQ_MASK1, 0x00);
+  S2lp_Write_Register(IRQ_MASK2, 0x00);
+  S2lp_Write_Register(IRQ_MASK3, 0x00);*/
+
+  //test Tx packet sent
+  /*S2lp_Write_Register(IRQ_MASK0, 0x00);
+  S2lp_Write_Register(IRQ_MASK1, 0x00);
+  S2lp_Write_Register(IRQ_MASK2, 0x00);
+  S2lp_Write_Register(IRQ_MASK3, 0x10); //rx timer timeout
+  */
+
 }
 
 //*****************************************************************************
@@ -1030,6 +1071,13 @@ void s2lp_Set_Packet_Format_StAck(void)
   UINT8 dataRead = 0;
   UINT16 preambleBits = 0;
   UINT8 AFCData = 0;
+
+  UINT8 pckcrtl1=0;
+  UINT8 pckcrtl2=0;
+  UINT8 pckcrtl3=0;
+  UINT8 pckcrtl4=0;
+  UINT8 pckcrtl5=0;
+  UINT8 pckcrtl6=0;
 
   //CrC poly 0x8005
   //TXSource: normal mode
@@ -1099,14 +1147,38 @@ void s2lp_Set_Packet_Format_StAck(void)
   S2lp_Write_Register(SYNC_2_REG, SYNC_2_DATA);
   S2lp_Write_Register(SYNC_3_REG, SYNC_3_DATA);
 
-  //Test pcktrl
-  S2lp_Write_Register(PCKTCTRL1, 0x20);
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  S2lp_Write_Register(PCKTCTRL3, 0x01);
-  S2lp_Write_Register(PCKTCTRL4, 0x00);
-  S2lp_Write_Register(PCKTCTRL5, 0x10);
+  //test
   S2lp_Write_Register(PCKTCTRL6, 0x80);
-  //endTestPckCtrl
+  S2lp_Write_Register(PCKTCTRL5, 0x10);
+  S2lp_Write_Register(PCKTCTRL4, 0x00);
+  S2lp_Write_Register(PCKTCTRL3, 0x01); //1010 preamble sequence for ook modulation
+  S2lp_Write_Register(PCKTCTRL2, 0x01);
+  S2lp_Write_Register(PCKTCTRL1, 0x20);
+
+  pckcrtl6 = S2lp_Read_Register(PCKTCTRL6);
+  pckcrtl5 = S2lp_Read_Register(PCKTCTRL5);
+  pckcrtl4 = S2lp_Read_Register(PCKTCTRL4);
+  pckcrtl3 = S2lp_Read_Register(PCKTCTRL3);
+  pckcrtl2 = S2lp_Read_Register(PCKTCTRL2);
+  pckcrtl1 = S2lp_Read_Register(PCKTCTRL1);
+
+  S2lp_Write_Register(PROTOCOL1, 0x01);
+  S2lp_Write_Register(PROTOCOL2, 0x40);
+
+  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x41);
+
+  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
+
+  S2lp_Write_Register(PA_POWER8, 0x15);
+  S2lp_Write_Register(PA_POWER0, 0x87);
+
+  S2lp_Write_Register(PA_CONFIG1, 0x01);
+  S2lp_Write_Register(PA_CONFIG0, 0x88);
+
+  //end test
 
 }
 
@@ -1194,7 +1266,7 @@ void s2lp_Start_Tx(void)
 
   opState = s2lp_Get_Operating_State();
 
-  S2lp_Send_Command(TX);
+  s2lp_Set_Operating_State(TX);
 
   opState = s2lp_Get_Operating_State();
 }
@@ -1566,6 +1638,86 @@ void s2lp_Test_Rx_RC()
   }
 }
 
+s2lp_Config_Test_Registers(void)
+{
+  S2lp_Write_Register(SYNTH3, 0x62);
+  S2lp_Write_Register(SYNTH2, 0x2b);
+  S2lp_Write_Register(SYNTH1, 0x84);
+  S2lp_Write_Register(SYNTH0, 0x99);
+
+  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
+  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
+
+  S2lp_Write_Register(CHSPACE, 0x3f);
+  S2lp_Write_Register(CHNUM, 0x00);
+
+  S2lp_Write_Register(MOD4, 0x4F);
+  S2lp_Write_Register(MOD3, 0x8B);
+  S2lp_Write_Register(MOD2, 0x53);
+  S2lp_Write_Register(MOD1, 0x03);
+  S2lp_Write_Register(MOD0, 0xA3);
+
+  S2lp_Write_Register(CHFLT, 0x13);
+
+  S2lp_Write_Register(AFC2, 0xC8);
+  S2lp_Write_Register(AFC1, 0x18);
+  S2lp_Write_Register(AFC0, 0x25);
+
+  S2lp_Write_Register(RSSI_FLT, 0xE0);
+
+  S2lp_Write_Register(AGCCTRL5, 0x80);
+  S2lp_Write_Register(AGCCTRL4, 0x54);
+  S2lp_Write_Register(AGCCTRL3, 0x10);
+  S2lp_Write_Register(AGCCTRL2, 0x22);
+  S2lp_Write_Register(AGCCTRL1, 0x59);
+  S2lp_Write_Register(AGCCTRL0, 0x8C);
+
+  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
+
+  S2lp_Write_Register(CLKREC2, 0xc0);
+  S2lp_Write_Register(CLKREC1, 0x58);
+
+  S2lp_Write_Register(PCKTCTRL6, 0x80);
+  S2lp_Write_Register(PCKTCTRL5, 0x10);
+  S2lp_Write_Register(PCKTCTRL4, 0x00);
+  S2lp_Write_Register(PCKTCTRL3, 0x01);
+  S2lp_Write_Register(PCKTCTRL2, 0x01);
+  S2lp_Write_Register(PCKTCTRL1, 0x20);
+
+  S2lp_Write_Register(PCKTLEN1, 0x00);
+  S2lp_Write_Register(PCKTLEN0, 0x05);
+
+  S2lp_Write_Register(SYNC_3_REG, 0xf0);
+  S2lp_Write_Register(SYNC_2_REG, 0xf0);
+  S2lp_Write_Register(SYNC_1_REG, 0xf0);
+  S2lp_Write_Register(SYNC_0_REG, 0xf0);
+
+  S2lp_Write_Register(PROTOCOL2, 0x40);
+  S2lp_Write_Register(PROTOCOL1, 0x01);
+  S2lp_Write_Register(PROTOCOL0, 0x08);
+
+  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
+  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
+
+  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x01);
+
+  S2lp_Write_Register(PA_POWER8, 0x15);
+  S2lp_Write_Register(PA_POWER0, 0x87);
+
+  S2lp_Write_Register(PM_CONFIG4, 0x17);
+  S2lp_Write_Register(PM_CONFIG3, 0x9b);
+  S2lp_Write_Register(PM_CONFIG2, 0xf4);
+  S2lp_Write_Register(PM_CONFIG1, 0x39);
+  S2lp_Write_Register(PM_CONFIG0, 0x42);
+
+  S2lp_Write_Register(SYNTH_CONFIG2, 0xD0);
+
+  S2lp_Write_Register(PA_CONFIG0, 0x88);
+  S2lp_Write_Register(PA_CONFIG1, 0x01);
+}
+
 //*****************************************************************************
 void S2lp_Test(void)
 //*****************************************************************************
@@ -1583,11 +1735,14 @@ void PORTC_IRQHandler(void)
 // External s2lp interrupt pin
 //*****************************************************************************
 {
+  UINT8 i=0;
+
   /* Clear external interrupt flag. */
   GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
   /* Change state of button. */
 
   packetsTx++;
+  rx_PacketReceived_Flag = TRUE;
 
 /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
   exception return operation might vector to incorrect interrupt */

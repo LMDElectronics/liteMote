@@ -87,6 +87,8 @@ int main(void)
   Packet_Manager_Init();
   Health_Manager_Init();
 
+  s2lp_Config_Test_Registers();
+
   //just for test
     //Send_byte_per_second();
     //mx25l128_test();
@@ -96,6 +98,8 @@ int main(void)
     //s2lp_Test_Tx_RC();
     //s2lp_Test_Rx_RC();
   //end test
+
+  //Radio_Manager_Rx_Motor();
 
   while(1)
   {
