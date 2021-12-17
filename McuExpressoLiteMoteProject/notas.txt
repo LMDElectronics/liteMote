@@ -164,9 +164,11 @@ TAREA en proceso:
 				
 				-> crear una funcion de test para poder configurar todos los registros como el s2lp de demo 
 				   e ir descartando que configuracion es la que no es correcta
-									
-					-> Rx (poner el receptor en Rx state) -> FALTA
-						-> configurar el primer timer de rx del s2lp sino no inicia la recepción
+											
+					Tx LiteMote -> Rx nucleo s2lp [OK]
+					
+					Es necesario cambiar la ecuacion de calculo del datarate, usar la ecuacion 2, del punto 5.4.5 del datasheet
+					corrigiendo get base freq funcion 										 						
 								
 RGB LED:
 --------

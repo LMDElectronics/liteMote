@@ -209,17 +209,6 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
   S2lp_Write_Register(SYNTH3, data | ((synthValue & 0x0F000000) >> 24));
 
   //test
-  S2lp_Write_Register(SYNTH0, 0x99);
-  S2lp_Write_Register(SYNTH1, 0x84);
-  S2lp_Write_Register(SYNTH2, 0x2b);
-  S2lp_Write_Register(SYNTH3, 0x62);
-
-  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
-  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
-
-  S2lp_Write_Register(CHFLT, 0x13);
-  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
-
   synth0 = S2lp_Read_Register(SYNTH0);
   synth1 = S2lp_Read_Register(SYNTH1);
   synth2 = S2lp_Read_Register(SYNTH2);
@@ -315,7 +304,7 @@ UINT8 s2lp_Get_Modulation_Type(void)
 //*****************************************************************************
 void s2lp_Set_DataRate(UINT32 dataRate)
 //*****************************************************************************
-// Sets the data rate (kbytes per second) forcing DATARATE_E = 15
+// Sets the data rate (kbits per second) forcing DATARATE_E = 15
 //*****************************************************************************
 {
   UINT8 data=0;
@@ -324,6 +313,8 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 modulation = 0;
   UINT8 xMultiplier = 1;
   float dataRateRead=0;
+  UINT8 datarate_e=0;
+  UINT32 exp=1;
 
   UINT8 mod0=0;
   UINT8 mod1=0;
@@ -335,33 +326,29 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 afc1 = 0;
   UINT8 afc0 = 0;
 
-  //to avoid jitter DATARATE_E will be set to 15
-  //hence using equation (dataRate = fdig/8*DATARATE_M) if DATARATE_E = 15
-  data = S2lp_Read_Register(MOD2);
-
-  //setting DATARATE_E = 15
-  data &= MODULATION_MASK;
-  data |= 0x0f;
-  S2lp_Write_Register(MOD2, data);
-
   //Get modulation to check if its 2 or 4 FSK or GFSK to produce the kbps from symbol per second former datarate
   modulation = s2lp_Get_Modulation_Type();
 
-  if((modulation == TWO_FSK) || (modulation == TWO_GFSK_BT_1) || (modulation == TWO_GFSK_BT_05))
+  //using 2 bytes to represent the four symbols
+  if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
   {
     xMultiplier = 2;
   }
-  else
+
+  //Using equation 2 from 5.4.5 datasheet DATARATE_E > 0 [1-14] the algorithm will loop against DATARATE_E to found the first
+  //valid datarate that match with the datarate input parameter
+  for(datarate_e = 1; datarate_e < 15; datarate_e++)
   {
-    if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
+    //calculate datarate_m
+    dataRate_m_f = ((float)((dataRate/xMultiplier) * (1 << (33 - datarate_e))) / (float)(XTAL_FREQ * 500)) - (1<<16);
+
+    if((dataRate_m_f < 65535) && (dataRate_m_f > 0))
     {
-      xMultiplier = 4;
+      //valid datarate_m found, exit loop
+      break;
     }
   }
 
-  //need to pass from bps to symbols per second with
-  //125000 = 1000000 / 8, reducing the Mhz factor on equation
-  dataRate_m_f = ((float)((XTAL_FREQ / 2) * (31.25)) / (float)(dataRate / xMultiplier));
   dataRate_m = (UINT16)(dataRate_m_f);
 
   if((dataRate_m_f / dataRate_m) > 1)
@@ -372,13 +359,14 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   S2lp_Write_Register(MOD3, (UINT8)(dataRate_m & 0x00FF));
   S2lp_Write_Register(MOD4, (UINT8)((dataRate_m & 0xFF00) >> 8));
 
-  //test
-  S2lp_Write_Register(MOD0, 0xA3);
-  S2lp_Write_Register(MOD1, 0x03);
-  S2lp_Write_Register(MOD2, 0x53);
-  S2lp_Write_Register(MOD3, 0x35);
-  S2lp_Write_Register(MOD4, 0x4F);
+  data = S2lp_Read_Register(MOD2);
 
+  //setting DATARATE_E = 15
+  data &= MODULATION_MASK;
+  data |= datarate_e;
+  S2lp_Write_Register(MOD2, data);
+
+  //test
   mod0 = S2lp_Read_Register(MOD0);
   mod1 = S2lp_Read_Register(MOD1);
   mod2 = S2lp_Read_Register(MOD2);
@@ -424,19 +412,13 @@ float s2lp_Get_DataRate(void)
   //Get modulation to check if its 2 or 4 FSK or GFSK to produce the kbps from symbol per second former datarate
   modulation = s2lp_Get_Modulation_Type();
 
-  if((modulation == TWO_FSK) || (modulation == TWO_GFSK_BT_1) || (modulation == TWO_GFSK_BT_05))
+  if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
   {
     xMultiplier = 2;
   }
-  else
-  {
-    if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
-    {
-      xMultiplier = 4;
-    }
-  }
 
-  //depending on datarate_e the equation to extract datarate changesaccording to datasheet p. 32 section 5.4.5
+
+  //depending on datarate_e the equation to extract datarate changes according to datasheet p. 32 section 5.4.5
   if(dataRate_e == 0)
   {
     dataRate = (((XTAL_FREQ / 2) * (dataRate_m)) / (4294967296));
@@ -445,7 +427,7 @@ float s2lp_Get_DataRate(void)
   {
     if(dataRate_e < 15)
     {
-      dataRate = (((XTAL_FREQ / 2) * (dataRate_m + 65536) * dataRate_e) / (8589934592));
+      dataRate = ((XTAL_FREQ * 500) * ((float)((dataRate_m + (1 << 16))) / (float)(1 << (33 - dataRate_e))));
     }
     else
     {
@@ -872,7 +854,7 @@ void S2lp_Init(void)
   }
 
   //setting up the divider for s2lp digital HW (in STANDBY STATE)
-  /*state = s2lp_Get_Operating_State();
+  state = s2lp_Get_Operating_State();
   if(state != STATE_STANDBY)
   {
     s2lp_Set_Operating_State(STANDBY);
@@ -923,7 +905,7 @@ void S2lp_Init(void)
     {
       break;
     }
-  }*/
+  }
 
   //test
   s2lp_Clear_IrqStatus();
@@ -1640,7 +1622,7 @@ void s2lp_Test_Rx_RC()
 
 s2lp_Config_Test_Registers(void)
 {
-  S2lp_Write_Register(SYNTH3, 0x62);
+  /*S2lp_Write_Register(SYNTH3, 0x62);
   S2lp_Write_Register(SYNTH2, 0x2b);
   S2lp_Write_Register(SYNTH1, 0x84);
   S2lp_Write_Register(SYNTH0, 0x99);
@@ -1649,13 +1631,13 @@ s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
 
   S2lp_Write_Register(CHSPACE, 0x3f);
-  S2lp_Write_Register(CHNUM, 0x00);
+  S2lp_Write_Register(CHNUM, 0x00);*/
 
-  S2lp_Write_Register(MOD4, 0x4F);
+  /*S2lp_Write_Register(MOD4, 0x4F);
   S2lp_Write_Register(MOD3, 0x8B);
   S2lp_Write_Register(MOD2, 0x53);
   S2lp_Write_Register(MOD1, 0x03);
-  S2lp_Write_Register(MOD0, 0xA3);
+  S2lp_Write_Register(MOD0, 0xA3);*/
 
   S2lp_Write_Register(CHFLT, 0x13);
 

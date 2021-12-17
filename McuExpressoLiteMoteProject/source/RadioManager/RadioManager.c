@@ -95,15 +95,10 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 
   S2lp_Send_Command(FLUSHRXFIFO);
   S2lp_Send_Command(FLUSHTXFIFO);
-
   while(s2lp_Get_Operating_State() != STATE_READY);
 
   s2lp_Load_Tx_FIFO(payload, payloadLength);
 
-  //preamble + sync + address + payloadlength + CRC + postamble
-  //s2lp_Set_Tx_Packet_Length(((STACK_PREAMBLE_BIT_PAIRS << 1)/8) + (STACK_SYNC_BITS/8) + 2 /* calcular address bytes*/ + payloadLength + 2 /*CRC*/ );
-
-  //test
   s2lp_Set_Tx_Packet_Length(payloadLength);
 
   if(ack == ACK_NEEDED)
@@ -138,12 +133,12 @@ void Radio_Manager_Tx_Motor(void)
           radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
           //test
-          radio_packet_to_Tx.payload[0] = (UINT8)('H');
+          /*radio_packet_to_Tx.payload[0] = (UINT8)('H');
           radio_packet_to_Tx.payload[1] = (UINT8)('E');
           radio_packet_to_Tx.payload[2] = (UINT8)('L');
           radio_packet_to_Tx.payload[3] = (UINT8)('L');
           radio_packet_to_Tx.payload[4] = (UINT8)('O');
-          radio_packet_to_Tx.header.frame_payload_length = 5;
+          radio_packet_to_Tx.header.frame_payload_length = 5;*/
 
           //1 - Load Radio packet
           Radio_Manager_Load_Packet(
