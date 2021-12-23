@@ -168,7 +168,19 @@ TAREA en proceso:
 					Tx LiteMote -> Rx nucleo s2lp [OK]
 					
 					Es necesario cambiar la ecuacion de calculo del datarate, usar la ecuacion 2, del punto 5.4.5 del datasheet
-					corrigiendo get base freq funcion 										 						
+					corrigiendo get base freq funcion -> [OK]
+										
+					Es necesario comprobar: -> [EN ELLO]
+						OOK:
+							2 	Kbps: OK
+							25 	Kbps: OK
+							50: Kbps: EN ELLO 
+								-> arreglada ecuacion de freq base [OK]
+									-> falta poder enviar los datos más limpios desde liteMote, los datos comparados entre s2lp y litemote al Tx igual freq, modulacion y datarate no són iguales
+									
+									-> si lo ponetmos en standby en s2lp_init() el tio no envia al pulsar send, mirar porque
+									
+							100	Kbps: EN ELLO					
 								
 RGB LED:
 --------

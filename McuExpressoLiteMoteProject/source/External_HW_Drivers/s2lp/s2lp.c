@@ -155,23 +155,27 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
 // BS will be calculated according "basfreq" param
 //*****************************************************************************
 {
-  UINT32 synthValue = 0;
+  float synthValue = 0;
   UINT8 data = 0;
   UINT8 bs = 8;
+  UINT8 ds = 0;
 
   UINT8 synth0=0;
   UINT8 synth1=1;
   UINT8 synth2=2;
   UINT8 synth3=3;
 
+  float numerator = 0;
+  float denominator = 1;
+
   //check the base freq param middle band[413 - 527]Mhz - high band[826 - 1055]Mhz
+  data = S2lp_Read_Register(SYNTH3);
+
   if((baseFreq >= MIN_MIDDLE_BAND_RFSYNTH_FREQ) && (baseFreq <= MAX_MIDDLE_BAND_RFSYNTH_FREQ))
   {
-    //RF synth freq inside the middle band, setting the BS field to 1, setting charge pump value PLL_CP_ISEL = 010
+    //RF synth freq inside the middle band, setting the BS field to 1, setting charge pump value PLL_CP_ISEL = 011
     //cleaning the low part of SYNTH3, will be set later
-
-    data = S2lp_Read_Register(SYNTH3);
-    data = (data & 0xF0) | 0x40 | B_MASK;
+    data = (data & 0xF0) | 0x60 | B_MASK;
 
     bs = BS_DEFAULT;
 
@@ -181,15 +185,13 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
   {
     if((baseFreq >= MIN_HIGH_BAND_RFSYNTH_FREQ) && (baseFreq <= MAX_HIGH_BAND_RFSYNTH_FREQ))
     {
-      //RF synth freq inside the high band, setting the BS field to 0, setting charge pump value PLL_CP_ISEL = 010
+      //RF synth freq inside the high band, setting the BS field to 0, setting charge pump value PLL_CP_ISEL = 011
       //cleaning the low part of SYNTH3, will be set later
-      data = S2lp_Read_Register(SYNTH3);
-      data = ((data & 0xF0) | 0x40) & ~B_MASK;
+      data = ((data & 0xF0) | 0x60) & ~B_MASK;
 
       bs = BS_DEFAULT >> 1;
 
       S2lp_Write_Register(SYNTH3, data);
-
     }
     else
     {
@@ -198,15 +200,31 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
     }
   }
 
+  data = S2lp_Read_Register(XO_RCO_CONF0);
+  if((data & D_MASK) == D_MASK)
+  {
+    ds = 2;
+  }
+  else
+  {
+    ds = 1;
+  }
+
   //through baseFreq as a parameter, process to extract the SYNTH data bytes equivalent to generate the base freq
-  synthValue = (baseFreq * 1048576 * (bs >>1)) / (XTAL_FREQ);
+  //synthValue = (baseFreq * 1048576 * (bs >>1)) / (XTAL_FREQ);
+  numerator = (float)(baseFreq * (bs >> 1) * ds);
+  denominator = (float)(XTAL_FREQ);
 
-  S2lp_Write_Register(SYNTH0, (UINT8)(synthValue & 0x000000FF));
-  S2lp_Write_Register(SYNTH1, (UINT8)((synthValue & 0x0000FF00) >> 8));
-  S2lp_Write_Register(SYNTH2, (UINT8)((synthValue & 0x00FF0000) >> 16));
+  synthValue = (float)(numerator/denominator);
+  synthValue = synthValue * (1<<20);
 
-  //loading charge current and BS, taking
-  S2lp_Write_Register(SYNTH3, data | ((synthValue & 0x0F000000) >> 24));
+  S2lp_Write_Register(SYNTH0, (UINT8)((UINT32)synthValue & 0x000000FF));
+  S2lp_Write_Register(SYNTH1, (UINT8)(((UINT32)synthValue & 0x0000FF00) >> 8));
+  S2lp_Write_Register(SYNTH2, (UINT8)(((UINT32)synthValue & 0x00FF0000) >> 16));
+
+  //loading charge current
+  data = S2lp_Read_Register(SYNTH3);
+  S2lp_Write_Register(SYNTH3, data | ((UINT8)(((UINT32)synthValue & 0x0F000000) >> 24)));
 
   //test
   synth0 = S2lp_Read_Register(SYNTH0);
@@ -215,7 +233,7 @@ UINT8 S2lp_Set_Base_Center_Freq(float baseFreq)
   synth3 = S2lp_Read_Register(SYNTH3);
   //end test
 
-  return OK;
+   return OK;
 }
 
 //*****************************************************************************
@@ -315,6 +333,8 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   float dataRateRead=0;
   UINT8 datarate_e=0;
   UINT32 exp=1;
+  float numerator = 0;
+  float denominator = 1;
 
   UINT8 mod0=0;
   UINT8 mod1=0;
@@ -340,7 +360,9 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   for(datarate_e = 1; datarate_e < 15; datarate_e++)
   {
     //calculate datarate_m
-    dataRate_m_f = ((float)((dataRate/xMultiplier) * (1 << (33 - datarate_e))) / (float)(XTAL_FREQ * 500)) - (1<<16);
+    numerator = (float)((dataRate/xMultiplier) * (float)(1 << (33 - datarate_e)));
+    denominator = (float)(XTAL_FREQ * 500);
+    dataRate_m_f = (float)((numerator / denominator) - (1<<16));
 
     if((dataRate_m_f < 65535) && (dataRate_m_f > 0))
     {
@@ -361,7 +383,6 @@ void s2lp_Set_DataRate(UINT32 dataRate)
 
   data = S2lp_Read_Register(MOD2);
 
-  //setting DATARATE_E = 15
   data &= MODULATION_MASK;
   data |= datarate_e;
   S2lp_Write_Register(MOD2, data);
@@ -380,7 +401,6 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   afc2 = S2lp_Read_Register(AFC2);
   afc1 = S2lp_Read_Register(AFC1);
   afc0 = S2lp_Read_Register(AFC0);
-
   //end test
 
   dataRateRead = s2lp_Get_DataRate();
@@ -783,7 +803,7 @@ void S2lp_Init_Pinout(void)
 {
   UINT32 d=0;
 
-  gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 1};
+  gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 0};
   gpio_pin_config_t io_config_Intinput = {kGPIO_DigitalInput, 0};
 
   /* PTC Clock Gate Control: Clock enabled */
@@ -795,8 +815,6 @@ void S2lp_Init_Pinout(void)
   /* PORTC12 (pin 69) is configured as GPIO Output for RF Chip shutdown*/
   PORT_SetPinMux(PORTC, 12, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOC, 12, &io_config_output);
-
-  S2lp_Disable_ShutDown_Mode();
 
   /* PORTD4 (pin 77) is configured as GPIO  for RF SPI Chip select*/
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
@@ -844,16 +862,26 @@ void S2lp_Init(void)
 
   UINT8 state = 0;
   UINT8 dataRead = 0;
+  UINT8 dataRead2 = 0;
 
   S2lp_Init_Pinout();
 
+  S2lp_Enable_ShutDown_Mode();
+  //11ms to wait for s2lp writing registers
+  d=0;
+  while( d < 0x000fffff)
+  {
+   d++;
+  }
+
+  S2lp_Disable_ShutDown_Mode();
+  d=0;
   //11ms to wait for s2lp writing registers
   while( d < 0x000fffff)
   {
     d++;
   }
 
-  //setting up the divider for s2lp digital HW (in STANDBY STATE)
   state = s2lp_Get_Operating_State();
   if(state != STATE_STANDBY)
   {
@@ -878,6 +906,9 @@ void S2lp_Init(void)
     //PD_CLKDIV = 0
     //digital clock dividers enabled
     dataRead &= 0xEF;
+
+    //REFDIV = 1
+    //dataRead2 |= 0x08;
   }
   else
   {
@@ -886,6 +917,9 @@ void S2lp_Init(void)
       //PD_CLKDIV = 1
       //digital clock dividers disabled
       dataRead |= 0x10;
+
+      //REFDIV = 0
+      //dataRead2 &= 0xF7;
     }
     else
     {
@@ -894,26 +928,18 @@ void S2lp_Init(void)
     }
   }
 
-   S2lp_Write_Register(XO_RCO_CONF1, dataRead);
-
-  s2lp_Set_Operating_State(READY);
-  //wait to set the s2lp in READY state
-  while(1)
-  {
-    state = s2lp_Get_Operating_State();
-    if(state == STATE_READY)
-    {
-      break;
-    }
-  }
+  S2lp_Write_Register(XO_RCO_CONF1, dataRead);
 
   //test
   s2lp_Clear_IrqStatus();
   S2lp_Config_Interrupt();
-  /*S2lp_Config_Power_Management();
+
+  state = s2lp_Get_Operating_State();
+  state = 0;
+  //S2lp_Config_Power_Management();
 
   //config STACK packet type by default
-  s2lp_Set_Packet_Format_StAck();*/
+  //s2lp_Set_Packet_Format_StAck();
 }
 
 //*****************************************************************************
@@ -1620,84 +1646,183 @@ void s2lp_Test_Rx_RC()
   }
 }
 
-s2lp_Config_Test_Registers(void)
+void s2lp_Config_Test_Registers(void)
 {
-  /*S2lp_Write_Register(SYNTH3, 0x62);
-  S2lp_Write_Register(SYNTH2, 0x2b);
-  S2lp_Write_Register(SYNTH1, 0x84);
-  S2lp_Write_Register(SYNTH0, 0x99);
+  UINT8 state=0;
+  UINT32 d = 0;
 
-  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
-  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
+  /*S2lp_Enable_ShutDown_Mode();
 
-  S2lp_Write_Register(CHSPACE, 0x3f);
-  S2lp_Write_Register(CHNUM, 0x00);*/
+  //11ms to wait for s2lp writing registers
+  d=0;
+  while( d < 0x000fffff)
+  {
+    d++;
+  }
 
-  /*S2lp_Write_Register(MOD4, 0x4F);
-  S2lp_Write_Register(MOD3, 0x8B);
-  S2lp_Write_Register(MOD2, 0x53);
-  S2lp_Write_Register(MOD1, 0x03);
-  S2lp_Write_Register(MOD0, 0xA3);*/
+  S2lp_Disable_ShutDown_Mode();
 
-  S2lp_Write_Register(CHFLT, 0x13);
+  //11ms to wait for s2lp writing registers
+  d=0;
+  while( d < 0x000fffff)
+  {
+    d++;
+  }*/
 
-  S2lp_Write_Register(AFC2, 0xC8);
-  S2lp_Write_Register(AFC1, 0x18);
-  S2lp_Write_Register(AFC0, 0x25);
+  state = s2lp_Get_Operating_State();
+  state = 0;
 
-  S2lp_Write_Register(RSSI_FLT, 0xE0);
+  /*S2lp_Write_Register(0x00,0x0A);
+  S2lp_Write_Register(0x01,0xA2);
+  S2lp_Write_Register(0x02,0xA2);
+  S2lp_Write_Register(0x03,0xA2);*/
 
-  S2lp_Write_Register(AGCCTRL5, 0x80);
-  S2lp_Write_Register(AGCCTRL4, 0x54);
-  S2lp_Write_Register(AGCCTRL3, 0x10);
-  S2lp_Write_Register(AGCCTRL2, 0x22);
-  S2lp_Write_Register(AGCCTRL1, 0x59);
-  S2lp_Write_Register(AGCCTRL0, 0x8C);
+  S2lp_Write_Register(0x05,0x62);
+  S2lp_Write_Register(0x06,0x2B);
+  S2lp_Write_Register(0x07,0x84);
+  S2lp_Write_Register(0x08,0x99);
 
-  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
+  S2lp_Write_Register(0x09,0x2F);
+  S2lp_Write_Register(0x0A,0xC2);
 
-  S2lp_Write_Register(CLKREC2, 0xc0);
-  S2lp_Write_Register(CLKREC1, 0x58);
+  S2lp_Write_Register(0x0C,0x3F);
+  S2lp_Write_Register(0x0D,0x00);
 
-  S2lp_Write_Register(PCKTCTRL6, 0x80);
-  S2lp_Write_Register(PCKTCTRL5, 0x10);
-  S2lp_Write_Register(PCKTCTRL4, 0x00);
-  S2lp_Write_Register(PCKTCTRL3, 0x01);
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  S2lp_Write_Register(PCKTCTRL1, 0x20);
+  S2lp_Write_Register(0x0E,0x4F);
+  S2lp_Write_Register(0x0F,0x8B);
+  S2lp_Write_Register(0x10,0x53);
+  S2lp_Write_Register(0x11,0x03);
+  S2lp_Write_Register(0x12,0xA3);
 
-  S2lp_Write_Register(PCKTLEN1, 0x00);
-  S2lp_Write_Register(PCKTLEN0, 0x05);
+  S2lp_Write_Register(0x13,0x13);
+  S2lp_Write_Register(0x14,0xC8);
 
-  S2lp_Write_Register(SYNC_3_REG, 0xf0);
-  S2lp_Write_Register(SYNC_2_REG, 0xf0);
-  S2lp_Write_Register(SYNC_1_REG, 0xf0);
-  S2lp_Write_Register(SYNC_0_REG, 0xf0);
+  S2lp_Write_Register(0x15,0x18);
+  S2lp_Write_Register(0x16,0x25);
+  S2lp_Write_Register(0x17,0xE0);
+  S2lp_Write_Register(0x18,0x28);
+  S2lp_Write_Register(0x19,0x80);
+  S2lp_Write_Register(0x1A,0x54);
+  S2lp_Write_Register(0x1B,0x10);
+  S2lp_Write_Register(0x1C,0x22);
+  S2lp_Write_Register(0x1D,0x59);
+  S2lp_Write_Register(0x1E,0x8C);
+  S2lp_Write_Register(0x1F,0x55);
+  S2lp_Write_Register(0x20,0xC0);
+  S2lp_Write_Register(0x21,0x58);
 
-  S2lp_Write_Register(PROTOCOL2, 0x40);
-  S2lp_Write_Register(PROTOCOL1, 0x01);
-  S2lp_Write_Register(PROTOCOL0, 0x08);
+  S2lp_Write_Register(0x2B,0x80);
+  S2lp_Write_Register(0x2C,0x10);
+  S2lp_Write_Register(0x2D,0x00);
+  S2lp_Write_Register(0x2E,0x01);
+  S2lp_Write_Register(0x2F,0x01);
+  S2lp_Write_Register(0x30,0x20);
 
-  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
+  S2lp_Write_Register(0x31,0x00);
+  S2lp_Write_Register(0x32,0x14);
 
-  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x01);
+  S2lp_Write_Register(0x33,0xF0);
+  S2lp_Write_Register(0x34,0xF0);
+  S2lp_Write_Register(0x35,0xF0);
+  S2lp_Write_Register(0x36,0xF0);
+  S2lp_Write_Register(0x37,0x01);
+  S2lp_Write_Register(0x38,0x00);
 
-  S2lp_Write_Register(PA_POWER8, 0x15);
-  S2lp_Write_Register(PA_POWER0, 0x87);
+  S2lp_Write_Register(0x39,0x40);
+  S2lp_Write_Register(0x3A,0x01);
+  S2lp_Write_Register(0x3B,0x08);
 
-  S2lp_Write_Register(PM_CONFIG4, 0x17);
-  S2lp_Write_Register(PM_CONFIG3, 0x9b);
-  S2lp_Write_Register(PM_CONFIG2, 0xf4);
-  S2lp_Write_Register(PM_CONFIG1, 0x39);
-  S2lp_Write_Register(PM_CONFIG0, 0x42);
+  S2lp_Write_Register(0x3C,0x40);
+  S2lp_Write_Register(0x3D,0x40);
+  S2lp_Write_Register(0x3E,0x40);
+  S2lp_Write_Register(0x3F,0x40);
 
-  S2lp_Write_Register(SYNTH_CONFIG2, 0xD0);
+  S2lp_Write_Register(0x40,0x41);
+  S2lp_Write_Register(0x41,0x00);
+  S2lp_Write_Register(0x42,0x00);
+  S2lp_Write_Register(0x43,0x00);
+  S2lp_Write_Register(0x44,0x00);
+  S2lp_Write_Register(0x45,0x00);
 
-  S2lp_Write_Register(PA_CONFIG0, 0x88);
-  S2lp_Write_Register(PA_CONFIG1, 0x01);
+  S2lp_Write_Register(0x46,0x01);
+  S2lp_Write_Register(0x47,0x00);
+  S2lp_Write_Register(0x48,0x01);
+  S2lp_Write_Register(0x49,0x00);
+  S2lp_Write_Register(0x4A,0x01);
+  S2lp_Write_Register(0x4B,0x00);
+
+  S2lp_Write_Register(0x4C,0xFF);
+  S2lp_Write_Register(0x4D,0x00);
+  S2lp_Write_Register(0x4E,0x04);
+  S2lp_Write_Register(0x4F,0x00);
+
+  S2lp_Write_Register(0x50,0x00);
+  S2lp_Write_Register(0x51,0x00);
+  S2lp_Write_Register(0x52,0x00);
+  S2lp_Write_Register(0x53,0x00);
+
+  S2lp_Write_Register(0x54,0x28);
+
+  S2lp_Write_Register(0x5A,0x18);
+  S2lp_Write_Register(0x5B,0x0C);
+  S2lp_Write_Register(0x5C,0x18);
+  S2lp_Write_Register(0x5D,0x24);
+  S2lp_Write_Register(0x5E,0x30);
+  S2lp_Write_Register(0x5F,0x48);
+  S2lp_Write_Register(0x60,0x60);
+  S2lp_Write_Register(0x61,0x00);
+  S2lp_Write_Register(0x62,0x87);
+  S2lp_Write_Register(0x63,0x01);
+  S2lp_Write_Register(0x64,0x88);
+
+  S2lp_Write_Register(0x65,0xD0);
+
+  S2lp_Write_Register(0x68,0x03);
+
+  S2lp_Write_Register(0x69,0x88);
+  S2lp_Write_Register(0x6A,0x40);
+  S2lp_Write_Register(0x6B,0x40);
+
+  S2lp_Write_Register(0x6C,0x45);
+  S2lp_Write_Register(0x6D,0x30);
+
+  S2lp_Write_Register(0x6E,0x70);
+  S2lp_Write_Register(0x6F,0x4D);
+
+  S2lp_Write_Register(0x75,0x17);
+  S2lp_Write_Register(0x76,0x20);
+  S2lp_Write_Register(0x77,0x00);
+  S2lp_Write_Register(0x78,0x39);
+  S2lp_Write_Register(0x79,0x42);
+
+  S2lp_Write_Register(0x8D,0x52);
+  S2lp_Write_Register(0x8E,0x01);
+  S2lp_Write_Register(0x8F,0x00);
+  S2lp_Write_Register(0x90,0x00);
+  S2lp_Write_Register(0x94,0x70);
+  S2lp_Write_Register(0x95,0x00);
+  S2lp_Write_Register(0x99,0x00);
+  S2lp_Write_Register(0x9A,0x00);
+  S2lp_Write_Register(0x9C,0x00);
+  S2lp_Write_Register(0x9D,0x00);
+  S2lp_Write_Register(0x9E,0x00);
+  S2lp_Write_Register(0x9F,0x00);
+  S2lp_Write_Register(0xA0,0x00);
+  S2lp_Write_Register(0xA2,0x00);
+  S2lp_Write_Register(0xA4,0x00);
+  S2lp_Write_Register(0xA5,0x00);
+  S2lp_Write_Register(0xA6,0x00);
+  S2lp_Write_Register(0xA7,0x00);
+  S2lp_Write_Register(0xA8,0x00);
+  S2lp_Write_Register(0xA9,0x00);
+  S2lp_Write_Register(0xAA,0x00);
+  S2lp_Write_Register(0xAB,0x00);
+  S2lp_Write_Register(0xEF,0x00);
+  S2lp_Write_Register(0xF0,0x03);
+  S2lp_Write_Register(0xF1,0x91);
+
+  state = s2lp_Get_Operating_State();
+  state = 0;
 }
 
 //*****************************************************************************

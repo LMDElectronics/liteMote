@@ -84,6 +84,13 @@
 #define MC_STATE0   0x8E
 
 #define PA_POWER0   0x62
+#define PA_POWER1   0x61
+#define PA_POWER2   0x60
+#define PA_POWER3   0x5F
+#define PA_POWER4   0x5E
+#define PA_POWER5   0x5D
+#define PA_POWER6   0x5C
+#define PA_POWER7   0x5B
 #define PA_POWER8   0x5A
 
 #define SYNTH_CONFIG2 0x65
@@ -119,10 +126,21 @@
 
 #define TIMERS5             0x46
 #define TIMERS4             0x47
+#define TIMERS3             0x48
+#define TIMERS2             0x49
+#define TIMERS1             0x4A
+#define TIMERS0             0x4B
+
+#define CSMA_CONFIG3        0x4C
+#define CSMA_CONFIG2        0x4D
+#define CSMA_CONFIG1        0x4E
+#define CSMA_CONFIG0        0x4F
 
 #define PROTOCOL0   0x3B
 #define PROTOCOL1   0x3A
 #define PROTOCOL2   0x39
+
+#define VCO_CONFIG 0x68
 
 #define PA_CONFIG0      0x64
 #define PA_CONFIG1      0x63
@@ -284,6 +302,7 @@ UINT8 s2lp_Get_Tx_Source_Data_Mode(void);
 void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount);
 void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer);
 
+UINT8 s2lp_Set_Operating_State(UINT8 newStateCommand);
 UINT8 s2lp_Get_Operating_State(void);
 
 void s2lp_Start_Tx(void);
@@ -308,7 +327,7 @@ void s2lp_ResetPacketsTx(void);
 
 void s2lp_Test_Tx_RC();
 void s2lp_Test_Rx_RC();
-s2lp_Config_Test_Registers(void);
+void s2lp_Config_Test_Registers(void);
 void S2lp_Test(void);
 
 #endif /* MCU_DRIVERS_S2LP_S2LP_H_ */
