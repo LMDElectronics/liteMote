@@ -140,6 +140,11 @@ cositas restantes:
  			
 TAREA en proceso:
 ----------------
+
+	Tareas pendientes:
+	------------------
+	Solucionar porque en Tx no emite cuando al iniciar se pone en standby
+
 	recepcion de radio:
 	-------------------
 		setup:
@@ -178,7 +183,19 @@ TAREA en proceso:
 								-> arreglada ecuacion de freq base [OK]
 									-> falta poder enviar los datos más limpios desde liteMote, los datos comparados entre s2lp y litemote al Tx igual freq, modulacion y datarate no són iguales
 									
-									-> si lo ponetmos en standby en s2lp_init() el tio no envia al pulsar send, mirar porque
+									-> si lo ponemos en standby o sleep_a en s2lp_init() el tio no envia al pulsar send, mirar porque
+										-> Está saliendo de stanby o/y sleep el solito, entre:
+										
+										current_state = s2lp_Get_Operating_State();
+										
+										//data output motors
+										Serial_Manager_Tx_Motor(); // Send serial packets if any
+										
+										current_state = s2lp_Get_Operating_State();
+										
+										Radio_Manager_Tx_Motor(); //Send radio packets if any
+										    
+										-> mirar porqué ocurre, de momento nos centraremos en Tx y Rx problema para resolver después
 									
 							100	Kbps: EN ELLO					
 								

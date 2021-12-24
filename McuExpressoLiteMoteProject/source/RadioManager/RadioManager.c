@@ -116,6 +116,8 @@ void Radio_Manager_Tx_Motor(void)
 // Motor to Tx the radio packets ready
 //*****************************************************************************
 {
+  volatile UINT8 current_state=0;
+
   switch(radio_manager_Tx_state)
   {
     case RADIO_MANAGER_TX_CHECK_TO_SEND:
@@ -127,6 +129,7 @@ void Radio_Manager_Tx_Motor(void)
       else
       {
         //check if radio is not busy
+        //current_state = s2lp_Get_Operating_State();
         if(s2lp_Get_Operating_State() == STATE_READY)
         {
           radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
@@ -153,6 +156,10 @@ void Radio_Manager_Tx_Motor(void)
           tpmIsrFlag = true;
 
           radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+        }
+        else
+        {
+          s2lp_Set_Operating_State(READY);
         }
       }
 

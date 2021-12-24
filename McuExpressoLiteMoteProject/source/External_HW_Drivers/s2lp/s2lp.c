@@ -882,7 +882,8 @@ void S2lp_Init(void)
     d++;
   }
 
-  state = s2lp_Get_Operating_State();
+  //TODO: <<<<Problema al ponerlo en standby o en sleep>>>>
+  /*state = s2lp_Get_Operating_State();
   if(state != STATE_STANDBY)
   {
     s2lp_Set_Operating_State(STANDBY);
@@ -896,7 +897,7 @@ void S2lp_Init(void)
         break;
       }
     }
-  }
+  }*/
 
   dataRead = S2lp_Read_Register(XO_RCO_CONF1);
 
@@ -933,9 +934,6 @@ void S2lp_Init(void)
   //test
   s2lp_Clear_IrqStatus();
   S2lp_Config_Interrupt();
-
-  state = s2lp_Get_Operating_State();
-  state = 0;
   //S2lp_Config_Power_Management();
 
   //config STACK packet type by default
@@ -1648,39 +1646,15 @@ void s2lp_Test_Rx_RC()
 
 void s2lp_Config_Test_Registers(void)
 {
-  UINT8 state=0;
-  UINT32 d = 0;
-
-  /*S2lp_Enable_ShutDown_Mode();
-
-  //11ms to wait for s2lp writing registers
-  d=0;
-  while( d < 0x000fffff)
-  {
-    d++;
-  }
-
-  S2lp_Disable_ShutDown_Mode();
-
-  //11ms to wait for s2lp writing registers
-  d=0;
-  while( d < 0x000fffff)
-  {
-    d++;
-  }*/
-
-  state = s2lp_Get_Operating_State();
-  state = 0;
-
   /*S2lp_Write_Register(0x00,0x0A);
   S2lp_Write_Register(0x01,0xA2);
   S2lp_Write_Register(0x02,0xA2);
   S2lp_Write_Register(0x03,0xA2);*/
 
-  S2lp_Write_Register(0x05,0x62);
+  /*S2lp_Write_Register(0x05,0x62);
   S2lp_Write_Register(0x06,0x2B);
   S2lp_Write_Register(0x07,0x84);
-  S2lp_Write_Register(0x08,0x99);
+  S2lp_Write_Register(0x08,0x99);*/
 
   S2lp_Write_Register(0x09,0x2F);
   S2lp_Write_Register(0x0A,0xC2);
@@ -1688,11 +1662,11 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x0C,0x3F);
   S2lp_Write_Register(0x0D,0x00);
 
-  S2lp_Write_Register(0x0E,0x4F);
+  /*S2lp_Write_Register(0x0E,0x4F);
   S2lp_Write_Register(0x0F,0x8B);
   S2lp_Write_Register(0x10,0x53);
   S2lp_Write_Register(0x11,0x03);
-  S2lp_Write_Register(0x12,0xA3);
+  S2lp_Write_Register(0x12,0xA3);*/
 
   S2lp_Write_Register(0x13,0x13);
   S2lp_Write_Register(0x14,0xC8);
@@ -1711,12 +1685,12 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x20,0xC0);
   S2lp_Write_Register(0x21,0x58);
 
-  S2lp_Write_Register(0x2B,0x80);
+  /*S2lp_Write_Register(0x2B,0x80);
   S2lp_Write_Register(0x2C,0x10);
   S2lp_Write_Register(0x2D,0x00);
   S2lp_Write_Register(0x2E,0x01);
   S2lp_Write_Register(0x2F,0x01);
-  S2lp_Write_Register(0x30,0x20);
+  S2lp_Write_Register(0x30,0x20);*/
 
   S2lp_Write_Register(0x31,0x00);
   S2lp_Write_Register(0x32,0x14);
@@ -1795,8 +1769,9 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x78,0x39);
   S2lp_Write_Register(0x79,0x42);
 
-  S2lp_Write_Register(0x8D,0x52);
-  S2lp_Write_Register(0x8E,0x01);
+  //S2lp_Write_Register(0x8D,0x52);
+  //S2lp_Write_Register(0x8E,0x01);
+
   S2lp_Write_Register(0x8F,0x00);
   S2lp_Write_Register(0x90,0x00);
   S2lp_Write_Register(0x94,0x70);
@@ -1820,9 +1795,6 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0xEF,0x00);
   S2lp_Write_Register(0xF0,0x03);
   S2lp_Write_Register(0xF1,0x91);
-
-  state = s2lp_Get_Operating_State();
-  state = 0;
 }
 
 //*****************************************************************************

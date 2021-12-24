@@ -53,10 +53,13 @@
 
 #include "External_HW_Drivers/s2lp/s2lp.h"
 
+volatile UINT8 current_state = 0;
+
 int main(void)
 {
-  UINT8 current_state = 0;
+
   UINT32 clk_value = 0;
+  UINT32 d=0;
 
   //init HW peripherals
   //ADC_AutoCalibration();
@@ -81,7 +84,7 @@ int main(void)
     while(1);
   }
 
-  Init_Supervisor();
+  //Init_Supervisor();
 
   Serial_Manager_Init();
   Packet_Manager_Init();
@@ -116,10 +119,6 @@ int main(void)
 
     //periodically report health data to host
     Health_Manager_Motor();
-
-    current_state = s2lp_Get_Operating_State();
-    current_state  = 0;
-
   }
   return 0;
 }
