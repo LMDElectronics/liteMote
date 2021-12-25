@@ -61,6 +61,7 @@ int main(void)
   UINT32 clk_value = 0;
   UINT32 d=0;
 
+
   //init HW peripherals
   //ADC_AutoCalibration();
   BOARD_BootClockRUN();
@@ -102,7 +103,7 @@ int main(void)
     //s2lp_Test_Rx_RC();
   //end test
 
-  //Radio_Manager_Rx_Motor();
+  Radio_Manager_Rx_Motor();
 
   while(1)
   {

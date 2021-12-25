@@ -137,67 +137,21 @@ cositas restantes:
 	- gestor paquetes radio
 	
 	- añadir carrier sense para saber si el medio está ocupado antes de transmitir 	
+ 	
+TAREAS pendientes:
+------------------
+	-> 1) Rx desde s2lp de nxp -> LiteMote
+	-> 2) ver porque si lo ponemos en standby, despues no puede Tx  	
  			
 TAREA en proceso:
 ----------------
-
-	Tareas pendientes:
-	------------------
-	Solucionar porque en Tx no emite cuando al iniciar se pone en standby
-
-	recepcion de radio:
-	-------------------
-		setup:
-		------
-			- 2 gateways visual abiertos
-			Receptor en debug: addr = 2
-			
-		Comprobar que interrupcion y gpio están bien configurados
-		
-			1-> interrupciones a configurar: 0x00003003 	
-				Data ready 		index 0
-				Data discarded 	index 1
-				Valid preamble 	index 12
-				Sync word 		index 13
+1) Rx desde s2lp de nxp -> LiteMote	
+	- 2Kbps
+	- ook
+	- simplepacket	
+	- 868										
 				
-			2-> configurar GPIO registro
-				-> TX sent ok
-		
-			3-> comprobar si se recibe con el datarate mas bajo y la modulacion 2FSK
-				-> TX interrupcion
-					-> OK									  					   
-				
-				-> crear una funcion de test para poder configurar todos los registros como el s2lp de demo 
-				   e ir descartando que configuracion es la que no es correcta
-											
-					Tx LiteMote -> Rx nucleo s2lp [OK]
 					
-					Es necesario cambiar la ecuacion de calculo del datarate, usar la ecuacion 2, del punto 5.4.5 del datasheet
-					corrigiendo get base freq funcion -> [OK]
-										
-					Es necesario comprobar: -> [EN ELLO]
-						OOK:
-							2 	Kbps: OK
-							25 	Kbps: OK
-							50: Kbps: EN ELLO 
-								-> arreglada ecuacion de freq base [OK]
-									-> falta poder enviar los datos más limpios desde liteMote, los datos comparados entre s2lp y litemote al Tx igual freq, modulacion y datarate no són iguales
-									
-									-> si lo ponemos en standby o sleep_a en s2lp_init() el tio no envia al pulsar send, mirar porque
-										-> Está saliendo de stanby o/y sleep el solito, entre:
-										
-										current_state = s2lp_Get_Operating_State();
-										
-										//data output motors
-										Serial_Manager_Tx_Motor(); // Send serial packets if any
-										
-										current_state = s2lp_Get_Operating_State();
-										
-										Radio_Manager_Tx_Motor(); //Send radio packets if any
-										    
-										-> mirar porqué ocurre, de momento nos centraremos en Tx y Rx problema para resolver después
-									
-							100	Kbps: EN ELLO					
 								
 RGB LED:
 --------

@@ -766,10 +766,10 @@ void s2lp_Clear_IrqStatus(void)
 // description: read the interrupt status bits
 //*****************************************************************************
 {
-  S2lp_Read_Register(IRQ_STATUS3);
-  S2lp_Read_Register(IRQ_STATUS2);
-  S2lp_Read_Register(IRQ_STATUS1);
-  S2lp_Read_Register(IRQ_STATUS0);
+  S2lp_Write_Register(IRQ_STATUS3,0x00);
+  S2lp_Write_Register(IRQ_STATUS2,0x00);
+  S2lp_Write_Register(IRQ_STATUS1,0x00);
+  S2lp_Write_Register(IRQ_STATUS0,0x00);
 }
 
 //*****************************************************************************
@@ -780,7 +780,6 @@ UINT32 s2lp_Check_IrqStatus(void)
 {
   UINT32 data = 0;
 
-  //using STACK packet for radio communication
   data = S2lp_Read_Register(IRQ_STATUS3);
   data <<=8;
 
@@ -829,7 +828,6 @@ void S2lp_Init_Pinout(void)
   //configuring PORTC16 (pin 71) for external interrupt
   PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
   PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);
-  //GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
   EnableIRQ(PORTC_IRQn);
   GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
 }
@@ -933,11 +931,11 @@ void S2lp_Init(void)
 
   //test
   s2lp_Clear_IrqStatus();
-  S2lp_Config_Interrupt();
+  S2lp_Config_Interrupt(VALID_PREAMBLE_DETECTED);
   //S2lp_Config_Power_Management();
 
   //config STACK packet type by default
-  //s2lp_Set_Packet_Format_StAck();
+  s2lp_Set_Packet_Format_StAck();
 }
 
 //*****************************************************************************
@@ -1011,16 +1009,33 @@ void S2lp_Send_Command(UINT8 commandToSend)
 }
 
 //*****************************************************************************
-void S2lp_Config_Interrupt(void)
+void S2lp_Config_Interrupt(UINT32 intBitsMask)
 //*****************************************************************************
-// config packet RX interrupt on GPIO0
+// configs the s2lp interrupts, user can or-ing the masks in s2lp.h
 //*****************************************************************************
 {
   UINT8 dataRead=0;
 
+  UINT8 irqmask0=0;
+  UINT8 irqmask1=0;
+  UINT8 irqmask2=0;
+  UINT8 irqmask3=0;
+
   //gipo0 routed as interrupt high power, routed gpio -> GPIO0
   S2lp_Write_Register(GPIO0_CONF, 0x03);
   dataRead = S2lp_Read_Register(GPIO0_CONF);
+
+  S2lp_Write_Register(IRQ_MASK3, (UINT8)(intBitsMask >> 24));
+  S2lp_Write_Register(IRQ_MASK2, (UINT8)(intBitsMask >> 16));
+  S2lp_Write_Register(IRQ_MASK1, (UINT8)(intBitsMask >> 8));
+  S2lp_Write_Register(IRQ_MASK0, (UINT8)(intBitsMask));
+
+  irqmask3 = S2lp_Read_Register(IRQ_MASK3);
+  irqmask2 = S2lp_Read_Register(IRQ_MASK2);
+  irqmask1 = S2lp_Read_Register(IRQ_MASK1);
+  irqmask0 = S2lp_Read_Register(IRQ_MASK0);
+
+  dataRead=0;
 
   //enable routing interrupt 0 [Rx data ready] to GPIO,
   //read the irq_status is useful to know if the interrupt has been triggered also
@@ -1033,10 +1048,10 @@ void S2lp_Config_Interrupt(void)
   S2lp_Write_Register(IRQ_MASK3, 0x00);*/
 
   //test rx preamble detected
-  S2lp_Write_Register(IRQ_MASK0, 0x01); //Rx data ready
+  /*S2lp_Write_Register(IRQ_MASK0, 0x01); //Rx data ready
   S2lp_Write_Register(IRQ_MASK1, 0x00);
   S2lp_Write_Register(IRQ_MASK2, 0x00);
-  S2lp_Write_Register(IRQ_MASK3, 0x00);
+  S2lp_Write_Register(IRQ_MASK3, 0x00);*/
 
   //test rx preamble detected
   /*S2lp_Write_Register(IRQ_MASK0, 0x00);
@@ -1087,7 +1102,7 @@ void s2lp_Set_Packet_Format_StAck(void)
 
   //CrC poly 0x8005
   //TXSource: normal mode
-  //disable whitening
+  //disable whitening (for test)
   S2lp_Write_Register(PCKTCTRL1, 0x40);
   dataRead = S2lp_Read_Register(PCKTCTRL1);
 
@@ -1105,8 +1120,8 @@ void s2lp_Set_Packet_Format_StAck(void)
   dataRead = S2lp_Read_Register(PCKTCTRL3);
 
   //add address info data into packet (Rxaddr = 1byte + TxAddr = 1 byte + payload = x bytes)
-  //using 1 byte for packet length
-  //LEND_WID = 0 1byte for length packet
+  //LEND_WID = 0, 1byte for length packet
+  //ADDRESS_LEN = 1, including address field in the packet
   S2lp_Write_Register(PCKTCTRL4, 0x08);
 
   //configuring SYNC bits and PREAMBLE MSB bit pairs in radio packet
@@ -1154,38 +1169,14 @@ void s2lp_Set_Packet_Format_StAck(void)
   S2lp_Write_Register(SYNC_3_REG, SYNC_3_DATA);
 
   //test
-  S2lp_Write_Register(PCKTCTRL6, 0x80);
-  S2lp_Write_Register(PCKTCTRL5, 0x10);
-  S2lp_Write_Register(PCKTCTRL4, 0x00);
-  S2lp_Write_Register(PCKTCTRL3, 0x01); //1010 preamble sequence for ook modulation
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  S2lp_Write_Register(PCKTCTRL1, 0x20);
-
   pckcrtl6 = S2lp_Read_Register(PCKTCTRL6);
   pckcrtl5 = S2lp_Read_Register(PCKTCTRL5);
   pckcrtl4 = S2lp_Read_Register(PCKTCTRL4);
   pckcrtl3 = S2lp_Read_Register(PCKTCTRL3);
   pckcrtl2 = S2lp_Read_Register(PCKTCTRL2);
   pckcrtl1 = S2lp_Read_Register(PCKTCTRL1);
-
-  S2lp_Write_Register(PROTOCOL1, 0x01);
-  S2lp_Write_Register(PROTOCOL2, 0x40);
-
-  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x41);
-
-  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
-
-  S2lp_Write_Register(PA_POWER8, 0x15);
-  S2lp_Write_Register(PA_POWER0, 0x87);
-
-  S2lp_Write_Register(PA_CONFIG1, 0x01);
-  S2lp_Write_Register(PA_CONFIG0, 0x88);
-
+  dataRead=0;
   //end test
-
 }
 
 //*****************************************************************************
@@ -1685,12 +1676,12 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x20,0xC0);
   S2lp_Write_Register(0x21,0x58);
 
-  /*S2lp_Write_Register(0x2B,0x80);
+  S2lp_Write_Register(0x2B,0x80);
   S2lp_Write_Register(0x2C,0x10);
   S2lp_Write_Register(0x2D,0x00);
   S2lp_Write_Register(0x2E,0x01);
   S2lp_Write_Register(0x2F,0x01);
-  S2lp_Write_Register(0x30,0x20);*/
+  S2lp_Write_Register(0x30,0x20);
 
   S2lp_Write_Register(0x31,0x00);
   S2lp_Write_Register(0x32,0x14);
@@ -1702,7 +1693,8 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x37,0x01);
   S2lp_Write_Register(0x38,0x00);
 
-  S2lp_Write_Register(0x39,0x40);
+  S2lp_Write_Register(0x39,0x40); //
+
   S2lp_Write_Register(0x3A,0x01);
   S2lp_Write_Register(0x3B,0x08);
 
@@ -1711,7 +1703,8 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x3E,0x40);
   S2lp_Write_Register(0x3F,0x40);
 
-  S2lp_Write_Register(0x40,0x41);
+  S2lp_Write_Register(0x40,0x41); //PCKT_FLTR_OPTIONS
+
   S2lp_Write_Register(0x41,0x00);
   S2lp_Write_Register(0x42,0x00);
   S2lp_Write_Register(0x43,0x00);
@@ -1815,10 +1808,28 @@ void PORTC_IRQHandler(void)
 //*****************************************************************************
 {
   UINT8 i=0;
+  UINT32 intTriggered = 0;
 
   /* Clear external interrupt flag. */
   GPIO_PortClearInterruptFlags(GPIOC, 1U << 16U);
   /* Change state of button. */
+
+  //must check which interrupt has been triggered
+  /*intTriggered = s2lp_Check_IrqStatus();
+  if(intTriggered != 0)
+  {
+    //process interrupts
+    switch(intTriggered)
+    {
+      case VALID_PREAMBLE_DETECTED:
+        i=2;
+        break;
+    }
+  }
+  else
+  {
+    //no interrupts to process
+  }*/
 
   packetsTx++;
   rx_PacketReceived_Flag = TRUE;

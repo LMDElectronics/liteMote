@@ -251,6 +251,32 @@
 
 #define TEST_PACKET_LENGHT 20
 
+//interrupt masks according to s2-lp datasheet chapter 9.2
+#define RX_DATA_READY                    0x00000001
+#define RX_DATA_DISCARDED                0x00000002
+#define TX_DATA_SENT                     0x00000004
+#define MAX_RETRANSMISSIONS_REACHED      0x00000008
+#define CRC_ERROR                        0x00000010
+#define TX_FIFO_ERROR                    0x00000020
+#define RX_FIFO_ERROR                    0x00000040
+#define TX_FIFO_ALMOST_FULL              0x00000080
+#define TX_FIFO_ALMOST_EMPTY             0x00000100
+#define RX_FIFO_ALMOST_FULL              0x00000200
+#define RX_FIFO_ALMOST_EMPTY             0x00000400
+#define MAX_BACKOFF_DURING_CCA           0x00000800
+#define VALID_PREAMBLE_DETECTED          0x00001000
+#define SYNC_WORD_DETECTED               0x00002000
+#define RSSI_ABOVE_THRESHOLD             0x00004000
+#define WAKEUP_TIMEOUT_IN_LDCR_MODE      0x00008000
+#define S2LP_IS_READY                    0x00010000
+#define SWITCH_TO_STANDBY_ONGOING        0x00020000
+#define LOW_BAT_LEVEL                    0x00040000
+#define POWER_ON_RESET                   0x00080000
+
+#define RX_TIMER_TIMEOUT                 0x10000000
+#define SNIFF_TIMER_TIMEOUT              0x20000000
+
+
 typedef struct s2lp_parameters
 {
   UINT8 partNum;
@@ -259,7 +285,7 @@ typedef struct s2lp_parameters
 
 void S2lp_Init_Pinout(void);
 void S2lp_Init(void);
-void S2lp_Config_Interrupt(void);
+void S2lp_Config_Interrupt(UINT32 intBitsMask);
 
 void s2lp_Set_Modulation_Type(UINT8 modulation);
 UINT8 s2lp_Get_Modulation_Type(void);

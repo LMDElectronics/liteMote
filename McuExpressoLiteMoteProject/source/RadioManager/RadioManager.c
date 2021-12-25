@@ -177,7 +177,6 @@ void Radio_Manager_Tx_Motor(void)
         if( s2lp_Get_Operating_State() == STATE_READY )
         {
           //Tx timeout window not reached, start Tx again
-          s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
         }
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
@@ -188,8 +187,6 @@ void Radio_Manager_Tx_Motor(void)
       radioTransceiverState = s2lp_Get_Operating_State();
       if(radioTransceiverState == STATE_READY)
       {
-        s2lp_Clear_IrqStatus();
-
         myPacketsTx = s2lp_GetPacketsTx();
         s2lp_ResetPacketsTx();
 
@@ -208,8 +205,16 @@ void Radio_Manager_Rx_Motor(void)
 
   if(s2lp_Get_Operating_State() == STATE_READY)
   {
-    s2lp_Clear_IrqStatus();
     S2lp_Send_Command(RX);
+
+    //wait for Rx state
+    while(1)
+    {
+      if(s2lp_Get_Operating_State() == STATE_RX)
+      {
+        break;
+      }
+    }
   }
 }
 
