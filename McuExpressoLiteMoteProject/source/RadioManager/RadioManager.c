@@ -116,7 +116,8 @@ void Radio_Manager_Tx_Motor(void)
 // Motor to Tx the radio packets ready
 //*****************************************************************************
 {
-  volatile UINT8 current_state=0;
+  UINT8 current_state=0;
+  UINT8 intStatus = 0;
 
   switch(radio_manager_Tx_state)
   {
@@ -150,6 +151,7 @@ void Radio_Manager_Tx_Motor(void)
           //Radio_Tx_Window_Timer_Start_Timer();
 
           //4 - start tx
+          s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
 
           //test to Tx just one packet
@@ -177,6 +179,7 @@ void Radio_Manager_Tx_Motor(void)
         if( s2lp_Get_Operating_State() == STATE_READY )
         {
           //Tx timeout window not reached, start Tx again
+          s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
         }
         radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
@@ -188,6 +191,11 @@ void Radio_Manager_Tx_Motor(void)
       if(radioTransceiverState == STATE_READY)
       {
         myPacketsTx = s2lp_GetPacketsTx();
+
+        intStatus = s2lp_Check_IrqStatus();
+        s2lp_Clear_IrqStatus();
+        //intStatus = s2lp_Check_IrqStatus();
+
         s2lp_ResetPacketsTx();
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
@@ -199,7 +207,11 @@ void Radio_Manager_Tx_Motor(void)
   }
 }
 
+//*****************************************************************************
 void Radio_Manager_Rx_Motor(void)
+//*****************************************************************************
+// Rx motor
+//*****************************************************************************
 {
   UINT8 i=0;
 

@@ -925,11 +925,12 @@ void S2lp_Init(void)
 
   //test
   s2lp_Clear_IrqStatus();
-  S2lp_Config_Interrupt(VALID_PREAMBLE_DETECTED);
-  //S2lp_Config_Power_Management();
+  s2lp_Check_IrqStatus();
+  S2lp_Config_Interrupt(RX_DATA_READY);
+  S2lp_Config_Power_Management();
 
   //config STACK packet type by default
-  s2lp_Set_Packet_Format_StAck();
+  //s2lp_Set_Packet_Format_StAck();
 }
 
 //*****************************************************************************
@@ -1687,7 +1688,7 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x37,0x01);
   S2lp_Write_Register(0x38,0x00);
 
-  S2lp_Write_Register(0x39,0x40); //
+  S2lp_Write_Register(0x39,0x44); //PROTOCOL2
 
   S2lp_Write_Register(0x3A,0x01);
   S2lp_Write_Register(0x3B,0x08);
@@ -1717,10 +1718,10 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x4E,0x04);
   S2lp_Write_Register(0x4F,0x00);
 
-  S2lp_Write_Register(0x50,0x00);
+  /*S2lp_Write_Register(0x50,0x00);
   S2lp_Write_Register(0x51,0x00);
   S2lp_Write_Register(0x52,0x00);
-  S2lp_Write_Register(0x53,0x00);
+  S2lp_Write_Register(0x53,0x00);*/
 
   S2lp_Write_Register(0x54,0x28);
 
