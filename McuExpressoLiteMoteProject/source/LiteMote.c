@@ -103,7 +103,7 @@ int main(void)
     //s2lp_Test_Rx_RC();
   //end test
 
-  Radio_Manager_Rx_Motor();
+  //Radio_Manager_Rx_Motor();
 
   while(1)
   {

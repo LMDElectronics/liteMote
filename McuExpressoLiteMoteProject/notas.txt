@@ -151,7 +151,8 @@ TAREA en proceso:
 	- simplepacket	
 	- 868										
 				
-					
+	Es necesario colocar LiteMote a escuchar de forma correcta. la modulacion y freq base estan correctamente configuradas (desde liteMote podemos Tx a s2lp xnucleo y este lo recibe)
+		-> 				
 								
 RGB LED:
 --------

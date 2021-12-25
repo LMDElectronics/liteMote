@@ -819,12 +819,6 @@ void S2lp_Init_Pinout(void)
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOD, 4, &io_config_output);
 
-  //wait before setting the external interrupt
-  while( d < 0x0000ffff)
-  {
-    d++;
-  }
-
   //configuring PORTC16 (pin 71) for external interrupt
   PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
   PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);

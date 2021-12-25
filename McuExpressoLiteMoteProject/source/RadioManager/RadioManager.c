@@ -203,6 +203,8 @@ void Radio_Manager_Rx_Motor(void)
 {
   UINT8 i=0;
 
+
+
   if(s2lp_Get_Operating_State() == STATE_READY)
   {
     S2lp_Send_Command(RX);
