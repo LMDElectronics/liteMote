@@ -351,8 +351,9 @@ void S2lp_Send_Command(UINT8 commandToSend);
 UINT32 s2lp_GetPacketsTx(void);
 void s2lp_ResetPacketsTx(void);
 
-void s2lp_Test_Tx_RC();
-void s2lp_Test_Rx_RC();
+UINT8 s2lp_Get_PacketReceivedFlag(void);
+void s2lp_Clear_PacketReceivedFlag(void);
+
 void s2lp_Config_Test_Registers(void);
 void S2lp_Test(void);
 

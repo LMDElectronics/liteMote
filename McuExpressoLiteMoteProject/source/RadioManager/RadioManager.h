@@ -32,6 +32,14 @@ enum
   RADIO_MANAGER_TX_FINISHED,
 };
 
+enum
+{
+  RADIO_MANAGER_RX_SET_RECEIVE_STATE = 0,
+  RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE,
+  RADIO_MANAGER_RX_WAIT_FOR_READY_STATE,
+  RADIO_MANAGER_WAIT_FOR_FRAME,
+};
+
 void Radio_Manager_Config(void);
 void Radio_Manager_Init(void);
 void Radio_Manager_Tx_Motor(void);

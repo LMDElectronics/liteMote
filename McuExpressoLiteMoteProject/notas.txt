@@ -140,20 +140,40 @@ cositas restantes:
  	
 TAREAS pendientes:
 ------------------
-	-> 1) Rx desde s2lp de nxp -> LiteMote
-	-> 2) ver porque si lo ponemos en standby, despues no puede Tx  	
+	-> 1) Rx en s2lp de nxp; Tx desde LiteMote [OK]
+  -> 2) Rx en LiteMote desde Tx LiteMote [EN ELLO]
+	-> 3) ver porque si lo ponemos en standby, despues no puede Tx [NO INICIADO]
  			
 TAREA en proceso:
 ----------------
-1) Rx desde s2lp de nxp -> LiteMote	
-	- 2Kbps
-	- ook
-	- simplepacket	
-	- 868										
-				
-	Es necesario colocar LiteMote a escuchar de forma correcta. la modulacion y freq base estan correctamente configuradas (desde liteMote podemos Tx a s2lp xnucleo y este lo recibe)
-		-> mirar porque noi va la interrupcion externa 				
-								
+  1) Rx en s2lp de nxp; Tx desde LiteMoteRx desde s2lp de nxp -> LiteMote	
+    - 2Kbps
+    - ook
+    - simplepacket	
+    - 868M										
+          
+    Es necesario colocar LiteMote a escuchar de forma correcta. la modulacion y freq base estan correctamente configuradas (desde liteMote podemos Tx a s2lp xnucleo y este lo recibe)
+      -> mirar porque noi va la interrupcion externa 				
+					
+  2)  Rx en LiteMote desde Tx LiteMote
+      - validar que la interrupcion de Rx en el receptor se activa RX_DATA_READY -> OK
+      
+      problemas:      
+      	2.0) Es necesario poder arrancar el sistema sin que la interrupcion de paquete de radio recibido salte -> [OK]
+          -> Se configuran las interrupciones despues de configurar el resto de pins y dejar que el s2lp salga del shutdown mode
+      
+        2.1) Porque el motor de rx de radio, solo funciona si lo colocamos fuera del main? [OK]
+          -> generando el motor de rx
+        
+        2.2) poder resetear el pin de interrupcion [OK]     
+          -> No podemos hacer un clear status de las interrupciones desde la ISR, mirar como hacer el check desde otro sitio
+                
+		2.3) mirar porque solo recibe una vez el paquete radio enviado desde el emisor
+			-> culpa del emisor?
+			-> culpa del receptor?                
+                
+      - poder mantener el receptor en Rx durante todo el ciclo de escucha
+          
 RGB LED:
 --------
 	

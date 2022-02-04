@@ -103,13 +103,13 @@ int main(void)
     //s2lp_Test_Rx_RC();
   //end test
 
-  Radio_Manager_Rx_Motor();
+  //Radio_Manager_Rx_Motor();
 
   while(1)
   {
     //data input motors
     Serial_Manager_RX_Motor(); //Get serial frames sent to this mote
-    //Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
+    Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
 
     //data process motor
     Packet_Manager_Process_Motor(); // process received packets [serial, radio, etc...]

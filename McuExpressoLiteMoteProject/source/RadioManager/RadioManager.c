@@ -14,12 +14,18 @@
 #include "fsl_gpio.h"
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+
 TR_packet radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
 
 volatile bool tpmIsrFlag = FALSE;
 
 UINT32 myPacketsTx;
+
+//TODO TEST
+UINT8 radioBytesReceived=0;
+UINT8 radioData[DATA_RADIO_BUFFER_LENGTH];
 
 //*****************************************************************************
 void Radio_Manager_Config(void)
@@ -215,20 +221,74 @@ void Radio_Manager_Rx_Motor(void)
 {
   UINT8 i=0;
 
+  //TODO
+  // antes de poder configurar el timer interno del s2lp para el low duty Rx
+  // es necesario hacerlo manualmente para verificar que el sistema es capaz de leer
+  // tramas de radio recibidas
 
+  // 1- poner el s2lp en rx manualmente
 
-  if(s2lp_Get_Operating_State() == STATE_READY)
+  // 2- una vez se reciban tramas, el motor de rx solo se preocupara de poder responder a la
+  //   interrupcion de Rx ready
+
+  switch(radio_manager_Rx_state)
   {
-    S2lp_Send_Command(RX);
+    case RADIO_MANAGER_RX_WAIT_FOR_READY_STATE:
 
-    //wait for Rx state
-    while(1)
-    {
+      if(s2lp_Get_Operating_State() == STATE_READY)
+      {
+        s2lp_Set_Operating_State(RX);
+        radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE;
+      }
+      else
+      {
+        if(s2lp_Get_Operating_State() == STATE_TX)
+        {
+          radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+        }
+      }
+
+    break;
+
+    case RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE:
+
       if(s2lp_Get_Operating_State() == STATE_RX)
       {
-        break;
+        radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
       }
-    }
+      else
+      {
+        if(s2lp_Get_Operating_State() == STATE_TX)
+        {
+          radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+        }
+        else
+        {
+          radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE;
+        }
+      }
+
+    break;
+
+    case RADIO_MANAGER_WAIT_FOR_FRAME:
+
+      if(s2lp_Get_PacketReceivedFlag() == TRUE)
+      {
+        s2lp_Check_IrqStatus();
+        s2lp_Clear_IrqStatus();
+
+        //TODO test
+        s2lp_Retrieve_Rx_FIFO_Data(4, radioData);
+
+        //it gets here
+        s2lp_Clear_PacketReceivedFlag();
+
+        //getting back to READY state
+        s2lp_Set_Operating_State(READY);
+        radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+      }
+
+    break;
   }
 }
 

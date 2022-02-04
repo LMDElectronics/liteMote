@@ -795,6 +795,19 @@ UINT32 s2lp_Check_IrqStatus(void)
 }
 
 //*****************************************************************************
+void s2lp_Config_InterruptPin(void)
+//*****************************************************************************
+{
+  gpio_pin_config_t io_config_Intinput = {kGPIO_DigitalInput, 0};
+
+  //configuring PORTC16 (pin 71) for external interrupt
+  PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
+  PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);
+  EnableIRQ(PORTC_IRQn);
+  GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
+}
+
+//*****************************************************************************
 void S2lp_Init_Pinout(void)
 //*****************************************************************************
 // start the s2lp module pinout
@@ -803,7 +816,6 @@ void S2lp_Init_Pinout(void)
   UINT32 d=0;
 
   gpio_pin_config_t io_config_output = {kGPIO_DigitalOutput, 0};
-  gpio_pin_config_t io_config_Intinput = {kGPIO_DigitalInput, 0};
 
   /* PTC Clock Gate Control: Clock enabled */
   CLOCK_EnableClock(kCLOCK_PortC);
@@ -818,12 +830,6 @@ void S2lp_Init_Pinout(void)
   /* PORTD4 (pin 77) is configured as GPIO  for RF SPI Chip select*/
   PORT_SetPinMux(PORTD, 4, kPORT_MuxAsGpio);
   GPIO_PinInit(GPIOD, 4, &io_config_output);
-
-  //configuring PORTC16 (pin 71) for external interrupt
-  PORT_SetPinConfig(PORTC, 16U, &portc16_pin71_config);
-  PORT_SetPinInterruptConfig(PORTC, 16U, kPORT_InterruptFallingEdge);
-  EnableIRQ(PORTC_IRQn);
-  GPIO_PinInit(GPIOC, 16, &io_config_Intinput);
 }
 
 //*****************************************************************************
@@ -873,6 +879,8 @@ void S2lp_Init(void)
   {
     d++;
   }
+
+  s2lp_Config_InterruptPin();
 
   //TODO: <<<<Problema al ponerlo en standby o en sleep>>>>
   /*state = s2lp_Get_Operating_State();
@@ -1273,363 +1281,6 @@ void s2lp_ResetPacketsTx(void)
   packetsTx = 0;
 }
 
-
-//*****************************************************************************
-void s2lp_Test_Tx_RC()
-//*****************************************************************************
-// description: configures s2lp with radiocontrolli registers configuration
-// just for test, not configured registers are left by default
-//*****************************************************************************
-{
-  UINT32 d=0;
-  UINT8 i=0;
-  UINT16 pcktLength=0;
-  UINT8 s2lp_state = 0;
-  UINT32 int_status = 0;
-  UINT32 maxTxReached_counter = 0;
-
-  /*
-  RC config for Tx
-  S2LPGpioIrqDeInit();
-  S2LPGpioIrqConfig(TX_DATA_SENT,S_ENABLE);
-  S2LPGpioIrqConfig(MAX_RE_TX_REACH,S_ENABLE);
-  S2LPPktBasicSetPayloadLength(17);
-  SpiritBaseConfiguration();
-  S2LPTimerSetRxTimerUs(200000);
-  S2LPGpioIrqClearStatus();
-  */
-
-  //S2LPGpioIrqDeInit();
-  S2lp_Write_Register(IRQ_MASK3, 0x00);
-  S2lp_Write_Register(IRQ_MASK2, 0x00);
-  S2lp_Write_Register(IRQ_MASK1, 0x00);
-  S2lp_Write_Register(IRQ_MASK0, 0x00);
-
-  //S2LPGpioIrqConfig(TX_DATA_SENT,S_ENABLE);
-  //S2LPGpioIrqConfig(MAX_RE_TX_REACH,S_ENABLE);
-  S2lp_Write_Register(IRQ_MASK0, 0x0C);
-
-  //S2LPPktBasicSetPayloadLength(17);
-  s2lp_Set_Tx_Packet_Length(17);
-
-  //SpiritBaseConfiguration();
-  S2lp_Write_Register(SYNTH3, 0x62);
-  S2lp_Write_Register(SYNTH2, 0x2B);
-  S2lp_Write_Register(SYNTH1, 0x85);
-  S2lp_Write_Register(SYNTH0, 0x18);
-
-  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
-  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
-
-  s2_lp_TestDataRate_RC();
-  S2lp_Write_Register(MOD0, 0xA3);
-
-  S2lp_Write_Register(CHFLT, 0x13);
-  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
-
-  S2lp_Write_Register(PCKTCTRL4, 0x08);
-  S2lp_Write_Register(PCKTCTRL3, 0xC0);
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  S2lp_Write_Register(PCKTCTRL1, 0x30);
-
-  S2lp_Write_Register(SYNC_3_REG, 0x78);
-  S2lp_Write_Register(SYNC_2_REG, 0x56);
-  S2lp_Write_Register(SYNC_1_REG, 0x34);
-  S2lp_Write_Register(SYNC_0_REG, 0x12);
-
-  S2lp_Write_Register(PROTOCOL2, 0x44);
-  S2lp_Write_Register(PROTOCOL1, 0x01);
-  S2lp_Write_Register(PROTOCOL0, 0x30); //org. 0x30 for ACK
-
-  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
-
-  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x43);
-
-  S2lp_Write_Register(PCKT_FLT_GOALS3, 0xA4);
-  S2lp_Write_Register(PCKT_FLT_GOALS0, 0xA5);
-
-  S2lp_Write_Register(PA_POWER8, 0x1D);
-  S2lp_Write_Register(PA_POWER0, 0x07);
-  S2lp_Write_Register(PA_CONFIG1, 0x01);
-
-  S2lp_Write_Register(GPIO0_CONF, 0x02);
-
-  //S2LPTimerSetRxTimerUs(200000);
-  S2lp_Write_Register(TIMERS5, 0x81);
-  S2lp_Write_Register(TIMERS4, 0x1f);
-
-  s2lp_Check_IrqStatus();
-
-  /* send the TX command */
-  //SdkEvalSpiCommandStrobes(COMMAND_FLUSHTXFIFO);
-  //SdkEvalSpiWriteFifo(17, vectcTxBuff);
-  //SdkEvalSpiCommandStrobes(COMMAND_TX);
-  //S2LPGpioIrqClearStatus();
-
-  d=0;
-  while( d < 0x000fffff)
-  {
-    d++;
-  }
-
-  //TX
-  while(1)
-  {
-    //SdkEvalSpiCommandStrobes(COMMAND_FLUSHTXFIFO);
-    S2lp_Send_Command(FLUSHTXFIFO);
-
-    //SdkEvalSpiWriteFifo(17, vectcTxBuff);
-    pcktLength = s2lp_Get_Tx_Packet_Length();
-    for(i=0; i < pcktLength; i++)
-    {
-      S2lp_Write_Register(REG_FIFO,i);
-    }
-
-    while(1)
-    {
-      s2lp_state = s2lp_Get_Operating_State();
-      if(s2lp_state == STATE_READY)
-      {
-        break;
-      }
-    }
-
-    //SdkEvalSpiCommandStrobes(COMMAND_TX), and clean interrupts
-    s2lp_Check_IrqStatus();
-    s2lp_Set_Operating_State(TX);
-
-    while(1)
-    {
-      s2lp_state = s2lp_Get_Operating_State();
-      if(s2lp_state == STATE_READY)
-      {
-        break;
-      }
-    }
-
-    int_status = s2lp_Check_IrqStatus();
-    if( ((int_status & 0x00000004) != 0) || ((int_status & 0x00000008) != 0) )
-    {
-      if((int_status & 0x00000004) != 0)
-      {
-        //Tx data send with ACK received
-        //check the ACK package received
-
-        //clear interrupts
-        s2lp_Check_IrqStatus();
-      }
-
-
-      if((int_status & 0x00000008) != 0)
-      {
-        //Max Tx data reached, updating counter
-        maxTxReached_counter++;
-
-        //clear interrupts
-        s2lp_Check_IrqStatus();
-      }
-    }
-
-    //wait before sending again
-    /*for(d=0; d<0x00Afffff; d++)
-    {
-      i=0;
-    }*/
-  }
-}
-
-//*****************************************************************************
-void s2lp_Test_Rx_RC()
-//*****************************************************************************
-// description: configures s2lp with radiocontrolli registers configuration
-// just for test
-//*****************************************************************************
-{
-  UINT32 d=0;
-  UINT8 i=0;
-  UINT16 pcktLength=0;
-  UINT8 s2lp_state = 0;
-  UINT32 int_status = 0;
-  UINT8 rxBuffer[128];
-
-  UINT32 count_Data_Discarded = 0;
-  UINT32 count_Data_Tx_Sent = 0;
-  UINT32 count_Data_Rx = 0;
-  float stats=0;
-
-  /*S2LPGpioIrqDeInit();
-
-  S2LPGpioIrqConfig(TX_DATA_SENT,S_ENABLE);
-  S2LPGpioIrqConfig(RX_DATA_DISC,S_ENABLE);
-  SpiritBaseConfiguration();
-  S2LPGpioIrqConfig(RX_DATA_READY,S_ENABLE);
-
-  S2LPPktBasicSetPayloadLength(15);
-
-  S2LPTimerSetRxTimerUs(800000);
-
-  S2LPGpioIrqClearStatus();
-  SdkEvalSpiCommandStrobes(COMMAND_RX);
-  */
-
-  //S2LPGpioIrqDeInit();
-  S2lp_Write_Register(IRQ_MASK3, 0x00);
-  S2lp_Write_Register(IRQ_MASK2, 0x00);
-  S2lp_Write_Register(IRQ_MASK1, 0x00);
-  S2lp_Write_Register(IRQ_MASK0, 0x00);
-
-  //S2LPGpioIrqConfig(TX_DATA_SENT,S_ENABLE);
-  //S2LPGpioIrqConfig(RX_DATA_DISC,S_ENABLE);
-  S2lp_Write_Register(IRQ_MASK0, 0x06); //org. 0x06
-
-  //S2LPPktBasicSetPayloadLength(17);
-  S2lp_Write_Register(GPIO3_CONF, 0xA3);
-
-  //SpiritBaseConfiguration();
-  S2lp_Write_Register(SYNTH3, 0x62);
-  S2lp_Write_Register(SYNTH2, 0x2B);
-  S2lp_Write_Register(SYNTH1, 0x85);
-  S2lp_Write_Register(SYNTH0, 0x18);
-
-  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
-  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
-
-  s2_lp_TestDataRate_RC();
-  S2lp_Write_Register(MOD0, 0xA3);
-  S2lp_Write_Register(CHFLT, 0x13);
-
-  S2lp_Write_Register(RSSI_TH, 0x10);
-
-  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
-
-  S2lp_Write_Register(PCKTCTRL4, 0x08);
-  S2lp_Write_Register(PCKTCTRL3, 0xC0);
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  S2lp_Write_Register(PCKTCTRL1, 0x30);
-
-  S2lp_Write_Register(SYNC_3_REG, 0x78);
-  S2lp_Write_Register(SYNC_2_REG, 0x56);
-  S2lp_Write_Register(SYNC_1_REG, 0x34);
-  S2lp_Write_Register(SYNC_0_REG, 0x12);
-
-  S2lp_Write_Register(PROTOCOL2, 0x44);
-  S2lp_Write_Register(PROTOCOL1, 0x01); //org. 0x01
-  S2lp_Write_Register(PROTOCOL0, 0x0C); //org 0x0c for ACK
-
-  S2lp_Write_Register(FIFO_CONFIG3, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG2, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG1, 0x40);
-  S2lp_Write_Register(FIFO_CONFIG0, 0x40);
-
-  S2lp_Write_Register(PCKT_FLT_OPTIONS, 0x43);
-
-  S2lp_Write_Register(TIMERS5, 0x00);
-  S2lp_Write_Register(TIMERS4, 0x09);
-
-  S2lp_Write_Register(IRQ_MASK1, 0x02); // rx fifo almost full
-
-  S2lp_Write_Register(PCKT_FLT_GOALS3, 0xA5);
-  S2lp_Write_Register(PCKT_FLT_GOALS0, 0xA4);
-
-  S2lp_Write_Register(PA_POWER8, 0x1D);
-  S2lp_Write_Register(PA_POWER0, 0x07);
-  S2lp_Write_Register(PA_CONFIG1, 0x01);
-
-  S2lp_Write_Register(PM_CONFIG3, 0x87);
-  S2lp_Write_Register(PM_CONFIG2, 0xFC);
-
-  S2lp_Write_Register(GPIO0_CONF, 0x02);
-
-  //S2LPGpioIrqConfig(RX_DATA_READY,S_ENABLE);
-  S2lp_Write_Register(IRQ_MASK0, 0x07); //RX data ready ,RX data disc, TX data sent
-
-  //S2LPPktBasicSetPayloadLength(15);
-  s2lp_Set_Tx_Packet_Length(15);
-
-  //S2LPTimerSetRxTimer(800000)
-  S2lp_Write_Register(TIMERS5, 0xC1);
-  S2lp_Write_Register(TIMERS4, 0x56);
-
-  //RX
-  int_status = s2lp_Check_IrqStatus();
-
-  while(1)
-  {
-    while(1)
-    {
-      s2lp_state = s2lp_Get_Operating_State();
-      int_status = s2lp_Check_IrqStatus();
-      int_status = 0;
-
-      if(s2lp_state == STATE_READY)
-      {
-        break;
-      }
-    }
-
-    //SdkEvalSpiCommandStrobes(COMMAND_RX);
-    s2lp_Set_Operating_State(RX);
-
-    while(1)
-    {
-      s2lp_state = s2lp_Get_Operating_State();
-      int_status = s2lp_Check_IrqStatus();
-      int_status = 0;
-
-      if(s2lp_state == STATE_RX)
-      {
-        break;
-      }
-    }
-
-    while(1)
-    {
-      int_status = s2lp_Check_IrqStatus();
-
-      if((int_status & 0x00000002) != 0)
-      {
-        //data discarded (because of Rx timeout or data received is not valid after filtering the received packet)
-        //go to Rx and clear interrupts generated
-        s2lp_Set_Operating_State(RX);
-        s2lp_Check_IrqStatus();
-
-        count_Data_Discarded++;
-      }
-
-      if((int_status & 0x00000004) != 0)
-      {
-        //Tx DataSent
-        //go to Rx and clear interrupts generated
-        s2lp_Set_Operating_State(RX);
-        s2lp_Check_IrqStatus();
-
-        count_Data_Tx_Sent++;
-      }
-
-      if(int_status & 0x00000001) // data Rx ready
-      {
-        //read fifo received
-        pcktLength = s2lp_Get_Tx_Packet_Length();
-        s2lp_Retrieve_Rx_FIFO_Data((UINT8)pcktLength, rxBuffer);
-        S2lp_Send_Command(FLUSHRXFIFO);
-
-        s2lp_Set_Operating_State(RX);
-        s2lp_Check_IrqStatus();
-
-        count_Data_Rx++;
-      }
-
-      stats = (((float)count_Data_Discarded)/((float)count_Data_Rx))*100;
-
-      s2lp_state = s2lp_Get_Operating_State();
-      s2lp_state = 0;
-    }
-  }
-}
-
 void s2lp_Config_Test_Registers(void)
 {
   /*S2lp_Write_Register(0x00,0x0A);
@@ -1797,6 +1448,26 @@ void S2lp_Test(void)
 }
 
 //*****************************************************************************
+UINT8 s2lp_Get_PacketReceivedFlag()
+//*****************************************************************************
+// Gets the received packet flag value which indicates if a radio packet
+// has been received or not
+//*****************************************************************************
+{
+  return rx_PacketReceived_Flag;
+}
+
+//*****************************************************************************
+void s2lp_Clear_PacketReceivedFlag(void)
+//*****************************************************************************
+// Sets the received packet flag value which indicates if a radio packet
+// has been received or not
+//*****************************************************************************
+{
+  rx_PacketReceived_Flag = FALSE;
+}
+
+//*****************************************************************************
 void PORTC_IRQHandler(void)
 //*****************************************************************************
 // External s2lp interrupt pin
@@ -1828,6 +1499,8 @@ void PORTC_IRQHandler(void)
 
   packetsTx++;
   rx_PacketReceived_Flag = TRUE;
+
+  //s2lp clear interrupts
 
 /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
   exception return operation might vector to incorrect interrupt */
