@@ -168,12 +168,20 @@ TAREA en proceso:
         2.2) poder resetear el pin de interrupcion [OK]     
           -> No podemos hacer un clear status de las interrupciones desde la ISR, mirar como hacer el check desde otro sitio
                 
-		2.3) mirar porque solo recibe una vez el paquete radio enviado desde el emisor
-			-> culpa del emisor?
-			-> culpa del receptor?                
-                
-      - poder mantener el receptor en Rx durante todo el ciclo de escucha
-          
+		2.3) mirar porque solo recibe una vez el paquete radio enviado desde el emisor [OK]
+             
+		2.4) poder generar la interrupcion filtrando la direccion de destino del paquete [EN ELLO]
+		
+			simplepacket:
+			-------------
+				porque al recibir el paquete, consultando los registros de longitud y direccion de destino para filtrar, estos no aparecen
+				con los valores del paquete recibido.
+				
+				fijarse en como lo hace el proyecto de los italianos
+				
+				Emisor:
+					- Registro donde se coloca la dirección de destino del paquete: 
+						PCKT_FLT_GOALS3: RX_SOURCE_ADDR            
 RGB LED:
 --------
 	

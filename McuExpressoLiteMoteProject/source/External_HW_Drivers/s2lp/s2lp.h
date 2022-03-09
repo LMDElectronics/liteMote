@@ -310,8 +310,8 @@ void s2lp_Set_Packet_Format_StAck(void);
 void s2lp_Set_RadioStackPacket_Source_Address(UINT8 sourceAddr);
 void s2lp_Set_RadioStackPacket_Destination_Address(UINT8 destinationAddr);
 
-void s2lp_Set_Tx_Packet_Length(UINT16 dataPacketLength);
-UINT16 s2lp_Get_Tx_Packet_Length(void);
+void s2lp_Set_Packet_Length(UINT16 dataPacketLength);
+UINT16 s2lp_Get_Packet_Length(void);
 
 void s2lp_Set_Src_Addr_Filt_Addr(UINT8 scrAddrMask);
 UINT8 s2lp_Get_Src_Addr_Filt_Addr(void);

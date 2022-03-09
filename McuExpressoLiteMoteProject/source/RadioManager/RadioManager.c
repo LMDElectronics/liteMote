@@ -26,6 +26,8 @@ UINT32 myPacketsTx;
 //TODO TEST
 UINT8 radioBytesReceived=0;
 UINT8 radioData[DATA_RADIO_BUFFER_LENGTH];
+UINT8 destinationAddrReceived=0;
+UINT8 sourceAddrReceived=0;
 
 //*****************************************************************************
 void Radio_Manager_Config(void)
@@ -34,6 +36,25 @@ void Radio_Manager_Config(void)
 //*****************************************************************************
 {
 
+}
+
+//*****************************************************************************
+void Radio_Manager_Set_Radio_Addr(UINT8 radioAddr)
+//*****************************************************************************
+// sets the radio address
+//*****************************************************************************
+{
+  s2lp_Set_RadioStackPacket_Destination_Address(radioAddr);
+}
+
+//*****************************************************************************
+void Radio_Manager_Set_Rx_Filtering_Addr(UINT8 radioAddr)
+//*****************************************************************************
+//sets the TX_SOURCE_ADDR, to compare the destination address recevied vs node
+//address
+//*****************************************************************************
+{
+  s2lp_Set_RadioStackPacket_Source_Address(radioAddr);
 }
 
 //*****************************************************************************
@@ -96,15 +117,16 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 // Loads the packet into radio transmitter
 //****************************************************************************
 {
+  UINT8 regData = 0;
+
   s2lp_Set_RadioStackPacket_Source_Address(myAddress);
   s2lp_Set_RadioStackPacket_Destination_Address(destination_addr);
 
-  S2lp_Send_Command(FLUSHRXFIFO);
   S2lp_Send_Command(FLUSHTXFIFO);
 
   s2lp_Load_Tx_FIFO(payload, payloadLength);
 
-  s2lp_Set_Tx_Packet_Length(payloadLength);
+  s2lp_Set_Packet_Length(payloadLength);
 
   if(ack == ACK_NEEDED)
   {
@@ -136,7 +158,7 @@ void Radio_Manager_Tx_Motor(void)
       else
       {
         //check if radio is not busy
-        //current_state = s2lp_Get_Operating_State();
+        current_state = s2lp_Get_Operating_State();
         if(s2lp_Get_Operating_State() == STATE_READY)
         {
           radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
@@ -254,6 +276,7 @@ void Radio_Manager_Rx_Motor(void)
 
       if(s2lp_Get_Operating_State() == STATE_RX)
       {
+
         radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
       }
       else
@@ -272,10 +295,17 @@ void Radio_Manager_Rx_Motor(void)
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
+      destinationAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS3);
+      sourceAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS0);
       if(s2lp_Get_PacketReceivedFlag() == TRUE)
       {
-        s2lp_Check_IrqStatus();
-        s2lp_Clear_IrqStatus();
+        //s2lp_Check_IrqStatus();
+        //s2lp_Clear_IrqStatus();
+
+        destinationAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS3);
+
+        //extract the packet lenght from the registers
+        radioBytesReceived = s2lp_Get_Packet_Length();
 
         //TODO test
         s2lp_Retrieve_Rx_FIFO_Data(4, radioData);
@@ -285,6 +315,10 @@ void Radio_Manager_Rx_Motor(void)
 
         //getting back to READY state
         s2lp_Set_Operating_State(READY);
+
+        s2lp_Check_IrqStatus();
+        s2lp_Clear_IrqStatus();
+
         radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
       }
 

@@ -524,17 +524,37 @@ SINT8 s2lp_Get_Tx_Power_Config(void)
 }
 
 //*****************************************************************************
-void s2lp_Set_Tx_Packet_Length(UINT16 dataPacketLength)
+void s2lp_Set_Packet_Length(UINT16 dataPacketLength)
 //*****************************************************************************
 // Sets the TX packet length
 //*****************************************************************************
 {
+  UINT8 regData=0;
+
+  regData = S2lp_Read_Register(PCKTCTRL4);
+
+  //check if address is included in the radio packet
+  if((regData & 0x08) == 0x08)
+  {
+    //check the address bytes
+    if((regData & 0x80) == 0x80)
+    {
+      //need to add 2 bytes of address to payloadlenght
+      dataPacketLength = dataPacketLength + 2;
+    }
+    else
+    {
+      //need to add 2 bytes of address to payloadlenght
+      dataPacketLength = dataPacketLength + 1;
+    }
+  }
+
   S2lp_Write_Register(PCKTLEN1, (UINT8)((dataPacketLength & 0xFF00) >> 8));
   S2lp_Write_Register(PCKTLEN0, (UINT8)(dataPacketLength & 0x00FF));
 }
 
 //*****************************************************************************
-UINT16 s2lp_Get_Tx_Packet_Length(void)
+UINT16 s2lp_Get_Packet_Length(void)
 //*****************************************************************************
 // Gets the Tx packetLength in bytes per packet
 //*****************************************************************************
@@ -1324,10 +1344,13 @@ void s2lp_Config_Test_Registers(void)
 
   S2lp_Write_Register(0x2B,0x80);
   S2lp_Write_Register(0x2C,0x10);
-  S2lp_Write_Register(0x2D,0x00);
-  S2lp_Write_Register(0x2E,0x01);
-  S2lp_Write_Register(0x2F,0x01);
-  S2lp_Write_Register(0x30,0x20);
+
+  //S2lp_Write_Register(0x2D,0x00); //PCKTCTRL4
+  S2lp_Write_Register(0x2D,0x08); //PCKTCTRL4 including Rx address in the radio packet
+
+  S2lp_Write_Register(0x2E,0x01); //PCKTCTRL3 determines the packet format used
+  S2lp_Write_Register(0x2F,0x01); //PCKTCTRL2 variable packet length
+  S2lp_Write_Register(0x30,0x20); //PCKTCTRL1 dual sync word is disabled
 
   S2lp_Write_Register(0x31,0x00);
   S2lp_Write_Register(0x32,0x14);
@@ -1341,7 +1364,7 @@ void s2lp_Config_Test_Registers(void)
 
   S2lp_Write_Register(0x39,0x44); //PROTOCOL2
 
-  S2lp_Write_Register(0x3A,0x01);
+  S2lp_Write_Register(0x3A,0x01); //PROTOCOL1 AUTO_PCKT_FLT -> autopacket filtering control enabled
   S2lp_Write_Register(0x3B,0x08);
 
   S2lp_Write_Register(0x3C,0x40);
@@ -1349,11 +1372,12 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x3E,0x40);
   S2lp_Write_Register(0x3F,0x40);
 
-  S2lp_Write_Register(0x40,0x41); //PCKT_FLTR_OPTIONS
+  //S2lp_Write_Register(0x40,0x41); //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
+  S2lp_Write_Register(0x40,0x43); //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok and if rx address matches
 
-  S2lp_Write_Register(0x41,0x00);
+  S2lp_Write_Register(0x41,0x00); //PCKT_FLT_GOALS4, saving Rx address mask
   S2lp_Write_Register(0x42,0x00);
-  S2lp_Write_Register(0x43,0x00);
+  S2lp_Write_Register(0x43,0x00); //
   S2lp_Write_Register(0x44,0x00);
   S2lp_Write_Register(0x45,0x00);
 

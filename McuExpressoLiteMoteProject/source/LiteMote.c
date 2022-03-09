@@ -93,6 +93,9 @@ int main(void)
 
   s2lp_Config_Test_Registers();
 
+  //set the node radio addr
+  Radio_Manager_Set_Radio_Addr((UINT8)CnfManager_Get_My_Address());
+
   //just for test
     //Send_byte_per_second();
     //mx25l128_test();
@@ -102,8 +105,6 @@ int main(void)
     //s2lp_Test_Tx_RC();
     //s2lp_Test_Rx_RC();
   //end test
-
-  //Radio_Manager_Rx_Motor();
 
   while(1)
   {
