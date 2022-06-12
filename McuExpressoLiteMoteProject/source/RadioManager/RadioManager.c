@@ -159,37 +159,62 @@ void Radio_Manager_Tx_Motor(void)
       {
         //check if radio is not busy
         current_state = s2lp_Get_Operating_State();
-        if(s2lp_Get_Operating_State() == STATE_READY)
+
+        //decide what to do depending of the radio device
+        switch(current_state)
         {
-          radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
+          //------------------------------------------------------------------------------------
+          // radio is READY, so, load the radio packet and send it until Tx time window is over
+          //------------------------------------------------------------------------------------
+          case STATE_READY:
 
-          //1 - Load Radio packet
-          Radio_Manager_Load_Packet(
-              (UINT8)CnfManager_Get_My_Address(),
-              radio_packet_to_Tx.header.destination_node,
-              radio_packet_to_Tx.payload,
-              radio_packet_to_Tx.header.frame_payload_length,
-              radio_packet_to_Tx.header.ackNeeded);
+            radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
 
-          //2 - load send time timer
-          Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+            radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
-          //3 - start timer
-          tpmIsrFlag = FALSE; //reset isr flag
-          //Radio_Tx_Window_Timer_Start_Timer();
+            //1 - Load Radio packet
+            Radio_Manager_Load_Packet(
+                (UINT8)CnfManager_Get_My_Address(),
+                radio_packet_to_Tx.header.destination_node,
+                radio_packet_to_Tx.payload,
+                radio_packet_to_Tx.header.frame_payload_length,
+                radio_packet_to_Tx.header.ackNeeded);
 
-          //4 - start tx
-          s2lp_Clear_IrqStatus();
-          s2lp_Start_Tx();
+            //2 - load send time timer
+            Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
-          //test to Tx just one packet
-          tpmIsrFlag = true;
+            //3 - start timer
+            tpmIsrFlag = FALSE; //reset isr flag
+            Radio_Tx_Window_Timer_Start_Timer();
 
-          radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
-        }
-        else
-        {
-          s2lp_Set_Operating_State(READY);
+            //4 - start tx
+            s2lp_Clear_IrqStatus();
+            s2lp_Start_Tx();
+
+            //test to Tx just one packet
+            //tpmIsrFlag = true;
+          break;
+
+          //------------------------------------------------------------------------------------
+          // Do nothing, just wait until Tx is done
+          //------------------------------------------------------------------------------------
+          case STATE_TX:
+            radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+          break;
+
+          //------------------------------------------------------------------------------------
+          // transceiver is in Rx state, should abort Rx and move to Tx the packet
+          //------------------------------------------------------------------------------------
+          case STATE_RX:
+            radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+            current_state = s2lp_Set_Operating_State(SABORT);
+            break;
+
+          //------------------------------------------------------------------------------------
+          // UNKNOWN state?
+          //------------------------------------------------------------------------------------
+          default:
+            break;
         }
       }
 
@@ -206,6 +231,14 @@ void Radio_Manager_Tx_Motor(void)
       {
         if( s2lp_Get_Operating_State() == STATE_READY )
         {
+          //reload the packet into the radio transceiver to Tx again
+          Radio_Manager_Load_Packet(
+              (UINT8)CnfManager_Get_My_Address(),
+              radio_packet_to_Tx.header.destination_node,
+              radio_packet_to_Tx.payload,
+              radio_packet_to_Tx.header.frame_payload_length,
+              radio_packet_to_Tx.header.ackNeeded);
+
           //Tx timeout window not reached, start Tx again
           s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
@@ -222,8 +255,6 @@ void Radio_Manager_Tx_Motor(void)
 
         intStatus = s2lp_Check_IrqStatus();
         s2lp_Clear_IrqStatus();
-        //intStatus = s2lp_Check_IrqStatus();
-
         s2lp_ResetPacketsTx();
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;

@@ -172,16 +172,61 @@ TAREA en proceso:
              
 		2.4) poder generar la interrupcion filtrando la direccion de destino del paquete [EN ELLO]
 		
-			simplepacket:
-			-------------
-				porque al recibir el paquete, consultando los registros de longitud y direccion de destino para filtrar, estos no aparecen
-				con los valores del paquete recibido.
+			2.4.1- pruebas Tx - Rx (sin filtraje): [OK]
+			
+				radio: 		868Mhz
+				kbps: 		2Kbps
+				channel:	0
+				tx power: 	0							
+			
+				simplepacket
+			
+				-> Emisor litemote 
+					Para Tx por radio:
+						Origin Node: <direccion de radio de liteMote de donde se hace el Tx>
+						Destination Node: <cualquier otro nodo que no sea el origen>
+										
+				-> receptor st-radio kit (hay que cargar el archivo para configurar los registros "Register_Setting_ook" )
+
+			2.4.2- pruebas Tx-Rx (con filtraje): [EN ELLO] <<<--------------------------------------------------------------------------------------- 
+			
+				NOTA: segun datasheet el filtrado solo es valido para paquetes BASIC y STack
+
+				radio: 		868Mhz
+				kbps: 		2Kbps
+				channel:	0
+				tx power: 	0							
+			
+				simplepacket
+			
+				-> Emisor litemote 
+					Para Tx por radio:
+						Origin Node: <direccion de radio de liteMote de donde se hace el Tx>
+						Destination Node: <cualquier otro nodo que no sea el origen>
+										
+				-> receptor st-radio kit (hay que cargar el archivo para configurar los registros "Register_Setting_ook" )
 				
-				fijarse en como lo hace el proyecto de los italianos
+				Problemillas en la recepcion: 
+				-----------------------------								
+				primero: 03 00 01 AB CD ok
+				segundo: 03 CD CD CD CD ----> porque desaparece este campo?? es un problema de la FIFO?
+				tercero: 03 CD CD CD CD
 				
-				Emisor:
-					- Registro donde se coloca la dirección de destino del paquete: 
-						PCKT_FLT_GOALS3: RX_SOURCE_ADDR            
+				al volver a enviar:
+				primero: 03 00 01 AB CD ok
+				segundo: 03 CD CD CD CD ----> porque desaparece este campo?? es un problema de la FIFO?
+				tercero: 03 CD CD CD CD
+				
+				Si solo enviamos un paquete por Tx, va bien, el problema es hacer mas de un start_Tx sin vaciar la FIFO
+				
+				Solucion:
+					Dentro de la ventana de envio, al volver a estar ready, antes de enviar, es necesario cargar otra vez el mismo paquete radio en la fifo de tx
+					
+				Solucionado el bug, se sigue intentando que el receptor solo capture los paquetes desde un solo destino (filtraje)...
+				
+				
+																		
+
 RGB LED:
 --------
 	

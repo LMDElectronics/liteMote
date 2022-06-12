@@ -662,11 +662,32 @@ void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount)
 //*****************************************************************************
 {
   UINT8 i=0;
+  UINT8 data[10];
+  UINT8 elements = 0;
+  UINT8 bytesToRead=10;
 
+  //check current data in the fifo
+  /*for(i=0; i < bytesToRead; i++)
+  {
+    data[i] = S2lp_Read_Register(REG_FIFO);
+  }
+
+  elements = s2lp_Get_Tx_FIFO_Elements();*/
+
+  //fill fifo
   for(i=0; i < byteCount; i++)
   {
     S2lp_Write_Register(REG_FIFO, dataBuffer[i]);
   }
+
+  /*elements = s2lp_Get_Tx_FIFO_Elements();
+
+  //check current data in the fifo
+  for(i=0; i < bytesToRead; i++)
+  {
+    data[i] = S2lp_Read_Register(REG_FIFO);
+  }
+  i=0;*/
 }
 
 //*****************************************************************************
@@ -681,6 +702,24 @@ void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer)
   {
     dataBuffer[i] = S2lp_Read_Register(REG_FIFO);
   }
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_Tx_FIFO_Elements()
+//*****************************************************************************
+// description: gets the number of bytes loaded into TX FIFO
+//*****************************************************************************
+{
+  return S2lp_Read_Register(TX_FIFO_STATUS);
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_Rx_FIFO_Elements()
+//*****************************************************************************
+// description: gets the number of bytes loaded into RX FIFO
+//*****************************************************************************
+{
+  return S2lp_Read_Register(RX_FIFO_STATUS);
 }
 
 //*****************************************************************************
@@ -885,6 +924,7 @@ void S2lp_Init(void)
   S2lp_Init_Pinout();
 
   S2lp_Enable_ShutDown_Mode();
+
   //11ms to wait for s2lp writing registers
   d=0;
   while( d < 0x000fffff)
@@ -894,6 +934,7 @@ void S2lp_Init(void)
 
   S2lp_Disable_ShutDown_Mode();
   d=0;
+
   //11ms to wait for s2lp writing registers
   while( d < 0x000fffff)
   {
@@ -1365,7 +1406,7 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x39,0x44); //PROTOCOL2
 
   S2lp_Write_Register(0x3A,0x01); //PROTOCOL1 AUTO_PCKT_FLT -> autopacket filtering control enabled
-  S2lp_Write_Register(0x3B,0x08);
+  S2lp_Write_Register(0x3B,0x08); //No ack,
 
   S2lp_Write_Register(0x3C,0x40);
   S2lp_Write_Register(0x3D,0x40);

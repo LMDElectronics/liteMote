@@ -328,6 +328,9 @@ UINT8 s2lp_Get_Tx_Source_Data_Mode(void);
 void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount);
 void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer);
 
+UINT8 s2lp_Get_Tx_FIFO_Elements();
+UINT8 s2lp_Get_Rx_FIFO_Elements();
+
 UINT8 s2lp_Set_Operating_State(UINT8 newStateCommand);
 UINT8 s2lp_Get_Operating_State(void);
 
