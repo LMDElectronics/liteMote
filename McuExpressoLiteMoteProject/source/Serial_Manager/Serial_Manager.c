@@ -235,9 +235,6 @@ void Serial_Manager_RX_Motor(void)
         }
         else
         {
-          //str_serial_data mydata;
-          //mydata = UART_Get_serial_data_Rx_struct();
-
           if(Get_Byte_RX_From_Comm_UART() == BASE64_FRAME_START_BYTE)
           {
 

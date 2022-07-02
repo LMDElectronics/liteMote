@@ -229,14 +229,16 @@ TAREA en proceso:
 				0.1 -> Mirar porque no podemos recuperar el dato de potencia de Tx en dbm desde la aplicacion GateWay: OK 
 				
 				URGENTE!!!!!!!!!
-				0.0.1 -> Mirar poruqe al quitar la funcion que seteaba todos los registros del s2lp, ahora, no se pueden recibir tramas serie por falta de sincronismo: EN ELLO
+				0.0.1 -> Mirar poruqe al quitar la funcion que seteaba todos los registros del s2lp, ahora, no se pueden recibir tramas serie por falta de sincronismo: OK
 						 Necesario añadir una cola o buffer para guardar los bytes de la UART que van llegando, ya que puede llegar mas de un caracter sin que se haya procesado el primero
 						 en el motor "Serial_Manager_RX_Motor"
 					
-				
-				0.2 -> Mirar porque las IRQ_MASKX no se graban bien en s2lp.c
-				
+						 Se opta por bajar el bps del canal serie a 9600 de momento para poder trabajar con el motor de radio siempre comprobando el estado de Rx, mientras la gestion
+						 del estado de Rx no la lleve el s2lp
+							
 				realizar Rx desde litemote debugando: EN ELLO
+					-> valid preamble interrupt triggered OK, en paquetes enviados desde s2lp -> litemote: OK
+					-> sync word interrupt triggered OK, en paquetes enviados desde s2lp -> litemote: OK
 				
 				1- desde CRC sin filtro por direcciones: EN ELLO
 					

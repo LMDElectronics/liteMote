@@ -238,21 +238,6 @@ void Send_UART_Frame(UINT8 *data_To_Transfer, UINT8 data_To_Transfer_Lenght)
   LPUART_EnableInterrupts(LPUART0, kLPUART_TxDataRegEmptyInterruptEnable);
 }
 
-str_serial_data UART_Get_serial_data_Rx_struct(void)
-{
-  str_serial_data mySerialData;
-
-  mySerialData.pSerialDataBuffer = &serial_Data_Buffer[0];
-  mySerialData.serialDataBuffer_Elements = serial_Buffer_Index;
-
-  return mySerialData;
-}
-
-void UART_Clear_Rx_Buffer(void)
-{
-  serial_Buffer_Index = 0;
-}
-
 /******************************************************************************
   void LPUART0_IRQHandler(void)
    ISR for communications UART
@@ -276,14 +261,9 @@ void LPUART0_IRQHandler(void)
   /* If new data arrived. */
   if ((kLPUART_RxDataRegFullFlag)&LPUART_GetStatusFlags(LPUART0))
   {
-
-    //check if its starting byte and its a new frame
-    byte_received_flag = TRUE;
-
     byte_received = LPUART_ReadByte(LPUART0);
 
-    serial_Data_Buffer[serial_Buffer_Index] = byte_received;
-    serial_Buffer_Index = serial_Buffer_Index + 1;
+    byte_received_flag = TRUE;
 
     #ifdef SERIAL_UART_ECHO
       //check if TxReg is emptey and uart flags are cleared

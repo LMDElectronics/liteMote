@@ -29,7 +29,7 @@
 #define BOARD_UART_IRQ_HANDLER LPUART0_IRQHandler
 
 #ifndef BOARD_DEBUG_UART_BAUDRATE
-#define BOARD_DEBUG_UART_BAUDRATE 115200
+#define BOARD_DEBUG_UART_BAUDRATE 9600 //115200
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
 /*! @brief The i2c instance used for i2c connection by default */

@@ -1044,14 +1044,14 @@ void S2lp_Init(void)
 
   S2lp_Write_Register(XO_RCO_CONF1, dataRead);
 
+  //by default internal radio settings
+  s2lp_default_settings();
+
   //test
   s2lp_Clear_IrqStatus();
   s2lp_Check_IrqStatus();
-  S2lp_Config_Interrupt(RX_DATA_READY);
+  S2lp_Config_Interrupt(RX_DATA_READY /*VALID_PREAMBLE_DETECTED*/ /*SYNC_WORD_DETECTED*/);
   S2lp_Config_Power_Management();
-
-  //by default internal radio settings
-  s2lp_default_settings();
 
   //config BASIC packet format
   s2lp_Set_Packet_Format_BASIC();
@@ -1217,7 +1217,7 @@ UINT32 s2lp_Get_IRQ_Mask(void)
 
   msk0 = (S2lp_Read_Register(IRQ_MASK0));
 
-  return retVal;
+  return (UINT32)( (msk3<<24) || (msk3<<16) || (msk3<<8) || msk0 );
 }
 
 //*****************************************************************************
@@ -1244,7 +1244,7 @@ void s2lp_Set_Packet_Format_BASIC(void)
 
   //primary sync word selected
   //using 0x8005 poly
-  S2lp_Write_Register(PCKTCTRL1,0x20);
+  S2lp_Write_Register(PCKTCTRL1,0x40);
 
   //SYNC word
   S2lp_Write_Register(SYNC_3_REG,SYNC_3_DATA);
