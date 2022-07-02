@@ -224,7 +224,30 @@ TAREA en proceso:
 					
 				Solucionado el bug, se sigue intentando que el receptor solo capture los paquetes desde un solo destino (filtraje)...
 				
+				0- Evitar el tener que llamar a "s2lp_Config_Test_Registers();" en la inicialización -> OK
 				
+				0.1 -> Mirar porque no podemos recuperar el dato de potencia de Tx en dbm desde la aplicacion GateWay: OK 
+				
+				URGENTE!!!!!!!!!
+				0.0.1 -> Mirar poruqe al quitar la funcion que seteaba todos los registros del s2lp, ahora, no se pueden recibir tramas serie por falta de sincronismo: EN ELLO
+						 Necesario añadir una cola o buffer para guardar los bytes de la UART que van llegando, ya que puede llegar mas de un caracter sin que se haya procesado el primero
+						 en el motor "Serial_Manager_RX_Motor"
+					
+				
+				0.2 -> Mirar porque las IRQ_MASKX no se graban bien en s2lp.c
+				
+				realizar Rx desde litemote debugando: EN ELLO
+				
+				1- desde CRC sin filtro por direcciones: EN ELLO
+					
+					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
+					RX: desde lite mote	-> selfAddr: x02 destAddr: x04		
+
+				2- usando el filtro de direcciones: EN ELLO
+					
+					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
+					RX: desde lite mote	-> selfAddr: x02 destAddr: x04		
+							
 																		
 
 RGB LED:

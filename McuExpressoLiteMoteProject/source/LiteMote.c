@@ -61,7 +61,6 @@ int main(void)
   UINT32 clk_value = 0;
   UINT32 d=0;
 
-
   //init HW peripherals
   //ADC_AutoCalibration();
   BOARD_BootClockRUN();
@@ -91,20 +90,8 @@ int main(void)
   Packet_Manager_Init();
   Health_Manager_Init();
 
-  s2lp_Config_Test_Registers();
-
   //set the node radio addr
   Radio_Manager_Set_Radio_Addr((UINT8)CnfManager_Get_My_Address());
-
-  //just for test
-    //Send_byte_per_second();
-    //mx25l128_test();
-    //ADC_Test();
-    //Health_Timer_Test();
-    //S2lp_Test();
-    //s2lp_Test_Tx_RC();
-    //s2lp_Test_Rx_RC();
-  //end test
 
   while(1)
   {
@@ -121,6 +108,9 @@ int main(void)
 
     //periodically report health data to host
     Health_Manager_Motor();
+
+    //TODO:
+    //goto sleep (-.-)ZZzzz
   }
   return 0;
 }

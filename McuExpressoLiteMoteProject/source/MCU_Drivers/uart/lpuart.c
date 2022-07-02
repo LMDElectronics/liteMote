@@ -10,7 +10,7 @@
 *******************************************************************************/
 #include <MCU_Drivers/uart/lpuart.h>
 
-UINT8 serial_Data_Buffer[MAX_SERIAL_DATA_BUFFER_SIZE];
+volatile UINT8 serial_Data_Buffer[MAX_SERIAL_DATA_BUFFER_SIZE];
 volatile UINT8 serial_Buffer_Index = 0;
 
 volatile UINT8 byte_received_flag = FALSE;
@@ -238,6 +238,21 @@ void Send_UART_Frame(UINT8 *data_To_Transfer, UINT8 data_To_Transfer_Lenght)
   LPUART_EnableInterrupts(LPUART0, kLPUART_TxDataRegEmptyInterruptEnable);
 }
 
+str_serial_data UART_Get_serial_data_Rx_struct(void)
+{
+  str_serial_data mySerialData;
+
+  mySerialData.pSerialDataBuffer = &serial_Data_Buffer[0];
+  mySerialData.serialDataBuffer_Elements = serial_Buffer_Index;
+
+  return mySerialData;
+}
+
+void UART_Clear_Rx_Buffer(void)
+{
+  serial_Buffer_Index = 0;
+}
+
 /******************************************************************************
   void LPUART0_IRQHandler(void)
    ISR for communications UART
@@ -267,6 +282,9 @@ void LPUART0_IRQHandler(void)
 
     byte_received = LPUART_ReadByte(LPUART0);
 
+    serial_Data_Buffer[serial_Buffer_Index] = byte_received;
+    serial_Buffer_Index = serial_Buffer_Index + 1;
+
     #ifdef SERIAL_UART_ECHO
       //check if TxReg is emptey and uart flags are cleared
       if((kLPUART_TxDataRegEmptyFlag & LPUART_GetStatusFlags(LPUART0)))
@@ -275,30 +293,31 @@ void LPUART0_IRQHandler(void)
       }
     #endif
   }
-
-  /* byte send */
-  if ((kLPUART_TxDataRegEmptyFlag)&LPUART_GetStatusFlags(LPUART0))
+  else
   {
-    //check if there are bytes left to send
-    if(bytes_to_Send > 0)
+    /* byte send */
+    if ((kLPUART_TxDataRegEmptyFlag)&LPUART_GetStatusFlags(LPUART0))
     {
-      LPUART_WriteByte(LPUART0, serial_Tx_Data_Buffer[bytes_Sent]);
-      bytes_Sent = bytes_Sent + 1;
-      bytes_to_Send = bytes_to_Send - 1;
-    }
-    else
-    {
-      //all serial data sent, clear variables and disable tx interrupt
-      bytes_Sent = 0;
-      bytes_to_Send = 0;
+      //check if there are bytes left to send
+      if(bytes_to_Send > 0)
+      {
+        LPUART_WriteByte(LPUART0, serial_Tx_Data_Buffer[bytes_Sent]);
+        bytes_Sent = bytes_Sent + 1;
+        bytes_to_Send = bytes_to_Send - 1;
+      }
+      else
+      {
+        //all serial data sent, clear variables and disable tx interrupt
+        bytes_Sent = 0;
+        bytes_to_Send = 0;
 
-      //only Rx interrupt enabled
-      LPUART_DisableInterrupts(LPUART0, kLPUART_TxDataRegEmptyInterruptEnable);
+        //only Rx interrupt enabled
+        LPUART_DisableInterrupts(LPUART0, kLPUART_TxDataRegEmptyInterruptEnable);
 
-      serial_frame_sending_flag = FALSE;
+        serial_frame_sending_flag = FALSE;
+      }
     }
   }
-
 
   /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
     exception return operation might vector to incorrect interrupt */

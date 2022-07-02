@@ -285,7 +285,9 @@ typedef struct s2lp_parameters
 
 void S2lp_Init_Pinout(void);
 void S2lp_Init(void);
+
 void S2lp_Config_Interrupt(UINT32 intBitsMask);
+UINT32 s2lp_Get_IRQ_Mask(void);
 
 void s2lp_Set_Modulation_Type(UINT8 modulation);
 UINT8 s2lp_Get_Modulation_Type(void);
@@ -305,10 +307,14 @@ UINT8 s2lp_Get_Channel_Space(void);
 void s2lp_Set_Tx_Power_Config(UINT8 txPowerData);
 SINT8 s2lp_Get_Tx_Power_Config(void);
 
+void s2lp_Set_Packet_Format_BASIC(void);
 void s2lp_Set_Packet_Format_StAck(void);
 
-void s2lp_Set_RadioStackPacket_Source_Address(UINT8 sourceAddr);
-void s2lp_Set_RadioStackPacket_Destination_Address(UINT8 destinationAddr);
+void s2lp_Set_Source_Address(UINT8 sourceAddr);
+UINT8 s2lp_Get_Source_Address(void);
+
+void s2lp_Set_Destination_Address(UINT8 destinationAddr);
+UINT8 s2lp_Get_Destination_Address(void);
 
 void s2lp_Set_Packet_Length(UINT16 dataPacketLength);
 UINT16 s2lp_Get_Packet_Length(void);

@@ -44,7 +44,7 @@ void Radio_Manager_Set_Radio_Addr(UINT8 radioAddr)
 // sets the radio address
 //*****************************************************************************
 {
-  s2lp_Set_RadioStackPacket_Destination_Address(radioAddr);
+  s2lp_Set_Destination_Address(radioAddr);
 }
 
 //*****************************************************************************
@@ -54,7 +54,7 @@ void Radio_Manager_Set_Rx_Filtering_Addr(UINT8 radioAddr)
 //address
 //*****************************************************************************
 {
-  s2lp_Set_RadioStackPacket_Source_Address(radioAddr);
+  s2lp_Set_Source_Address(radioAddr);
 }
 
 //*****************************************************************************
@@ -119,8 +119,8 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 {
   UINT8 regData = 0;
 
-  s2lp_Set_RadioStackPacket_Source_Address(myAddress);
-  s2lp_Set_RadioStackPacket_Destination_Address(destination_addr);
+  s2lp_Set_Source_Address(myAddress);
+  s2lp_Set_Destination_Address(destination_addr);
 
   S2lp_Send_Command(FLUSHTXFIFO);
 
@@ -273,7 +273,8 @@ void Radio_Manager_Rx_Motor(void)
 //*****************************************************************************
 {
   UINT8 i=0;
-
+  UINT32 irqStatus=0;
+  UINT32 irqMask=0;
   //TODO
   // antes de poder configurar el timer interno del s2lp para el low duty Rx
   // es necesario hacerlo manualmente para verificar que el sistema es capaz de leer
@@ -307,7 +308,6 @@ void Radio_Manager_Rx_Motor(void)
 
       if(s2lp_Get_Operating_State() == STATE_RX)
       {
-
         radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
       }
       else
@@ -326,8 +326,28 @@ void Radio_Manager_Rx_Motor(void)
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
-      destinationAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS3);
-      sourceAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS0);
+      destinationAddrReceived = s2lp_Get_Destination_Address();
+      sourceAddrReceived = s2lp_Get_Source_Address();
+
+      //test to check if transceiver keeps in rx state or it has moved to Ready
+      if(s2lp_Get_Operating_State() == STATE_READY)
+      {
+        i=1;
+        i=0;
+      }
+      else
+      {
+        if(s2lp_Get_Operating_State() == STATE_RX)
+        {
+          //TODO check the interrupt masks
+          irqStatus = s2lp_Check_IrqStatus();
+          irqMask = s2lp_Get_IRQ_Mask();
+          i=1;
+          i=0;
+        }
+      }
+      //test end
+
       if(s2lp_Get_PacketReceivedFlag() == TRUE)
       {
         //s2lp_Check_IrqStatus();

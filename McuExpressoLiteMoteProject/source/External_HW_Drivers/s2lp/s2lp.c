@@ -544,7 +544,7 @@ void s2lp_Set_Packet_Length(UINT16 dataPacketLength)
     }
     else
     {
-      //need to add 2 bytes of address to payloadlenght
+      //need to add 1 bytes of address to payloadlenght
       dataPacketLength = dataPacketLength + 1;
     }
   }
@@ -910,6 +910,58 @@ void S2lp_Disable_ShutDown_Mode(void)
 }
 
 //*****************************************************************************
+void s2lp_default_settings(void)
+//*****************************************************************************
+// Default internal s2lp radio settings
+//*****************************************************************************
+{
+  //configuring IF_FREQUENCY (around 300Khz, recommended pag 34 from s2lp reference manual datasheet)
+  S2lp_Write_Register(IF_OFFSET_ANA, 0x2F);
+  S2lp_Write_Register(IF_OFFSET_DIG, 0xC2);
+
+  //set default channel space(should be arounf 100Hz -> CHSPACE[7:0]*(Fxo/2^15))
+  s2lp_Set_Channel_Space(0x3F);
+
+  //set default channel number, eq:6 pag 27 of s2lp reference manual datasheet
+  s2lp_Set_Channel_Num(0x00);
+
+  //set default channel Rx filter M=1 E=3
+  S2lp_Write_Register(CHFLT, 0x13);
+
+  //RSSI filter config
+  S2lp_Write_Register(RSSI_FLT, 0xE0);
+
+  //dual pass equalization
+  S2lp_Write_Register(ANT_SELECT_CONF, 0x55);
+
+  //packet settings, include address field in packet
+  S2lp_Write_Register(PCKTCTRL4, 0x08);
+
+  //almost emptu/full control for TX FIFO
+  S2lp_Write_Register(PROTOCOL2,0x44);
+
+  //default interrupt masks
+  S2lp_Write_Register(IRQ_MASK3,0x00);
+  S2lp_Write_Register(IRQ_MASK2,0x00);
+  S2lp_Write_Register(IRQ_MASK1,0x00);
+  S2lp_Write_Register(IRQ_MASK0,0x00);
+
+  //PA_POWER registers init by default
+  S2lp_Write_Register(PA_POWER8,0x18);
+  S2lp_Write_Register(PA_POWER7,0x0C);
+  S2lp_Write_Register(PA_POWER6,0x18);
+  S2lp_Write_Register(PA_POWER5,0x24);
+  S2lp_Write_Register(PA_POWER4,0x30);
+  S2lp_Write_Register(PA_POWER3,0x48);
+  S2lp_Write_Register(PA_POWER2,0x60);
+  S2lp_Write_Register(PA_POWER1,0x00);
+  S2lp_Write_Register(PA_POWER0,0x87);
+
+  S2lp_Write_Register(0x63,0x01);     //PA_CONFIG1
+  S2lp_Write_Register(0x64,0x88);     //PA_CONFIG0
+}
+
+//*****************************************************************************
 void S2lp_Init(void)
 //*****************************************************************************
 // Inits the s2lp radio module HW
@@ -997,6 +1049,12 @@ void S2lp_Init(void)
   s2lp_Check_IrqStatus();
   S2lp_Config_Interrupt(RX_DATA_READY);
   S2lp_Config_Power_Management();
+
+  //by default internal radio settings
+  s2lp_default_settings();
+
+  //config BASIC packet format
+  s2lp_Set_Packet_Format_BASIC();
 
   //config STACK packet type by default
   //s2lp_Set_Packet_Format_StAck();
@@ -1139,12 +1197,73 @@ void S2lp_Config_Interrupt(UINT32 intBitsMask)
 }
 
 //*****************************************************************************
+UINT32 s2lp_Get_IRQ_Mask(void)
+//*****************************************************************************
+// Gets the s2lp irq_mask from MSB[31..0]LSB
+//*****************************************************************************
+{
+  UINT32 retVal=0;
+
+  UINT8 msk0;
+  UINT8 msk1;
+  UINT8 msk2;
+  UINT8 msk3;
+
+  msk3 = (S2lp_Read_Register(IRQ_MASK3));
+
+  msk2 = (S2lp_Read_Register(IRQ_MASK2));
+
+  msk1 = (S2lp_Read_Register(IRQ_MASK1));
+
+  msk0 = (S2lp_Read_Register(IRQ_MASK0));
+
+  return retVal;
+}
+
+//*****************************************************************************
 UINT8 S2lp_Operation_Finished(void)
 //*****************************************************************************
 // check for operation finished
 //*****************************************************************************
 {
   return flag_radio_operation_finished;
+}
+
+//*****************************************************************************
+void s2lp_Set_Packet_Format_BASIC(void)
+//*****************************************************************************
+// description: sets the radio data packet format BASIC
+//*****************************************************************************
+{
+  //BASIC packet selection
+  //preamble 01 selection
+  S2lp_Write_Register(PCKTCTRL3,0x01);
+
+  //variable packet length
+  S2lp_Write_Register(PCKTCTRL2,0x01);
+
+  //primary sync word selected
+  //using 0x8005 poly
+  S2lp_Write_Register(PCKTCTRL1,0x20);
+
+  //SYNC word
+  S2lp_Write_Register(SYNC_3_REG,SYNC_3_DATA);
+  S2lp_Write_Register(SYNC_2_REG,SYNC_2_DATA);
+  S2lp_Write_Register(SYNC_1_REG,SYNC_2_DATA);
+  S2lp_Write_Register(SYNC_0_REG,SYNC_1_DATA);
+
+  //packet filtering ENABLED
+  S2lp_Write_Register(PROTOCOL1,0x01);
+
+  //automatic ack DISABLED
+  //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
+  S2lp_Write_Register(PROTOCOL0,0x08);
+
+  //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
+  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x41);
+
+  //TODO:
+
 }
 
 //*****************************************************************************
@@ -1244,19 +1363,40 @@ void s2lp_Set_Packet_Format_StAck(void)
 }
 
 //*****************************************************************************
-void s2lp_Set_RadioStackPacket_Source_Address(UINT8 sourceAddr)
+void s2lp_Set_Source_Address(UINT8 sourceAddr)
 //*****************************************************************************
-// SEts the tx addr
+// Sets the current configured source addr (my address)
 //*****************************************************************************
 {
   S2lp_Write_Register(PCKT_FLT_GOALS0, sourceAddr);
 }
 
 //*****************************************************************************
-void s2lp_Set_RadioStackPacket_Destination_Address(UINT8 destinationAddr)
+UINT8 s2lp_Get_Source_Address(void)
+//*****************************************************************************
+// Gets the current source address (my address)
 //*****************************************************************************
 {
+  return S2lp_Read_Register(PCKT_FLT_GOALS0);
+}
+
+//*****************************************************************************
+void s2lp_Set_Destination_Address(UINT8 destinationAddr)
+//*****************************************************************************
+// Sets the current destination address
+//*****************************************************************************
+
+{
   S2lp_Write_Register(PCKT_FLT_GOALS3, destinationAddr);
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_Destination_Address(void)
+//*****************************************************************************
+// Gets the current destination address
+//*****************************************************************************
+{
+  return S2lp_Read_Register(PCKT_FLT_GOALS3);
 }
 
 //*****************************************************************************
@@ -1344,120 +1484,127 @@ void s2lp_ResetPacketsTx(void)
 
 void s2lp_Config_Test_Registers(void)
 {
-  /*S2lp_Write_Register(0x00,0x0A);
-  S2lp_Write_Register(0x01,0xA2);
-  S2lp_Write_Register(0x02,0xA2);
-  S2lp_Write_Register(0x03,0xA2);*/
+  /*S2lp_Write_Register(0x00,0x0A); //GPIO0_CONF
+  S2lp_Write_Register(0x01,0xA2);   //GPIO1_CONF
+  S2lp_Write_Register(0x02,0xA2);   //GPIO2_CONF
+  S2lp_Write_Register(0x03,0xA2);*/ //GPIO3_CONF
 
-  /*S2lp_Write_Register(0x05,0x62);
-  S2lp_Write_Register(0x06,0x2B);
-  S2lp_Write_Register(0x07,0x84);
-  S2lp_Write_Register(0x08,0x99);*/
+  /*S2lp_Write_Register(0x05,0x62); //SYNTH3
+  S2lp_Write_Register(0x06,0x2B);   //SYNTH2
+  S2lp_Write_Register(0x07,0x84);   //SYNTH1
+  S2lp_Write_Register(0x08,0x99);*/ //SYNTH0
 
-  S2lp_Write_Register(0x09,0x2F);
-  S2lp_Write_Register(0x0A,0xC2);
+  /*S2lp_Write_Register(0x09,0x2F);
+  S2lp_Write_Register(0x0A,0xC2);*/
 
-  S2lp_Write_Register(0x0C,0x3F);
-  S2lp_Write_Register(0x0D,0x00);
+  //S2lp_Write_Register(0x0C,0x3F);   //CHSPACE
+  //S2lp_Write_Register(0x0D,0x00);   //CHNUM
 
-  /*S2lp_Write_Register(0x0E,0x4F);
-  S2lp_Write_Register(0x0F,0x8B);
-  S2lp_Write_Register(0x10,0x53);
-  S2lp_Write_Register(0x11,0x03);
-  S2lp_Write_Register(0x12,0xA3);*/
+  /*S2lp_Write_Register(0x0E,0x4F); //MOD4
+  S2lp_Write_Register(0x0F,0x8B);   //MOD3
+  S2lp_Write_Register(0x10,0x53);   //MOD2
+  S2lp_Write_Register(0x11,0x03);   //MOD1
+  S2lp_Write_Register(0x12,0xA3);*/ //MOD0
 
-  S2lp_Write_Register(0x13,0x13);
-  S2lp_Write_Register(0x14,0xC8);
+  //S2lp_Write_Register(0x13,0x13); //CHFLT
 
-  S2lp_Write_Register(0x15,0x18);
-  S2lp_Write_Register(0x16,0x25);
-  S2lp_Write_Register(0x17,0xE0);
-  S2lp_Write_Register(0x18,0x28);
-  S2lp_Write_Register(0x19,0x80);
-  S2lp_Write_Register(0x1A,0x54);
-  S2lp_Write_Register(0x1B,0x10);
-  S2lp_Write_Register(0x1C,0x22);
-  S2lp_Write_Register(0x1D,0x59);
-  S2lp_Write_Register(0x1E,0x8C);
-  S2lp_Write_Register(0x1F,0x55);
-  S2lp_Write_Register(0x20,0xC0);
-  S2lp_Write_Register(0x21,0x58);
+  //S2lp_Write_Register(0x14,0xC8); //AFC2
+  //S2lp_Write_Register(0x15,0x18); //AFC1
+  //S2lp_Write_Register(0x16,0x25); //AFC0
 
-  S2lp_Write_Register(0x2B,0x80);
-  S2lp_Write_Register(0x2C,0x10);
+  //S2lp_Write_Register(0x17,0xE0); //RSSI filter
+  //S2lp_Write_Register(0x18,0x28); //RSSI TH
+
+  /*S2lp_Write_Register(0x19,0x80); //AGCTRL5
+  S2lp_Write_Register(0x1A,0x54);   //AGCTRL4
+  S2lp_Write_Register(0x1B,0x10);   //AGCTRL3
+  S2lp_Write_Register(0x1C,0x22);   //AGCTRL2
+  S2lp_Write_Register(0x1D,0x59);   //AGCTRL1
+  S2lp_Write_Register(0x1E,0x8C);*/ //AGCTRL0
+
+  //S2lp_Write_Register(0x1F,0x55); //ANT_SELECT_CONF
+
+  /*S2lp_Write_Register(0x20,0xC0); //CLOCKREC2
+  S2lp_Write_Register(0x21,0x58);*/ //CLOCKREC1
+
+  /*S2lp_Write_Register(0x2B,0x80);   //PCKTCTRL6
+  S2lp_Write_Register(0x2C,0x10);*/   //PCKTCTRL6
 
   //S2lp_Write_Register(0x2D,0x00); //PCKTCTRL4
-  S2lp_Write_Register(0x2D,0x08); //PCKTCTRL4 including Rx address in the radio packet
+  //S2lp_Write_Register(0x2D,0x08); //PCKTCTRL4 including Rx address in the radio packet
 
-  S2lp_Write_Register(0x2E,0x01); //PCKTCTRL3 determines the packet format used
-  S2lp_Write_Register(0x2F,0x01); //PCKTCTRL2 variable packet length
-  S2lp_Write_Register(0x30,0x20); //PCKTCTRL1 dual sync word is disabled
+  //S2lp_Write_Register(0x2E,0x01); //PCKTCTRL3 determines the packet format used
+  //S2lp_Write_Register(0x2F,0x01); //PCKTCTRL2 variable packet length
+  //S2lp_Write_Register(0x30,0x20); //PCKTCTRL1 dual sync word is disabled
 
-  S2lp_Write_Register(0x31,0x00);
-  S2lp_Write_Register(0x32,0x14);
+  //OJO CUIDAO
+  /*S2lp_Write_Register(0x31,0x00);   //PCKTLEN1
+  S2lp_Write_Register(0x32,0x14);   //PCKTLEN0*/
 
-  S2lp_Write_Register(0x33,0xF0);
-  S2lp_Write_Register(0x34,0xF0);
-  S2lp_Write_Register(0x35,0xF0);
-  S2lp_Write_Register(0x36,0xF0);
-  S2lp_Write_Register(0x37,0x01);
-  S2lp_Write_Register(0x38,0x00);
+  /*S2lp_Write_Register(0x33,0xF0);   //SYNC3
+  S2lp_Write_Register(0x34,0xF0);   //SYNC2
+  S2lp_Write_Register(0x35,0xF0);   //SYNC1
+  S2lp_Write_Register(0x36,0xF0);*/   //SYNC0
 
-  S2lp_Write_Register(0x39,0x44); //PROTOCOL2
+  /*S2lp_Write_Register(0x37,0x01);   //QI
+  S2lp_Write_Register(0x38,0x00);*/   //PCKT_PSTMBL
 
-  S2lp_Write_Register(0x3A,0x01); //PROTOCOL1 AUTO_PCKT_FLT -> autopacket filtering control enabled
-  S2lp_Write_Register(0x3B,0x08); //No ack,
+  /*S2lp_Write_Register(0x39,0x44);*/ //PROTOCOL2
 
-  S2lp_Write_Register(0x3C,0x40);
+  //S2lp_Write_Register(0x3A,0x01); //PROTOCOL1, AUTO_PCKT_FLT -> autopacket filtering control enabled
+  //S2lp_Write_Register(0x3B,0x08); //PROTOCOL0, No ack,
+
+  /*S2lp_Write_Register(0x3C,0x40);
   S2lp_Write_Register(0x3D,0x40);
   S2lp_Write_Register(0x3E,0x40);
-  S2lp_Write_Register(0x3F,0x40);
+  S2lp_Write_Register(0x3F,0x40);*/
 
   //S2lp_Write_Register(0x40,0x41); //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
-  S2lp_Write_Register(0x40,0x43); //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok and if rx address matches
+  //S2lp_Write_Register(0x40,0x43); //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok and if rx address matches
 
-  S2lp_Write_Register(0x41,0x00); //PCKT_FLT_GOALS4, saving Rx address mask
+  /*S2lp_Write_Register(0x41,0x00); //PCKT_FLT_GOALS4, saving Rx address mask
   S2lp_Write_Register(0x42,0x00);
-  S2lp_Write_Register(0x43,0x00); //
+  S2lp_Write_Register(0x43,0x00);
   S2lp_Write_Register(0x44,0x00);
-  S2lp_Write_Register(0x45,0x00);
+  S2lp_Write_Register(0x45,0x00);*/
 
-  S2lp_Write_Register(0x46,0x01);
+  /*S2lp_Write_Register(0x46,0x01); //TIMERS5
   S2lp_Write_Register(0x47,0x00);
   S2lp_Write_Register(0x48,0x01);
   S2lp_Write_Register(0x49,0x00);
   S2lp_Write_Register(0x4A,0x01);
-  S2lp_Write_Register(0x4B,0x00);
+  S2lp_Write_Register(0x4B,0x00);*/
 
-  S2lp_Write_Register(0x4C,0xFF);
+  /*S2lp_Write_Register(0x4C,0xFF);   //CSMA CONFIG
   S2lp_Write_Register(0x4D,0x00);
   S2lp_Write_Register(0x4E,0x04);
-  S2lp_Write_Register(0x4F,0x00);
+  S2lp_Write_Register(0x4F,0x00);*/
 
-  /*S2lp_Write_Register(0x50,0x00);
+  /*S2lp_Write_Register(0x50,0x00); //IRQMASK
   S2lp_Write_Register(0x51,0x00);
   S2lp_Write_Register(0x52,0x00);
   S2lp_Write_Register(0x53,0x00);*/
 
-  S2lp_Write_Register(0x54,0x28);
+  //S2lp_Write_Register(0x54,0x28); //FAST_RX_TIMER
 
-  S2lp_Write_Register(0x5A,0x18);
+  /*S2lp_Write_Register(0x5A,0x18);
   S2lp_Write_Register(0x5B,0x0C);
   S2lp_Write_Register(0x5C,0x18);
   S2lp_Write_Register(0x5D,0x24);
   S2lp_Write_Register(0x5E,0x30);
   S2lp_Write_Register(0x5F,0x48);
   S2lp_Write_Register(0x60,0x60);
-  S2lp_Write_Register(0x61,0x00);
-  S2lp_Write_Register(0x62,0x87);
-  S2lp_Write_Register(0x63,0x01);
-  S2lp_Write_Register(0x64,0x88);
+  S2lp_Write_Register(0x61,0x00); //PA_POWER1
+  S2lp_Write_Register(0x62,0x87); //PA_POWER0
 
-  S2lp_Write_Register(0x65,0xD0);
+  S2lp_Write_Register(0x63,0x01);     //PA_CONFIG1
+  S2lp_Write_Register(0x64,0x88);     //PA_CONFIG0*/
 
-  S2lp_Write_Register(0x68,0x03);
+  /*S2lp_Write_Register(0x65,0xD0);     //SYNTH_CONF2
 
-  S2lp_Write_Register(0x69,0x88);
+  S2lp_Write_Register(0x68,0x03);*/       //VCO_CONFIG
+
+  /*S2lp_Write_Register(0x69,0x88);
   S2lp_Write_Register(0x6A,0x40);
   S2lp_Write_Register(0x6B,0x40);
 
@@ -1473,8 +1620,8 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0x78,0x39);
   S2lp_Write_Register(0x79,0x42);
 
-  //S2lp_Write_Register(0x8D,0x52);
-  //S2lp_Write_Register(0x8E,0x01);
+  S2lp_Write_Register(0x8D,0x52);
+  S2lp_Write_Register(0x8E,0x01);
 
   S2lp_Write_Register(0x8F,0x00);
   S2lp_Write_Register(0x90,0x00);
@@ -1498,7 +1645,7 @@ void s2lp_Config_Test_Registers(void)
   S2lp_Write_Register(0xAB,0x00);
   S2lp_Write_Register(0xEF,0x00);
   S2lp_Write_Register(0xF0,0x03);
-  S2lp_Write_Register(0xF1,0x91);
+  S2lp_Write_Register(0xF1,0x91);*/
 }
 
 //*****************************************************************************
