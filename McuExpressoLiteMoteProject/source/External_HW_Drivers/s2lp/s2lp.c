@@ -554,7 +554,7 @@ void s2lp_Set_Packet_Length(UINT16 dataPacketLength)
 }
 
 //*****************************************************************************
-UINT16 s2lp_Get_Packet_Length(void)
+UINT16 s2lp_Get_Tx_Packet_Length(void)
 //*****************************************************************************
 // Gets the Tx packetLength in bytes per packet
 //*****************************************************************************
@@ -564,6 +564,43 @@ UINT16 s2lp_Get_Packet_Length(void)
   packetDataLength = S2lp_Read_Register(PCKTLEN1);
   packetDataLength <<= 8;
   packetDataLength |= S2lp_Read_Register(PCKTLEN0);
+
+  return(packetDataLength);
+}
+
+//*****************************************************************************
+UINT16 s2lp_Get_Received_Packet_Length(void)
+//*****************************************************************************
+// Gets the Tx packetLength in bytes per packet
+//*****************************************************************************
+{
+  UINT16 packetDataLength = 0;
+  UINT8 regData=0;
+  UINT8 bytesToSubstractFromLenght = 0;
+
+  regData = S2lp_Read_Register(PCKTCTRL4);
+
+  //check if address is included in the radio packet
+  if((regData & 0x08) == 0x08)
+  {
+    //check the address bytes
+    if((regData & 0x80) == 0x80)
+    {
+      //need to substract 2 bytes of address to payloadlenght
+      bytesToSubstractFromLenght = 2;
+    }
+    else
+    {
+      //need to substract 1 bytes of address to payloadlenght
+      bytesToSubstractFromLenght = 1;
+    }
+  }
+
+  packetDataLength = S2lp_Read_Register(RX_PCKT_LEN1);
+  packetDataLength <<= 8;
+  packetDataLength |= S2lp_Read_Register(RX_PCKT_LEN0);
+
+  packetDataLength = packetDataLength - bytesToSubstractFromLenght;
 
   return(packetDataLength);
 }
@@ -1260,7 +1297,9 @@ void s2lp_Set_Packet_Format_BASIC(void)
   S2lp_Write_Register(PROTOCOL0,0x08);
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
-  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x41);
+  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x41); //packet accepted if crc matches
+  //S2lp_Write_Register(PCKT_FLT_OPTIONS,0x43); //crc AND Tx destination addr equals Rx source addr
+  //S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
 
   //TODO:
 
@@ -1385,7 +1424,6 @@ void s2lp_Set_Destination_Address(UINT8 destinationAddr)
 //*****************************************************************************
 // Sets the current destination address
 //*****************************************************************************
-
 {
   S2lp_Write_Register(PCKT_FLT_GOALS3, destinationAddr);
 }
@@ -1397,6 +1435,15 @@ UINT8 s2lp_Get_Destination_Address(void)
 //*****************************************************************************
 {
   return S2lp_Read_Register(PCKT_FLT_GOALS3);
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_Packet_Received_Address(void)
+//*****************************************************************************
+// Gets the destination address of the received packet
+//*****************************************************************************
+{
+  return S2lp_Read_Register(RX_ADDRE_FIELD0);
 }
 
 //*****************************************************************************

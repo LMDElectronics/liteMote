@@ -236,16 +236,19 @@ TAREA en proceso:
 						 Se opta por bajar el bps del canal serie a 9600 de momento para poder trabajar con el motor de radio siempre comprobando el estado de Rx, mientras la gestion
 						 del estado de Rx no la lleve el s2lp
 							
-				realizar Rx desde litemote debugando: EN ELLO
+				realizar Rx desde litemote debugando: OK
 					-> valid preamble interrupt triggered OK, en paquetes enviados desde s2lp -> litemote: OK
 					-> sync word interrupt triggered OK, en paquetes enviados desde s2lp -> litemote: OK
 				
-				1- desde CRC sin filtro por direcciones: EN ELLO
+				1- desde CRC sin filtro por direcciones: OK
 					
 					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
-					RX: desde lite mote	-> selfAddr: x02 destAddr: x04		
+					RX: desde lite mote	-> selfAddr: x02 destAddr: x04
+					
+				1.1- Mirar porque no capturamos el numero de bytes correctos del paquete recibido... 		EN ELLO <<<-
+				1.2- Mira porque solo puede recibir el primer burst de paquetes transmitido desde el s2lp 	EN ELLO <<<-	
 
-				2- usando el filtro de direcciones: EN ELLO
+				2- usando el filtro de direcciones: EN ELLO <<----
 					
 					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
 					RX: desde lite mote	-> selfAddr: x02 destAddr: x04		

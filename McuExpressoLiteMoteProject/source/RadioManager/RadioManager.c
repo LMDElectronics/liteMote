@@ -39,22 +39,13 @@ void Radio_Manager_Config(void)
 }
 
 //*****************************************************************************
-void Radio_Manager_Set_Radio_Addr(UINT8 radioAddr)
-//*****************************************************************************
-// sets the radio address
-//*****************************************************************************
-{
-  s2lp_Set_Destination_Address(radioAddr);
-}
-
-//*****************************************************************************
 void Radio_Manager_Set_Rx_Filtering_Addr(UINT8 radioAddr)
 //*****************************************************************************
 //sets the TX_SOURCE_ADDR, to compare the destination address recevied vs node
 //address
 //*****************************************************************************
 {
-  s2lp_Set_Source_Address(radioAddr);
+  s2lp_Set_Destination_Address(radioAddr);
 }
 
 //*****************************************************************************
@@ -353,21 +344,24 @@ void Radio_Manager_Rx_Motor(void)
         //s2lp_Check_IrqStatus();
         //s2lp_Clear_IrqStatus();
 
-        destinationAddrReceived = S2lp_Read_Register(PCKT_FLT_GOALS3);
+        destinationAddrReceived = s2lp_Get_Packet_Received_Address();
 
         //extract the packet lenght from the registers
-        radioBytesReceived = s2lp_Get_Packet_Length();
+        radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
         //TODO test
-        s2lp_Retrieve_Rx_FIFO_Data(4, radioData);
+        s2lp_Retrieve_Rx_FIFO_Data(radioBytesReceived, radioData);
 
         //it gets here
         s2lp_Clear_PacketReceivedFlag();
 
-        //getting back to READY state
-        s2lp_Set_Operating_State(READY);
+        //fluxh Rx FIFO
+        S2lp_Send_Command(FLUSHRXFIFO);
 
-        s2lp_Check_IrqStatus();
+        //getting back to READY state
+        //s2lp_Set_Operating_State(STATE_RX);
+
+        irqStatus = s2lp_Check_IrqStatus();
         s2lp_Clear_IrqStatus();
 
         radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;

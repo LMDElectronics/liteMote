@@ -148,6 +148,12 @@
 #define TX_FIFO_STATUS  0x8F
 #define RX_FIFO_STATUS  0x90
 
+#define RX_PCKT_LEN1 0xA4
+#define RX_PCKT_LEN0 0xA5
+
+#define RX_ADDRE_FIELD1 0xAA
+#define RX_ADDRE_FIELD0 0xAB
+
 #define REG_FIFO 0xff
 
 //define data masks
@@ -317,7 +323,8 @@ void s2lp_Set_Destination_Address(UINT8 destinationAddr);
 UINT8 s2lp_Get_Destination_Address(void);
 
 void s2lp_Set_Packet_Length(UINT16 dataPacketLength);
-UINT16 s2lp_Get_Packet_Length(void);
+UINT16 s2lp_Get_Tx_Packet_Length(void);
+UINT16 s2lp_Get_Received_Packet_Length(void);
 
 void s2lp_Set_Src_Addr_Filt_Addr(UINT8 scrAddrMask);
 UINT8 s2lp_Get_Src_Addr_Filt_Addr(void);
