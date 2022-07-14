@@ -170,7 +170,7 @@ TAREA en proceso:
                 
 		2.3) mirar porque solo recibe una vez el paquete radio enviado desde el emisor [OK]
              
-		2.4) poder generar la interrupcion filtrando la direccion de destino del paquete [EN ELLO]
+		2.4) poder generar la interrupcion filtrando la direccion de destino del paquete [OK]
 		
 			2.4.1- pruebas Tx - Rx (sin filtraje): [OK]
 			
@@ -188,7 +188,7 @@ TAREA en proceso:
 										
 				-> receptor st-radio kit (hay que cargar el archivo para configurar los registros "Register_Setting_ook" )
 
-			2.4.2- pruebas Tx-Rx (con filtraje): [EN ELLO] <<<--------------------------------------------------------------------------------------- 
+			2.4.2- pruebas Tx-Rx (con filtraje): [OK] <<<--------------------------------------------------------------------------------------- 
 			
 				NOTA: segun datasheet el filtrado solo es valido para paquetes BASIC y STack
 
@@ -245,15 +245,46 @@ TAREA en proceso:
 					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
 					RX: desde lite mote	-> selfAddr: x02 destAddr: x04
 					
-				1.1- Mirar porque no capturamos el numero de bytes correctos del paquete recibido... 		EN ELLO <<<-
-				1.2- Mira porque solo puede recibir el primer burst de paquetes transmitido desde el s2lp 	EN ELLO <<<-	
+				1.1- Mirar porque no capturamos el numero de bytes correctos del paquete recibido... 		OK 
+				1.2- Mira porque solo puede recibir el primer burst de paquetes transmitido desde el s2lp 	OK	
 
-				2- usando el filtro de direcciones: EN ELLO <<----
+				2- usando el filtro de direcciones: OK <<----
 					
 					TX: desde S2lp 		-> selfAddr: x04 destAddr: x02
 					RX: desde lite mote	-> selfAddr: x02 destAddr: x04		
 							
+					Para poder enviar BASIC :
+						Tx:
+							0- PCKTCTRL4[bit 3] = 1 (including the address of the receiver in the packet to be transmitted)												
+							2- PCKT_FLT_GOALS3 	= 0x03 <address of the receiver of the packet sended from Tx device> (Rx address) 
+							3- PCKT_FLT_GOALS0 	= 0x04 <address of the transmiter of the packet sended from Tx device> (Tx address) 								
+							
+							4- Load the FIFO with the payload
+							5- Send the packet
+							6- Clear the FIFO after sending the packet 
+							
+						Rx: 
+							0- IRQ_MASK0 		= 1 	(s2lp sets the configured GPIO to 0 to mark that it has data ready in Rx FIFO)
+							
+							1- PCKTCTRL4[bit 3]	= 1 	(including the address of the receiver in the packet to be transmitted)
+							
+							2_ PCKT_FLT_GOALS0 	= 0x03  (Source address of the receiver or destination address of the packet transmitted from the transmitter device)
+							 
+							3- PCKT_FLT_OPTIONS	= 0x42  (RX timeout cannot be stopped it starts at Rx state and at the end expires)
+														(Filter comparing the address of the received packet (RX_ADDRE_FIELD0) register and the register PCKT_FLT_GOALS0)
+														(if RX_ADDRE_FIELD0 == PCKT_FLT_GOALS0 at the reception, the interrupt of DATA_READY is) 
+							
+							4- Set the Rx state to set the s2lp start to receving
+									
+						ANDAMIAJE IMPORTANTE: tal como está montado es necesario:
+						
+							-> en el programa s2-lp DK: cada vez que se cambia el registro PCKT_FLT_GOALS3, es necesario volver a setear la "Frequency base" y "Output power"
+							-> en el receptor DEBEMOS asegurarnos de que el s2lp está en el estado de recpeción para poder recibir los paquetes enviados 
 																		
+				3- Mirar porque una vez colocamos el receptor en el estado de recepción, en el motor de recepción en el estado "RADIO_MANAGER_WAIT_FOR_FRAME", si consultamos el estado
+				   este aparece como READY y no como RX <<<--- EN ELLO  	
+																												
+				3.1- Solventar porque al enviar, el dispositivo no se pone en Rx otra vez para esperar paquetes <<<--- EN ELLO														
 
 RGB LED:
 --------

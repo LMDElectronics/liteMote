@@ -90,9 +90,6 @@ int main(void)
   Packet_Manager_Init();
   Health_Manager_Init();
 
-  //set THIS node radio addr
-  Radio_Manager_Set_Rx_Filtering_Addr((UINT8)CnfManager_Get_My_Address());
-
   while(1)
   {
     //data input motors

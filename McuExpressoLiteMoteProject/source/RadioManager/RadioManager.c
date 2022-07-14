@@ -41,11 +41,11 @@ void Radio_Manager_Config(void)
 //*****************************************************************************
 void Radio_Manager_Set_Rx_Filtering_Addr(UINT8 radioAddr)
 //*****************************************************************************
-//sets the TX_SOURCE_ADDR, to compare the destination address recevied vs node
+//sets the RX_SOURCE_ADDR, to compare the destination address recevied vs node
 //address
 //*****************************************************************************
 {
-  s2lp_Set_Destination_Address(radioAddr);
+  s2lp_Set_Source_Address(radioAddr);
 }
 
 //*****************************************************************************
@@ -317,14 +317,15 @@ void Radio_Manager_Rx_Motor(void)
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
-      destinationAddrReceived = s2lp_Get_Destination_Address();
-      sourceAddrReceived = s2lp_Get_Source_Address();
+      //load the node address into transceiver address to filter the packet received
+      Radio_Manager_Set_Rx_Filtering_Addr((UINT8)CnfManager_Get_My_Address());
 
       //test to check if transceiver keeps in rx state or it has moved to Ready
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
         i=1;
         i=0;
+        s2lp_Set_Operating_State(RX);
       }
       else
       {
@@ -357,9 +358,6 @@ void Radio_Manager_Rx_Motor(void)
 
         //fluxh Rx FIFO
         S2lp_Send_Command(FLUSHRXFIFO);
-
-        //getting back to READY state
-        //s2lp_Set_Operating_State(STATE_RX);
 
         irqStatus = s2lp_Check_IrqStatus();
         s2lp_Clear_IrqStatus();

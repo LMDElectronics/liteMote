@@ -325,6 +325,7 @@ UINT8 s2lp_Get_Destination_Address(void);
 void s2lp_Set_Packet_Length(UINT16 dataPacketLength);
 UINT16 s2lp_Get_Tx_Packet_Length(void);
 UINT16 s2lp_Get_Received_Packet_Length(void);
+UINT8 s2lp_Get_Packet_Received_Address(void);
 
 void s2lp_Set_Src_Addr_Filt_Addr(UINT8 scrAddrMask);
 UINT8 s2lp_Get_Src_Addr_Filt_Addr(void);

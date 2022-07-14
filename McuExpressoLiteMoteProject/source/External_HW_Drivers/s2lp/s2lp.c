@@ -973,6 +973,7 @@ void s2lp_default_settings(void)
 
   //packet settings, include address field in packet
   S2lp_Write_Register(PCKTCTRL4, 0x08);
+  //S2lp_Write_Register(PCKTCTRL4, 0x00);
 
   //almost emptu/full control for TX FIFO
   S2lp_Write_Register(PROTOCOL2,0x44);
@@ -1297,9 +1298,10 @@ void s2lp_Set_Packet_Format_BASIC(void)
   S2lp_Write_Register(PROTOCOL0,0x08);
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
-  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x41); //packet accepted if crc matches
+  //S2lp_Write_Register(PCKT_FLT_OPTIONS,0x41); //packet accepted if crc matches
   //S2lp_Write_Register(PCKT_FLT_OPTIONS,0x43); //crc AND Tx destination addr equals Rx source addr
-  //S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
+  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
+
 
   //TODO:
 
