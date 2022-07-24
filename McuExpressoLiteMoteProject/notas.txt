@@ -279,12 +279,19 @@ TAREA en proceso:
 						ANDAMIAJE IMPORTANTE: tal como está montado es necesario:
 						
 							-> en el programa s2-lp DK: cada vez que se cambia el registro PCKT_FLT_GOALS3, es necesario volver a setear la "Frequency base" y "Output power"
-							-> en el receptor DEBEMOS asegurarnos de que el s2lp está en el estado de recpeción para poder recibir los paquetes enviados 
+							-> en el receptor DEBEMOS asegurarnos de que el s2lp está en el estado de recepción para poder recibir los paquetes enviados 
 																		
 				3- Mirar porque una vez colocamos el receptor en el estado de recepción, en el motor de recepción en el estado "RADIO_MANAGER_WAIT_FOR_FRAME", si consultamos el estado
-				   este aparece como READY y no como RX <<<--- EN ELLO  	
+				   este aparece como READY y no como RX <<<--- OK, se ha modificado el motor de Rx para que deje al motor Tx transmitir cuando es necesario	
 																												
-				3.1- Solventar porque al enviar, el dispositivo no se pone en Rx otra vez para esperar paquetes <<<--- EN ELLO														
+				3.1- Solventar porque al enviar desde el emisor, el dispositivo receptor no se pone en Rx otra vez para esperar paquetes <<<---El motor de Rx detectara si esta en ready
+																																				y lo pondrá en RX
+																																				
+				4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELLO
+					-> generar un driver para el led multicolor para poder ver cuando Tx y cuando Rx
+					
+				5- Cambiar la modulacion y el datarate para poder ver si el link se sigue manteniendo <<<--- EN ELLO 
+																
 
 RGB LED:
 --------

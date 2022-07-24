@@ -197,7 +197,7 @@ void Radio_Manager_Tx_Motor(void)
           // transceiver is in Rx state, should abort Rx and move to Tx the packet
           //------------------------------------------------------------------------------------
           case STATE_RX:
-            radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+            radio_manager_Tx_state = RADIO_MANAGER_WAIT_FOR_TX_STATE;
             current_state = s2lp_Set_Operating_State(SABORT);
             break;
 
@@ -210,6 +210,13 @@ void Radio_Manager_Tx_Motor(void)
       }
 
     break;
+
+    case RADIO_MANAGER_WAIT_FOR_TX_STATE:
+      if(current_state = s2lp_Get_Operating_State() == STATE_READY)
+      {
+        radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+      }
+      break;
 
     case RADIO_MANAGER_TX_SENDING_PACKET:
 
@@ -248,6 +255,9 @@ void Radio_Manager_Tx_Motor(void)
         s2lp_Clear_IrqStatus();
         s2lp_ResetPacketsTx();
 
+        //TODO just for debug until automated internal Rx timer is set
+        s2lp_Set_Operating_State(RX);
+
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
       }
     break;
@@ -266,6 +276,8 @@ void Radio_Manager_Rx_Motor(void)
   UINT8 i=0;
   UINT32 irqStatus=0;
   UINT32 irqMask=0;
+  UINT8 current_state;
+
   //TODO
   // antes de poder configurar el timer interno del s2lp para el low duty Rx
   // es necesario hacerlo manualmente para verificar que el sistema es capaz de leer
@@ -320,12 +332,14 @@ void Radio_Manager_Rx_Motor(void)
       //load the node address into transceiver address to filter the packet received
       Radio_Manager_Set_Rx_Filtering_Addr((UINT8)CnfManager_Get_My_Address());
 
+      current_state = s2lp_Get_Operating_State();
+
       //test to check if transceiver keeps in rx state or it has moved to Ready
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
         i=1;
         i=0;
-        s2lp_Set_Operating_State(RX);
+        //s2lp_Set_Operating_State(RX);
       }
       else
       {
