@@ -94,17 +94,17 @@ int main(void)
   {
     //data input motors
     Serial_Manager_RX_Motor(); //Get serial frames sent to this mote
-    Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
+    //Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
 
     //data process motor
     Packet_Manager_Process_Motor(); // process received packets [serial, radio, etc...]
 
     //data output motors
     Serial_Manager_Tx_Motor(); // Send serial packets if any
-    Radio_Manager_Tx_Motor(); //Send radio packets if any
+    //Radio_Manager_Tx_Motor(); //Send radio packets if any
 
     //periodically report health data to host
-    Health_Manager_Motor();
+    //Health_Manager_Motor();
 
     //TODO:
     //goto sleep (-.-)ZZzzz

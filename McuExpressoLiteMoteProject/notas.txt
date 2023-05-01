@@ -1,4 +1,4 @@
-duties:
+9duties:
 -------
 
 Molaría usar el led RGB para mostrar en colores el campo magnetico medido con el fxos87
@@ -140,6 +140,7 @@ cositas restantes:
  	
 TAREAS pendientes:
 ------------------
+  -> 0) URGENTE! pasar otra vez direcciones de nodo a 16 bits entre litemote y litemoteGateway
 	-> 1) Rx en s2lp de nxp; Tx desde LiteMote [OK]
   -> 2) Rx en LiteMote desde Tx LiteMote [EN ELLO]
 	-> 3) ver porque si lo ponemos en standby, despues no puede Tx [NO INICIADO]
@@ -286,7 +287,7 @@ TAREA en proceso:
 																												
 				3.1- Solventar porque al enviar desde el emisor, el dispositivo receptor no se pone en Rx otra vez para esperar paquetes <<<---El motor de Rx detectara si esta en ready
 																																				y lo pondrá en RX
-																																				
+																                                
 				4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELLO
 					-> generar un driver para el led multicolor para poder ver cuando Tx y cuando Rx
 					
