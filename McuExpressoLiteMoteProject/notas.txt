@@ -301,7 +301,9 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 ----------------                            
 
   4.1 - Mirar Porque el ping de radio no se esta enviando
-    -> pasa algo con la variable datalenght del paquete recibido por serie desde el PC - nodo base
+    4.1.1 -> pasa algo con la variable datalenght del paquete recibido por serie desde el PC - nodo base OK, arreglado, problema del gateway     
+    4.1.2 -> Se envia ok por radio, mirar que se carga en los datos del paquete (direcciones, payload, etc...) mirar como llegar a recibir desde el otro nodo
+              -> las direcciones deben de ser de 1 byte
 		
 		
 			
