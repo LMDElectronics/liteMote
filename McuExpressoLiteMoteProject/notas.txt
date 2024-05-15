@@ -309,6 +309,9 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
   -------------------      
 			
     BASIC PACKET, OOK, 2 kbps
+  
+    direccion de nodo Tx: 1
+    direccion de nodo Rx: 2
     
     TX OK
     RX OK
@@ -316,9 +319,26 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
     envia y recibe OK 
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  
+    Problema:
+      No funciona si se envia a la direccion de Rx 3, no llega OK, pero cuando se vuelve a enviar a la direccion Rx 2, tampoco recibe  
+      Es problema del receptor, ya que el emisor sigue enviando correctamente    
+      RX_ADDRE_FIELD0 AB 00 7:0 RX_ADDRE_FIELD0
+      
+    Causa:
+      cuando se recibe un paquete si se filtra y no es para este nodo, el tio pasa de Rx a READY, jodiendo las demas recepciones, hay que volverlo a poner en RX
 
+    Solucion:
+      Activando el estado de RX si el nodo estando en el estado de recepcion de trama pasa a READY
+      
+      NOTA:
+      Esta solución solo es vàlida mientras no se implemente el timer de activacion del estado de RX automatico desde la config del s2lp
 
+    Tareas:
+      1- Encolar el paquete de radio en el packet manager
+      2- Procesar el paquete recibido de radio
+      3- configurar el periodo de Rx automatico en los nodos
+      4- 
+    
 
   
     

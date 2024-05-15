@@ -332,33 +332,52 @@ void Radio_Manager_Rx_Motor(void)
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
-      current_state = s2lp_Get_Operating_State();
+			current_state = s2lp_Get_Operating_State();
 
-      if(s2lp_Get_PacketReceivedFlag() == TRUE)
-      {
-        //s2lp_Check_IrqStatus();
-        //s2lp_Clear_IrqStatus();
+			//TEST
+			UINT8 pckt_flt_1 = S2lp_Read_Register(PCKT_FLT_OPTIONS);
+			UINT8 goals0_1 = S2lp_Read_Register(PCKT_FLT_GOALS0);
+			UINT8 goals3_1 = S2lp_Read_Register(PCKT_FLT_GOALS3);
+			UINT8 goals4_1 = S2lp_Read_Register(PCKT_FLT_GOALS4);
+			UINT8 operating_state_1 = s2lp_Get_Operating_State();
+			if(operating_state_1 == STATE_READY)
+			{
+				//set again in RX MODE
+				s2lp_Set_Operating_State(RX);
+			}
+			//END TEST
 
-        destinationAddrReceived = s2lp_Get_Packet_Received_Address();
-        sourceAddrReceived = s2lp_Get_Destination_Address();
+			if(s2lp_Get_PacketReceivedFlag() == TRUE)
+			{
 
-        //extract the packet lenght from the registers
-        radioBytesReceived = s2lp_Get_Received_Packet_Length();
+				//TEST
+				UINT8 pckt_flt = S2lp_Read_Register(PCKT_FLT_OPTIONS);
+				UINT8 goals0 = S2lp_Read_Register(PCKT_FLT_GOALS0);
+				UINT8 goals3 = S2lp_Read_Register(PCKT_FLT_GOALS3);
+				UINT8 goals4 = S2lp_Read_Register(PCKT_FLT_GOALS4);
+				UINT8 operating_state = s2lp_Get_Operating_State();
+				//END TEST
 
-        //TODO test
-        s2lp_Retrieve_Rx_FIFO_Data(radioBytesReceived, radioData);
+				destinationAddrReceived = s2lp_Get_Packet_Received_Address();
+				sourceAddrReceived = s2lp_Get_Destination_Address();
 
-        //it gets here
-        s2lp_Clear_PacketReceivedFlag();
+				//extract the packet lenght from the registers
+				radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
-        //fluxh Rx FIFO
-        S2lp_Send_Command(FLUSHRXFIFO);
+				//TODO test
+				s2lp_Retrieve_Rx_FIFO_Data(radioBytesReceived, radioData);
 
-        irqStatus = s2lp_Check_IrqStatus();
-        s2lp_Clear_IrqStatus();
+				//it gets here
+				s2lp_Clear_PacketReceivedFlag();
 
-        radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
-      }
+				//fluxh Rx FIFO
+				S2lp_Send_Command(FLUSHRXFIFO);
+
+				irqStatus = s2lp_Check_IrqStatus();
+				s2lp_Clear_IrqStatus();
+
+				radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+			}
 
     break;
   }
