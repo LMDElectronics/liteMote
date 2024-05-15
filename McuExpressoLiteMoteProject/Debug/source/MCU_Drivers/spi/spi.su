@@ -15,6 +15,6 @@
 ../source/MCU_Drivers/spi/spi.c:295:6:SPI_Send_NonBlocking	24	static
 ../source/MCU_Drivers/spi/spi.c:324:6:INTMUX0_0_IRQHandler	16	static
 ../source/MCU_Drivers/spi/spi.c:340:6:SPI1_IRQHandler	16	static
-../source/MCU_Drivers/spi/spi.c:388:6:SPI0_IRQHandler	16	static
-../source/MCU_Drivers/spi/spi.c:434:6:Enable_CS	16	static
-../source/MCU_Drivers/spi/spi.c:451:6:Disable_CS	16	static
+../source/MCU_Drivers/spi/spi.c:386:6:SPI0_IRQHandler	16	static
+../source/MCU_Drivers/spi/spi.c:432:6:Enable_CS	16	static
+../source/MCU_Drivers/spi/spi.c:449:6:Disable_CS	16	static

@@ -312,6 +312,9 @@ void Radio_Manager_Rx_Motor(void)
       if(s2lp_Get_Operating_State() == STATE_RX)
       {
         radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
+
+        //load the node address into transceiver address to filter the packet received
+        Radio_Manager_Set_Rx_Filtering_Addr((UINT8)CnfManager_Get_My_Address());
       }
       else
       {
@@ -329,30 +332,7 @@ void Radio_Manager_Rx_Motor(void)
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
-      //load the node address into transceiver address to filter the packet received
-      Radio_Manager_Set_Rx_Filtering_Addr((UINT8)CnfManager_Get_My_Address());
-
       current_state = s2lp_Get_Operating_State();
-
-      //test to check if transceiver keeps in rx state or it has moved to Ready
-      if(s2lp_Get_Operating_State() == STATE_READY)
-      {
-        i=1;
-        i=0;
-        //s2lp_Set_Operating_State(RX);
-      }
-      else
-      {
-        if(s2lp_Get_Operating_State() == STATE_RX)
-        {
-          //TODO check the interrupt masks
-          irqStatus = s2lp_Check_IrqStatus();
-          irqMask = s2lp_Get_IRQ_Mask();
-          i=1;
-          i=0;
-        }
-      }
-      //test end
 
       if(s2lp_Get_PacketReceivedFlag() == TRUE)
       {
@@ -360,6 +340,7 @@ void Radio_Manager_Rx_Motor(void)
         //s2lp_Clear_IrqStatus();
 
         destinationAddrReceived = s2lp_Get_Packet_Received_Address();
+        sourceAddrReceived = s2lp_Get_Destination_Address();
 
         //extract the packet lenght from the registers
         radioBytesReceived = s2lp_Get_Received_Packet_Length();

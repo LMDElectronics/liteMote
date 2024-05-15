@@ -191,7 +191,7 @@ void Process_Packet(TS_packet packet_to_process)
     //check destination
     if( (packet_to_process.header.destination_node == (UINT8)(CnfManager_Get_My_Address()) ) || (packet_to_process.header.origin_node == BACKDOOR_BASE_ADDR))
     {
-      //serial packet is for this mote or comes from host, process the packet
+      //serial packet is for this node or comes from host, process the packet
       //check the crc
 
       switch(packet_to_process.header.msg_type)
