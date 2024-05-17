@@ -267,30 +267,27 @@ void Radio_Manager_Tx_Motor(void)
   }
 }
 
+//*****************************************************************************
 //TODO:
 TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
+//*****************************************************************************
+// translating radio buffer data received into radio packet
+//*****************************************************************************
 {
   UINT8 i=0;
   TR_packet radio_rx_packet;
 
 
   //marshalling
-  /*radio_rx_packet.header.origin_node = dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET];
-  radio_rx_packet.header.origin_node <<= 8;
-  radio_rx_packet.header.origin_node |= dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET + 1];*/
-  radio_rx_packet.header.origin_node = 0;
+  radio_rx_packet.header.origin_node = s2lp_Get_Source_Address();
+  radio_rx_packet.header.destination_node = s2lp_Get_Destination_Address();
+  radio_rx_packet.header.send_time = 0;
 
-  /*radio_rx_packet.header.destination_node = dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET];
-  radio_rx_packet.header.destination_node <<= 8;
-  radio_rx_packet.header.destination_node |= dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET + 1];*/
-
-  /*radio_rx_packet.header.send_time = dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET];
-  radio_rx_packet.header.send_time <<= 8;
-  radio_rx_packet.header.send_time |= dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET + 1];
-
-  radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
+  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
   radio_rx_packet.header.msg_type <<= 8;
-  radio_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];
+  radio_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];*/
+
+  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
 
   radio_rx_packet.header.frame_payload_length = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
 
@@ -370,13 +367,8 @@ void Radio_Manager_Rx_Motor(void)
 
 			current_state = s2lp_Get_Operating_State();
 
-			//TEST
-			UINT8 pckt_flt_1 = S2lp_Read_Register(PCKT_FLT_OPTIONS);
-			UINT8 goals0_1 = S2lp_Read_Register(PCKT_FLT_GOALS0);
-			UINT8 goals3_1 = S2lp_Read_Register(PCKT_FLT_GOALS3);
-			UINT8 goals4_1 = S2lp_Read_Register(PCKT_FLT_GOALS4);
-			UINT8 operating_state_1 = s2lp_Get_Operating_State();
-			if(operating_state_1 == STATE_READY)
+			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
+			if(current_state == STATE_READY)
 			{
 				//set again in RX MODE
 				s2lp_Set_Operating_State(RX);
@@ -386,16 +378,8 @@ void Radio_Manager_Rx_Motor(void)
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
 
-				//TEST
-				UINT8 pckt_flt = S2lp_Read_Register(PCKT_FLT_OPTIONS);
-				UINT8 goals0 = S2lp_Read_Register(PCKT_FLT_GOALS0);
-				UINT8 goals3 = S2lp_Read_Register(PCKT_FLT_GOALS3);
-				UINT8 goals4 = S2lp_Read_Register(PCKT_FLT_GOALS4);
-				UINT8 operating_state = s2lp_Get_Operating_State();
-				//END TEST
-
 				destinationAddrReceived = s2lp_Get_Packet_Received_Address();
-				sourceAddrReceived = s2lp_Get_Destination_Address();
+				sourceAddrReceived = s2lp_Get_Source_Address();
 
 				//extract the packet lenght from the registers
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
@@ -403,7 +387,7 @@ void Radio_Manager_Rx_Motor(void)
 				//TODO test
 				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
 
-				//Push_Radio_Rx_FIFO_Packet(From_)
+				//Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData));
 
 				//it gets here
 				s2lp_Clear_PacketReceivedFlag();

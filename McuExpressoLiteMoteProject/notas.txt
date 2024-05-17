@@ -39,7 +39,7 @@ RW datos de paquetes en flash: COMPLETO
 		SPI_CS:					[CS] : 	(CN8,A1)  VIOLET
 		SHUTODWN				[SDN]: 	(CN9,D7)  WHITE			
 		GPIO0 as interrupt:		[irq]:	(CN8,A0)  GREY	
-		VDD:							(CN6,4)	  ORANGE	
+		VDD:						(CN6,4)	  ORANGE	
 		GND:							(CN6,6,7) BLACK
 		
 		- Fredom board kl82 RF Header
@@ -335,10 +335,12 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 
     Tareas:
       1- Encolar el paquete de radio en el packet manager -> EN ELLO
-        -> Construyendo <TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)>
         
-      2- Procesar el paquete recibido de radio
-      3- configurar el periodo de Rx automatico en los nodos
+        -> Construyendo <TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)>
+		-> Plantearse un reformateo de Packet Manager, para procesar paquetes con el mismo formato? 
+					        
+      2- Procesar el paquete recibido de radio 					-> HOLD
+      3- configurar el periodo de Rx automatico en los nodos	-> HOLD
       4- 
     
 
