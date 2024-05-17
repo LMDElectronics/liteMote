@@ -10,6 +10,14 @@
 
 #include "globals.h"
 
+#include <packet_manager/packet_ack/packet_ack.h>
+#include <packet_manager/packet_ping/packet_ping.h>
+#include <packet_manager/packet_identity/packet_identity.h>
+#include <packet_manager/packet_health/packet_health.h>
+#include <packet_manager/packet_health_conf/packet_health_conf.h>
+#include <packet_manager/packet_adc_calibration/packet_adc_cal_val.h>
+#include <packet_manager/packet_radio_conf/packet_radio_conf.h>
+
 #include "packet_manager/packet_manager.h"
 
 #define BACKDOOR_BASE_ADDR 0

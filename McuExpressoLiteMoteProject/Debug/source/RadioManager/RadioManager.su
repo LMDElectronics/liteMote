@@ -10,8 +10,8 @@
 ../source/RadioManager/RadioManager.c:52:6:Radio_Interface_Load_Parameters	16	static
 ../source/RadioManager/RadioManager.c:94:6:Radio_Manager_Init	8	static
 ../source/RadioManager/RadioManager.c:106:6:Radio_Manager_Load_Packet	32	static
-../source/RadioManager/RadioManager.c:133:6:Radio_Manager_Tx_Motor	168	static
-../source/RadioManager/RadioManager.c:272:11:From_Radio_Frame_To_Packet	160	static
+../source/RadioManager/RadioManager.c:133:6:Radio_Manager_Tx_Motor	160	static
+../source/RadioManager/RadioManager.c:272:9:From_Radio_Frame_To_Packet	152	static
 ../source/RadioManager/RadioManager.c:304:6:Radio_Manager_Rx_Motor	32	static
 ../source/RadioManager/RadioManager.c:413:6:Radio_Tx_Window_Timer_Init	24	static
 ../source/RadioManager/RadioManager.c:434:6:Radio_Window_Timer_Set_Tx_Window	32	static

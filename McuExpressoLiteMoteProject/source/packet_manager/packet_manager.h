@@ -8,18 +8,31 @@
 #ifndef PACKET_MANAGER_PACKET_MANAGER_H_
 #define PACKET_MANAGER_PACKET_MANAGER_H_
 
-#include <Serial_Manager/Serial_Packet_FIFOs.h>
+typedef struct TpacketHeader
+{
+  UINT16 origin_node;
+  UINT16 destination_node;
+  UINT16 send_time;
+  UINT16 msg_type;
+  UINT8  frame_payload_length;
+}TpacketHeader;
 
-#include <RadioManager/Radio_Packet_FIFOs.h>
-#include <RadioManager/RadioManager.h>
+#define MAX_PACKET_SIZE 128
+#define MAX_PAYLOAD_BYTES ( MAX_PACKET_SIZE - sizeof(TpacketHeader) - 2) // 2 CRC bytes
+#define MAX_PACKETS_ALLOWED 4 //max packets allowed to be enqueud in FIFO
 
-#include "packet_ack/packet_ack.h"
-#include "packet_ping/packet_ping.h"
-#include "packet_identity/packet_identity.h"
-#include "packet_health/packet_health.h"
-#include "packet_health_conf/packet_health_conf.h"
-#include "packet_adc_calibration/packet_adc_cal_val.h"
-#include "packet_radio_conf/packet_radio_conf.h"
+typedef struct Tpacket
+{
+	TpacketHeader header;
+  UINT8 payload[MAX_PAYLOAD_BYTES];
+}Tpacket;
+
+/*
+  data sorting:
+
+  data buffer sorted [origin_node_MSB][origin_node_LSB]...[msg_type]
+  buffer bytes       [0][1][2]...[N]
+*/
 
 enum
 {
@@ -53,7 +66,7 @@ enum
 UINT8 Packet_Manager_Init(void);
 void Packet_Manager_Process_Motor(void);
 
-TS_packet Build_Packet_Serial(UINT8 *payload, UINT16 msgType);
-TR_packet Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT16 send_time, UINT8 ackNeeded, UINT16 msgType, UINT8 *payload);
+Tpacket Build_Packet_Serial(UINT8 *payload, UINT16 msgType);
+Tpacket Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT16 send_time, UINT16 msgType, UINT8 *payload);
 
 #endif /* PACKET_MANAGER_PACKET_MANAGER_H_ */

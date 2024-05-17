@@ -5,21 +5,21 @@
  *      Author: MAX PC
  */
 
-#include <Serial_Manager/Serial_Packet_FIFOs.h>
 #include "string.h"
 #include "globals.h"
+#include <Serial_Manager/Serial_Packet_FIFOs.h>
 
 //RX serial packet FIFO
 UINT8 stored_serial_Rx_packets_index = 0;
 UINT8 index_Rx_Serial_FIFO_Tail = 0;
 UINT8 index_Rx_Serial_FIFO_Head = 0;
-TS_packet packet_Rx_FIFO[MAX_PACKETS_ALLOWED];
+Tpacket packet_Rx_FIFO[MAX_PACKETS_ALLOWED];
 
 //TX serial packet FIFO
 UINT8 stored_serial_Tx_packets_index = 0;
 UINT8 index_Tx_Serial_FIFO_Tail = 0;
 UINT8 index_Tx_Serial_FIFO_Head = 0;
-TS_packet packet_Tx_FIFO[MAX_PACKETS_ALLOWED];
+Tpacket packet_Tx_FIFO[MAX_PACKETS_ALLOWED];
 
 /*******************************************************************************
   RX SERIAL FIFO FUNCTIONS
@@ -85,7 +85,7 @@ UINT8 Is_Serial_Rx_FIFO_Empty(void)
 }
 
 /*******************************************************************************
-  TS_packet Get_Serial_Rx_FIFO_Packet(void) function
+  Tpacket Get_Serial_Rx_FIFO_Packet(void) function
 
   Pre condition:
     None
@@ -100,9 +100,9 @@ UINT8 Is_Serial_Rx_FIFO_Empty(void)
     Serial packet if any, if no packet present, returns a 0 packet
 
 ********************************************************************************/
-TS_packet Get_Serial_Rx_FIFO_Packet(void)
+Tpacket Get_Serial_Rx_FIFO_Packet(void)
 {
-  TS_packet serial_packet;
+	Tpacket serial_packet;
   UINT8 i=0;
 
   ENTER_ATOMIC();
@@ -158,7 +158,7 @@ TS_packet Get_Serial_Rx_FIFO_Packet(void)
     None, pushes the serial data received into a packet
 
 ********************************************************************************/
-void Push_Serial_Rx_FIFO_Packet(TS_packet serial_packet_To_Push)
+void Push_Serial_Rx_FIFO_Packet(Tpacket serial_packet_To_Push)
 {
   UINT8 i=0;
 
@@ -267,9 +267,9 @@ UINT8 Is_Serial_Tx_FIFO_Empty(void)
     Serial packet if any, if no packet present, returns a 0 packet
 
 ********************************************************************************/
-TS_packet Get_Serial_Tx_FIFO_Packet(void)
+Tpacket Get_Serial_Tx_FIFO_Packet(void)
 {
-  TS_packet serial_packet;
+	Tpacket serial_packet;
   UINT8 i=0;
 
   ENTER_ATOMIC();
@@ -325,7 +325,7 @@ TS_packet Get_Serial_Tx_FIFO_Packet(void)
     None, pushes the serial data received into a packet
 
 ********************************************************************************/
-void Push_Serial_Tx_FIFO_Packet(TS_packet serial_packet_To_Push)
+void Push_Serial_Tx_FIFO_Packet(Tpacket serial_packet_To_Push)
 {
   UINT8 i=0;
 

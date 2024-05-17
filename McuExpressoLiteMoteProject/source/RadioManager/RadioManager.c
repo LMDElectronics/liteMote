@@ -16,7 +16,7 @@
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
 
-TR_packet radio_packet_to_Tx;
+Tpacket radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
 
 volatile bool tpmIsrFlag = FALSE;
@@ -169,7 +169,7 @@ void Radio_Manager_Tx_Motor(void)
                 radio_packet_to_Tx.header.destination_node,
                 radio_packet_to_Tx.payload,
                 radio_packet_to_Tx.header.frame_payload_length,
-                radio_packet_to_Tx.header.ackNeeded);
+                radio_packet_to_Tx.header.msg_type);
 
             //2 - load send time timer
             Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
@@ -212,7 +212,7 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_WAIT_FOR_TX_STATE:
-      if(current_state = s2lp_Get_Operating_State() == STATE_READY)
+      if(s2lp_Get_Operating_State() == STATE_READY)
       {
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
       }
@@ -235,7 +235,7 @@ void Radio_Manager_Tx_Motor(void)
               radio_packet_to_Tx.header.destination_node,
               radio_packet_to_Tx.payload,
               radio_packet_to_Tx.header.frame_payload_length,
-              radio_packet_to_Tx.header.ackNeeded);
+              radio_packet_to_Tx.header.msg_type);
 
           //Tx timeout window not reached, start Tx again
           s2lp_Clear_IrqStatus();
@@ -269,13 +269,13 @@ void Radio_Manager_Tx_Motor(void)
 
 //*****************************************************************************
 //TODO:
-TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
+Tpacket From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
 //*****************************************************************************
 // translating radio buffer data received into radio packet
 //*****************************************************************************
 {
   UINT8 i=0;
-  TR_packet radio_rx_packet;
+  Tpacket radio_rx_packet;
 
 
   //marshalling

@@ -5,10 +5,10 @@
  *      Author: MAX PC
  */
 
-#ifndef SERIAL_MANAGER_SERIAL_MANAGER_H_
-#define SERIAL_MANAGER_SERIAL_MANAGER_H_
+#ifndef SMANAGER_H_
+#define SMANAGER_H_
 
-#include <Serial_Manager/Serial_Packet_FIFOs.h>
+#include <packet_manager/packet_manager.h>
 #include "globals.h"
 
 enum
@@ -40,8 +40,8 @@ enum
 #define DATA_BUFFER_PAYLOAD_START_OFFSET    9
 
 UINT8 Serial_Manager_Init(void);
-TS_packet From_Serial_Frame_To_Packet(UINT8 *dataBuffer);
-UINT8 From_Packet_To_Serial_Frame(TS_packet serial_tx_packet, UINT8 *dataBuffer);
+Tpacket From_Serial_Frame_To_Packet(UINT8 *dataBuffer);
+UINT8 From_Packet_To_Serial_Frame(Tpacket serial_tx_packet, UINT8 *dataBuffer);
 void Serial_Manager_RX_Motor(void);
 void Serial_Manager_Tx_Motor(void);
 

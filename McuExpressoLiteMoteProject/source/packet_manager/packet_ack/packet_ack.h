@@ -8,7 +8,6 @@
 #ifndef PACKET_MANAGER_PACKET_ACK_PACKET_ACK_H_
 #define PACKET_MANAGER_PACKET_ACK_PACKET_ACK_H_
 
-#include <Serial_Manager/Serial_Packet_FIFOs.h>
 #include "globals.h"
 
 #define MSG_ACK_LENGTH             2

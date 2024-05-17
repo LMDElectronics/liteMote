@@ -10,7 +10,7 @@
 #include "packet_manager/packet_manager.h"
 
 UINT8 Health_Manager_State;
-TS_packet packet_aux;
+Tpacket packet_aux;
 
 //*****************************************************************************
 void Health_Manager_Motor(void)
