@@ -267,6 +267,42 @@ void Radio_Manager_Tx_Motor(void)
   }
 }
 
+//TODO:
+TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
+{
+  UINT8 i=0;
+  TR_packet radio_rx_packet;
+
+
+  //marshalling
+  /*radio_rx_packet.header.origin_node = dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET];
+  radio_rx_packet.header.origin_node <<= 8;
+  radio_rx_packet.header.origin_node |= dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET + 1];*/
+  radio_rx_packet.header.origin_node = 0;
+
+  /*radio_rx_packet.header.destination_node = dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET];
+  radio_rx_packet.header.destination_node <<= 8;
+  radio_rx_packet.header.destination_node |= dataBuffer[DATA_BUFFER_DESTINATION_NODE_OFFSET + 1];*/
+
+  /*radio_rx_packet.header.send_time = dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET];
+  radio_rx_packet.header.send_time <<= 8;
+  radio_rx_packet.header.send_time |= dataBuffer[DATA_BUFFER_SEND_TIME_OFFSET + 1];
+
+  radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
+  radio_rx_packet.header.msg_type <<= 8;
+  radio_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];
+
+  radio_rx_packet.header.frame_payload_length = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
+
+  for(i=0; i<radio_rx_packet.header.frame_payload_length; i++)
+  {
+  	radio_rx_packet.payload[i] = dataBuffer[DATA_BUFFER_PAYLOAD_START_OFFSET + i];
+  }*/
+
+  return radio_rx_packet;
+}
+
+
 //*****************************************************************************
 void Radio_Manager_Rx_Motor(void)
 //*****************************************************************************
@@ -365,13 +401,15 @@ void Radio_Manager_Rx_Motor(void)
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
 				//TODO test
-				s2lp_Retrieve_Rx_FIFO_Data(radioBytesReceived, radioData);
+				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
+
+				//Push_Radio_Rx_FIFO_Packet(From_)
 
 				//it gets here
 				s2lp_Clear_PacketReceivedFlag();
 
 				//fluxh Rx FIFO
-				S2lp_Send_Command(FLUSHRXFIFO);
+ 				S2lp_Send_Command(FLUSHRXFIFO);
 
 				irqStatus = s2lp_Check_IrqStatus();
 				s2lp_Clear_IrqStatus();

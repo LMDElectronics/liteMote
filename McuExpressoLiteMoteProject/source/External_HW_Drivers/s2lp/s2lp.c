@@ -728,7 +728,7 @@ void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount)
 }
 
 //*****************************************************************************
-void s2lp_Retrieve_Rx_FIFO_Data(UINT8 bytesToRead, UINT8 *dataBuffer)
+void s2lp_Retrieve_Rx_FIFO_Data(UINT8 *dataBuffer, UINT8 bytesToRead)
 //*****************************************************************************
 // description: retrieves data from Rx FIFO
 //*****************************************************************************
