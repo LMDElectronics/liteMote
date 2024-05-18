@@ -3,4 +3,4 @@
 ../source/Serial_Manager/Serial_Manager.c:123:9:From_Serial_Frame_To_Packet	144	static
 ../source/Serial_Manager/Serial_Manager.c:172:7:From_Packet_To_Serial_Frame	24	static
 ../source/Serial_Manager/Serial_Manager.c:217:6:Serial_Manager_RX_Motor	256	static
-../source/Serial_Manager/Serial_Manager.c:422:6:Serial_Manager_Tx_Motor	8	static
+../source/Serial_Manager/Serial_Manager.c:422:6:Serial_Manager_Tx_Motor	264	static

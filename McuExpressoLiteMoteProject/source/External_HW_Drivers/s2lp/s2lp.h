@@ -371,7 +371,6 @@ void s2lp_ResetPacketsTx(void);
 UINT8 s2lp_Get_PacketReceivedFlag(void);
 void s2lp_Clear_PacketReceivedFlag(void);
 
-void s2lp_Config_Test_Registers(void);
 void S2lp_Test(void);
 
 #endif /* MCU_DRIVERS_S2LP_S2LP_H_ */

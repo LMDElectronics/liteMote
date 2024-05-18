@@ -447,7 +447,7 @@ void Serial_Manager_Tx_Motor(void)
            */
 
           //build raw frame from Tx FIFO packet
-          //serial_Frame_Tx_decoded_Index = From_Packet_To_Serial_Frame(Get_Serial_Tx_FIFO_Packet(), serial_Tx_decoded_Frame);
+          serial_Frame_Tx_decoded_Index = From_Packet_To_Serial_Frame(Get_Serial_Tx_FIFO_Packet(), serial_Tx_decoded_Frame);
 
           //add crc
           serial_tx_crc = Crc16Calc(0, serial_Tx_decoded_Frame, serial_Frame_Tx_decoded_Index);

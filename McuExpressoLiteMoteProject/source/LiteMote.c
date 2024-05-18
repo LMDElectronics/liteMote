@@ -84,7 +84,7 @@ int main(void)
     while(1);
   }
 
-  //Init_Supervisor();
+  Init_Supervisor();
 
   Serial_Manager_Init();
   Packet_Manager_Init();

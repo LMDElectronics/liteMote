@@ -337,11 +337,21 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
       1- Encolar el paquete de radio en el packet manager -> EN ELLO
         
         -> Construyendo <TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)>
-		-> Plantearse un reformateo de Packet Manager, para procesar paquetes con el mismo formato? 
+		-> Plantearse un reformateo de Packet Manager, para procesar paquetes con el mismo formato?
+			-> validar que paquete de radio se envia				
+				-> el nodo está en rx por defecto siempre (hasta que no se implemente la Rx con timout automatica)
+				   es necesario salir de Rx para hacer Tx y volver a Rx, problema al enviar el SABORT en Rx, el nodo
+				   no pasa a READY state, mirar porque	
+				   
+				-> el problema puede estar en los motores de radio Tx y Rx que se pisen para poner cada uno su estado
+					sin tener en cuenta que si se pone en Tx se debe de enviar el paquete radio antes de volver a Rx
+					
+					o bloquear de alguna forma el motor Rx hasta que se haya transmitido, es una opcion tambien
+					
+					ok eso funciona, partir desde ese while para ver como podemos ponernos en modo TX y realizar una Tx	 		
 					        
       2- Procesar el paquete recibido de radio 					-> HOLD
       3- configurar el periodo de Rx automatico en los nodos	-> HOLD
-      4- 
     
 
   

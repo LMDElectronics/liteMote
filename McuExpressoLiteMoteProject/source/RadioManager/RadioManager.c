@@ -151,7 +151,7 @@ void Radio_Manager_Tx_Motor(void)
         //check if radio is not busy
         current_state = s2lp_Get_Operating_State();
 
-        //decide what to do depending of the radio device
+        //decide what to do depending of the radio device state
         switch(current_state)
         {
           //------------------------------------------------------------------------------------
@@ -198,7 +198,21 @@ void Radio_Manager_Tx_Motor(void)
           //------------------------------------------------------------------------------------
           case STATE_RX:
             radio_manager_Tx_state = RADIO_MANAGER_WAIT_FOR_TX_STATE;
-            current_state = s2lp_Set_Operating_State(SABORT);
+            s2lp_Set_Operating_State(SABORT);
+
+            //controlled while CAUTION!!! keep in this motor until Tx state is reached to avoid exit the Radio Tx Motor and enters
+            //in Radio Rx motor disabling the TX state
+            while(1)
+            {
+            	current_state = s2lp_Get_Operating_State();
+            	if(current_state == STATE_READY)
+            	{
+            		//TODO working from this point
+
+            		break;
+            	}
+            }
+
             break;
 
           //------------------------------------------------------------------------------------
@@ -212,6 +226,7 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_WAIT_FOR_TX_STATE:
+    	current_state = s2lp_Get_Operating_State();
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
