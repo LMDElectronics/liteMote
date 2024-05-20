@@ -276,33 +276,34 @@ void Radio_Manager_Tx_Motor(void)
 }
 
 //*****************************************************************************
-//TODO:
-Tpacket From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
+Tpacket From_Radio_Frame_To_Packet(UINT8 *dataBuffer, UINT8 origin_node, UINT8 destination_node, UINT8 payloadLength)
 //*****************************************************************************
 // translating radio buffer data received into radio packet
 //*****************************************************************************
 {
   UINT8 i=0;
+  UINT8	j=0;
   Tpacket radio_rx_packet;
 
+  //TODO
 
   //marshalling
-  radio_rx_packet.header.origin_node = s2lp_Get_Source_Address();
-  radio_rx_packet.header.destination_node = s2lp_Get_Destination_Address();
-  radio_rx_packet.header.send_time = 0;
+  radio_rx_packet.header.origin_node = origin_node;
+  radio_rx_packet.header.destination_node = destination_node;
 
-  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
+  //TODO to be defined in radio node configuration
+  radio_rx_packet.header.send_time = 1;
+
+  radio_rx_packet.header.msg_type = dataBuffer[0];
   radio_rx_packet.header.msg_type <<= 8;
-  radio_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];*/
+  radio_rx_packet.header.msg_type |= dataBuffer[1];
 
-  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
-
-  radio_rx_packet.header.frame_payload_length = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
-
-  for(i=0; i<radio_rx_packet.header.frame_payload_length; i++)
+  for(i=2; i<payloadLength; i++)
   {
-  	radio_rx_packet.payload[i] = dataBuffer[DATA_BUFFER_PAYLOAD_START_OFFSET + i];
-  }*/
+  	radio_rx_packet.payload[j++] = dataBuffer[i];
+  }
+
+  radio_rx_packet.header.frame_payload_length = j;
 
   return radio_rx_packet;
 }
@@ -394,13 +395,20 @@ void Radio_Manager_Rx_Motor(void)
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
 
+				UINT8 sourceAddr = 0;
+				UINT8 destAddr = 0;
+
+				//extract destination and origin from radio packet received
+				sourceAddr = S2lp_Read_Register(RX_ADDRE_FIELD1);
+				destAddr = S2lp_Read_Register(RX_ADDRE_FIELD0);
+
 				//extract the packet lenght from the registers
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
 				//TODO test
 				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
 
-				Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData));
+				Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData, sourceAddr, destAddr, radioBytesReceived));
 
 				//it gets here
 				s2lp_Clear_PacketReceivedFlag();

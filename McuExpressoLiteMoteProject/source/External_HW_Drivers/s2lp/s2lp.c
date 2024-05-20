@@ -1092,10 +1092,10 @@ void S2lp_Init(void)
   S2lp_Config_Power_Management();
 
   //config BASIC packet format
-  s2lp_Set_Packet_Format_BASIC();
+  //s2lp_Set_Packet_Format_BASIC();
 
   //config STACK packet type by default
-  //s2lp_Set_Packet_Format_StAck();
+  s2lp_Set_Packet_Format_StAck();
 }
 
 //*****************************************************************************
@@ -1307,94 +1307,41 @@ void s2lp_Set_Packet_Format_StAck(void)
 // description: sets the radio data packet format STack
 //*****************************************************************************
 {
-  UINT8 dataRead = 0;
-  UINT16 preambleBits = 0;
-  UINT8 AFCData = 0;
+	//TODO: working on
 
-  UINT8 pckcrtl1=0;
-  UINT8 pckcrtl2=0;
-  UINT8 pckcrtl3=0;
-  UINT8 pckcrtl4=0;
-  UINT8 pckcrtl5=0;
-  UINT8 pckcrtl6=0;
+	UINT8 data = 0;
 
-  //CrC poly 0x8005
-  //TXSource: normal mode
-  //disable whitening (for test)
-  S2lp_Write_Register(PCKTCTRL1, 0x40);
-  dataRead = S2lp_Read_Register(PCKTCTRL1);
+  //STack packet selection
+  //preamble 01 selection
+  S2lp_Write_Register(PCKTCTRL3,0x01);
+
+  //set STack packet mode
+  data = S2lp_Read_Register(PCKTCTRL3);
+  data |= 0xC0;
+  S2lp_Write_Register(PCKTCTRL3,data);
 
   //variable packet length
-  S2lp_Write_Register(PCKTCTRL2, 0x01);
-  dataRead = S2lp_Read_Register(PCKTCTRL2);
+  S2lp_Write_Register(PCKTCTRL2,0x01);
 
-  //using STACK packet for radio communication
-  //PCKT_FORMAT:    3 -> STACK packet format
-  //RX_MODE:        0 -> NORMAL_MODE
-  //FSK4_SYM_SWAP:  0 -> S0 = b7b6, S1 = b5b4, S2 = b3b2, S3 = b1b0
-  //BYTE_SWAP:      0 -> MSB first
-  //Preamble selection pattern [1] -> 1010 for ASK_OOK o 2GFSK, 0010 for 4GFSK
-  S2lp_Write_Register(PCKTCTRL3, 0xC1);
-  dataRead = S2lp_Read_Register(PCKTCTRL3);
+  //primary sync word selected
+  //using 0x8005 poly
+  S2lp_Write_Register(PCKTCTRL1,0x40);
 
-  //add address info data into packet (Rxaddr = 1byte + TxAddr = 1 byte + payload = x bytes)
-  //LEND_WID = 0, 1byte for length packet
-  //ADDRESS_LEN = 1, including address field in the packet
-  S2lp_Write_Register(PCKTCTRL4, 0x08);
+  //SYNC word
+  S2lp_Write_Register(SYNC_3_REG,SYNC_3_DATA);
+  S2lp_Write_Register(SYNC_2_REG,SYNC_2_DATA);
+  S2lp_Write_Register(SYNC_1_REG,SYNC_2_DATA);
+  S2lp_Write_Register(SYNC_0_REG,SYNC_1_DATA);
 
-  //configuring SYNC bits and PREAMBLE MSB bit pairs in radio packet
-  dataRead = 0;
-  dataRead = ((STACK_SYNC_BITS << STACK_SYNC_BITS_SHIFT) | ((STACK_PREAMBLE_BIT_PAIRS & STACK_PREAMBLE_BYTE_PAIRS_MSB_MASK) >> STACK_PREAMBLE_BYTE_PAIRS_MSB_SHIFT ));
-  S2lp_Write_Register(PCKTCTRL6, dataRead);
+  //packet filtering ENABLED
+  S2lp_Write_Register(PROTOCOL1,0x01);
 
-  //configuring PREAMBLE LSB bit pairs in radio packet
-  dataRead = (UINT8)(STACK_PREAMBLE_BIT_PAIRS & 0x00FF);
-  S2lp_Write_Register(PCKTCTRL5, dataRead);
+  //automatic ack DISABLED
+  //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
+  S2lp_Write_Register(PROTOCOL0,0x08);
 
-  //configuring the AFC fast period, according to datasheet, its value should be double of the preamble symbols
-  preambleBits = STACK_PREAMBLE_BIT_PAIRS << 1;
-  dataRead = s2lp_Get_Modulation_Type();
-
-  if((dataRead == TWO_FSK) || (dataRead == TWO_GFSK_BT_1) || (dataRead == TWO_GFSK_BT_05) )
-  {
-    //2 bits per symbol
-    AFCData = (UINT8)(preambleBits >> 1);
-    AFCData <<= 1;
-    S2lp_Write_Register(AFC1, AFCData);
-  }
-  else
-  {
-    if((dataRead == FOUR_FSK) || (dataRead == FOUR_GFSK_BT_1) || (dataRead == FOUR_GFSK_BT_05))
-    {
-      //4 bits per symbol
-      AFCData = (UINT8)(preambleBits >> 2);
-      AFCData <<= 1;
-      S2lp_Write_Register(AFC1, AFCData);
-    }
-    else
-    {
-      //1 bits for symbol
-      AFCData = (UINT8)preambleBits;
-      AFCData <<= 1;
-      S2lp_Write_Register(AFC1, AFCData);
-    }
-  }
-
-  //configuring SYNCx data registers
-  S2lp_Write_Register(SYNC_0_REG, SYNC_0_DATA);
-  S2lp_Write_Register(SYNC_1_REG, SYNC_1_DATA);
-  S2lp_Write_Register(SYNC_2_REG, SYNC_2_DATA);
-  S2lp_Write_Register(SYNC_3_REG, SYNC_3_DATA);
-
-  //test
-  pckcrtl6 = S2lp_Read_Register(PCKTCTRL6);
-  pckcrtl5 = S2lp_Read_Register(PCKTCTRL5);
-  pckcrtl4 = S2lp_Read_Register(PCKTCTRL4);
-  pckcrtl3 = S2lp_Read_Register(PCKTCTRL3);
-  pckcrtl2 = S2lp_Read_Register(PCKTCTRL2);
-  pckcrtl1 = S2lp_Read_Register(PCKTCTRL1);
-  dataRead=0;
-  //end test
+  //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
+  S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
 }
 
 //*****************************************************************************
