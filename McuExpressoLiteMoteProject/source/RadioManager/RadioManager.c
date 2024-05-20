@@ -104,7 +104,7 @@ void Radio_Manager_Init(void)
 }
 
 //****************************************************************************
-void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *payload, UINT8 payloadLength, UINT8 ack)
+void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *payload, UINT8 payloadLength, UINT8 msg_type)
 //****************************************************************************
 // Loads the packet into radio transmitter
 //****************************************************************************
@@ -120,14 +120,15 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 
   s2lp_Set_Packet_Length(payloadLength);
 
-  if(ack == ACK_NEEDED)
+  //TODO ACK management
+  /*if(ack == ACK_NEEDED)
   {
     s2lp_Enable_Ack_For_Tx_Packet();
   }
   else
   {
     s2lp_Disable_Ack_For_Tx_Packet();
-  }
+  }*/
 }
 
 //****************************************************************************
@@ -393,16 +394,13 @@ void Radio_Manager_Rx_Motor(void)
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
 
-				destinationAddrReceived = s2lp_Get_Packet_Received_Address();
-				sourceAddrReceived = s2lp_Get_Source_Address();
-
 				//extract the packet lenght from the registers
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
 				//TODO test
 				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
 
-				//Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData));
+				Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData));
 
 				//it gets here
 				s2lp_Clear_PacketReceivedFlag();

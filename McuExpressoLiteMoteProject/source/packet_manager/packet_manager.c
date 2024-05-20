@@ -127,7 +127,7 @@ Tpacket Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
 }
 
 /******************************************************************************
-TR_packet Build_Packet_Radio(...)
+Tpacket Build_Packet_Radio(...)
    Builds radio packet [radio format]
 
   Pre condition:
@@ -161,9 +161,11 @@ Tpacket Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT
   radio_packet.header.msg_type = msgType;
   radio_packet.header.frame_payload_length = Get_Canonical_Payload_length(msgType) + 2; /*msg type length*/
 
+  //adding msg type to radio payload
   radio_packet.payload[0] = (UINT8)((msgType & 0xFF00) >> 8);
   radio_packet.payload[1] = (UINT8)(msgType & 0x00FF);
 
+  //adding msg data to radio payload
   for(i=2; i < radio_packet.header.frame_payload_length; i++)
   {
     radio_packet.payload[i] = payload[j++];
