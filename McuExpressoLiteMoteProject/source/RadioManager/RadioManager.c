@@ -19,7 +19,8 @@ UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
 Tpacket radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
 
-volatile bool tpmIsrFlag = FALSE;
+volatile bool tpmIsrFlag = FALSE; //flag to signal Tx timout
+volatile bool incomingTx = FALSE; //flag to signal the transceiver is in Tx state
 
 UINT32 myPacketsTx;
 
@@ -198,22 +199,11 @@ void Radio_Manager_Tx_Motor(void)
           //------------------------------------------------------------------------------------
           case STATE_RX:
             radio_manager_Tx_state = RADIO_MANAGER_WAIT_FOR_TX_STATE;
+
+            //signaling that transceiver should be kept in Tx state until Tx is finished
+            incomingTx = TRUE;
             s2lp_Set_Operating_State(SABORT);
-
-            //controlled while CAUTION!!! keep in this motor until Tx state is reached to avoid exit the Radio Tx Motor and enters
-            //in Radio Rx motor disabling the TX state
-            while(1)
-            {
-            	current_state = s2lp_Get_Operating_State();
-            	if(current_state == STATE_READY)
-            	{
-            		//TODO working from this point
-
-            		break;
-            	}
-            }
-
-            break;
+          break;
 
           //------------------------------------------------------------------------------------
           // UNKNOWN state?
@@ -269,6 +259,8 @@ void Radio_Manager_Tx_Motor(void)
         intStatus = s2lp_Check_IrqStatus();
         s2lp_Clear_IrqStatus();
         s2lp_ResetPacketsTx();
+
+        incomingTx = FALSE; //Tx has been performed, unlocking Radio Rx motor for Rx again
 
         //TODO just for debug until automated internal Rx timer is set
         s2lp_Set_Operating_State(RX);
@@ -342,7 +334,11 @@ void Radio_Manager_Rx_Motor(void)
 
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
-        s2lp_Set_Operating_State(RX);
+      	//only set th Rx state if there are no Tx being performed
+      	if(incomingTx == FALSE)
+      	{
+          s2lp_Set_Operating_State(RX);
+      	}
         radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE;
       }
       else
@@ -385,8 +381,12 @@ void Radio_Manager_Rx_Motor(void)
 			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
 			if(current_state == STATE_READY)
 			{
-				//set again in RX MODE
-				s2lp_Set_Operating_State(RX);
+				//check if Tx is not bieng performed
+        if(incomingTx == FALSE)
+        {
+        	//set again in RX MODE
+        	s2lp_Set_Operating_State(RX);
+        }
 			}
 			//END TEST
 
