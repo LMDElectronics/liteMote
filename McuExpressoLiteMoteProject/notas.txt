@@ -337,13 +337,17 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 		1- Encolar el paquete de radio en el packet manager -> EN ELLO
 			1.1- configurar STack packet mode para poder saber el origen y destino del paquete tanto en el receptor como en el transmisor -> OK
 			
-		2- Procesar el paquete recibido de radio 					-> EN ELLO			
-		3- Optimizar parametros serie y de radio (bps, modulacion, velocidad, etc...) -> HOLD    								        			
-		4- configurar el periodo de Rx automatico en los nodos	-> HOLD
+		2- Procesar el paquete recibido de radio 					-> OK
+		3- Test para temporizar correctamente el envio despues de recibir por radio -> EN ELLO			
+		4- Optimizar parametros serie y de radio (bps, modulacion, velocidad, etc...) -> HOLD    								        			
+		5- configurar el periodo de Rx automatico en los nodos	-> HOLD
     
 	Tarea actual:
-		1	-> EN ELLO (testear en packet manager process radio rx packet) 		 
-    	2 	-> EN ELLO
+		3 -> cuando se recibe un paquete, automaticamente pone a ready para no seguir recibiendo la cola de tramas de 
+		     radio si se ha emitido en burst desde el emisor -> EN ELLO
+		     
+		     definir el tiempo de envio por radio como una variable dependiente 
+    		   
     
     
 

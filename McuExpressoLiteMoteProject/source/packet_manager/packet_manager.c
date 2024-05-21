@@ -211,7 +211,25 @@ void Process_Packet(Tpacket packet_to_process)
       switch(packet_to_process.header.msg_type)
       {
         case MSG_PING:
-          Push_Serial_Tx_FIFO_Packet(Build_Packet_Serial(packet_to_process.payload, MSG_PING));
+
+        	if(CnfManager_Get_My_Node_Type() == NODE_TYPE)
+        	{
+            Push_Radio_Tx_FIFO_Packet(
+            		Build_Packet_Radio(
+            					packet_to_process.header.destination_node,
+											packet_to_process.header.origin_node,
+											1050,
+											packet_to_process.header.msg_type,
+											packet_to_process.payload)
+											);
+        	}
+        	else
+        	{
+        		if(CnfManager_Get_My_Node_Type() == BASE_TYPE)
+        		{
+              Push_Serial_Tx_FIFO_Packet(Build_Packet_Serial(packet_to_process.payload, MSG_PING));
+        		}
+        	}
         break;
 
         case MSG_IDENTITY_SEND:
@@ -365,19 +383,31 @@ void Packet_Manager_Process_Motor(void)
       }
       else
       {
-        //serial fifo is not empty, get packet and process it
-        Process_Packet(Get_Serial_Rx_FIFO_Packet());
-
         //check for Rx radio packets if a any
         packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_RADIO_RX_PACKETS;
+
+        //serial fifo is not empty, get packet and process it
+        Process_Packet(Get_Serial_Rx_FIFO_Packet());
       }
     break;
 
     case PACKET_MANAGER_CHECK_FOR_RADIO_RX_PACKETS:
+      //check if serial fifo is empty
+      if(Is_Radio_Rx_FIFO_Empty())
+      {
+        //radio fifo empty, check the next Rx peripheral
+        packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
+      }
+      else
+      {
+      	//check for Rx serial packets if a any
+      	packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
 
-      //TODO:
-      packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
+      	//TODO ver porque no llega:
 
+        //radio fifo is not empty, get packet and process it
+        Process_Packet(Get_Radio_Rx_FIFO_Packet());
+      }
     break;
   }
 }
