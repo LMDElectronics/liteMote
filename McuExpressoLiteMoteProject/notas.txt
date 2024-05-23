@@ -338,16 +338,30 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 			1.1- configurar STack packet mode para poder saber el origen y destino del paquete tanto en el receptor como en el transmisor -> OK
 			
 		2- Procesar el paquete recibido de radio 					-> OK
-		3- Test para temporizar correctamente el envio despues de recibir por radio -> EN ELLO			
-		4- Optimizar parametros serie y de radio (bps, modulacion, velocidad, etc...) -> HOLD    								        			
+		
+		3- Test para temporizar correctamente el envio despues de recibir por radio -> EN ELLO
+			3.-2 -> modificar velocidad Tx rx de puerto serie a 115000 -> OK
+			3.-1 -> revisar porque el timeout de envio por radio en los nodos va un paquete atrasado -> OK
+			3.0 -> cambio a 868Mhz, 4GFSK BT=1, 400Kbps datarate -> EN ELLO
+			3.1 -> usar CSMA CD para enviar -> EN ELLO
+			3.2 -> probar LDC timer en nodo para colocar el timeout de recepcion -> EN ELLO
+						 		
+		4- Optimizar parametros serie y de radio (bps, modulacion, velocidad, etc...) -> HOLD
+		    								        			
 		5- configurar el periodo de Rx automatico en los nodos	-> HOLD
     
 	Tarea actual:
-		3 -> cuando se recibe un paquete, automaticamente pone a ready para no seguir recibiendo la cola de tramas de 
-		     radio si se ha emitido en burst desde el emisor -> EN ELLO
-		     
-		     definir el tiempo de envio por radio como una variable dependiente 
-    		   
+		3 -> EN ELLO
+			3.-2 -> OK			
+			3.-1 -> Normal, en el nodo el tiempo está prefijado a 1050 ms, ya lo cambiaremos después si es necesario -> OK 			 
+			3.0 -> EN ELLO
+				-> mirar si es por culpa de la velocidad o de la modulacion
+					-> aumentar velocidad en OOK
+						-> aumentando la velocidad ya no hay comunicación.
+						-> se revisa la funcion de calculo de la velocidad de radio en el driver del s2lp -> EN ELLO
+						
+			3.1 -> EN ELLO	  
+			3.2 -> EN ELLO 
     
     
 

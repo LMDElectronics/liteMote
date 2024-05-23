@@ -1096,6 +1096,9 @@ void S2lp_Init(void)
 
   //config STACK packet type by default
   s2lp_Set_Packet_Format_StAck();
+
+  //config CSMACD Tx link layer protocol
+  //s2lp_Config_CSMACD(TRUE);
 }
 
 //*****************************************************************************
@@ -1299,6 +1302,39 @@ void s2lp_Set_Packet_Format_BASIC(void)
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
   S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
+}
+
+//*****************************************************************************
+void s2lp_Config_CSMACD(UINT8 activationFlag)
+//*****************************************************************************
+// description: Sets the CSMACD
+//*****************************************************************************
+{
+	UINT8 data = 0;
+
+	if(activationFlag == TRUE)
+	{
+		data = S2lp_Read_Register(PROTOCOL1);
+
+		//enabling CSMA_CD On bit
+		data |= 0x04;
+
+		//disabling CSMA_PERSISTENT, not Rx until channel is free, just keep doing little Rx steps
+		data &= 0xFD;
+
+
+		S2lp_Write_Register(PROTOCOL1, data);
+	}
+	else
+	{
+		//disabling CSMA_CD On bit
+		data = S2lp_Read_Register(PROTOCOL1);
+		data &= 0xFB;
+		S2lp_Write_Register(PROTOCOL1, data);
+
+		//exiting func
+		return;
+	}
 }
 
 //*****************************************************************************

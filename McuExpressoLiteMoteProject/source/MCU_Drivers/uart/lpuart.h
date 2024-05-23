@@ -16,6 +16,7 @@
 #include "fsl_port.h"
 #include "board.h"
 
+#define BAUD_RATE 115000
 #define MAX_SERIAL_DATA_BUFFER_SIZE 128
 
 typedef struct str_serial_data

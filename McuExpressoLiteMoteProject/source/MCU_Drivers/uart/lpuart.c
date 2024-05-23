@@ -82,7 +82,7 @@ UINT8 Uart_HW_Init(void)
    * config.enableRx = false;
    */
   LPUART_GetDefaultConfig(&config);
-  config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
+  config.baudRate_Bps = BAUD_RATE;
   config.enableTx = true;
   config.enableRx = true;
 
