@@ -213,7 +213,6 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
     retVal = FAILED;
   }
 
-  //TODO
   Radio_Interface_Load_Parameters(current_Radio_Conf_Data);
 
   return retVal;

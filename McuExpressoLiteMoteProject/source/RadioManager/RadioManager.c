@@ -55,7 +55,7 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
 // Load the radio parameters into the radio device
 //*****************************************************************************
 {
-  switch(current_Radio_Conf_Data.freq_Band)
+	switch(current_Radio_Conf_Data.freq_Band)
   {
     case EURO_FREQ_CENTER:      S2lp_Set_Base_Center_Freq(EUROPEAN_FREQ_BAND);  break;
     case AMERICAN_FREQ_CENTER:  S2lp_Set_Base_Center_Freq(AMERICAN_FREQ_BAND);  break;
