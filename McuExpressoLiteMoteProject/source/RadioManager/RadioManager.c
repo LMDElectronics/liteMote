@@ -16,10 +16,11 @@
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
 
-TR_packet radio_packet_to_Tx;
+Tpacket radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
 
-volatile bool tpmIsrFlag = FALSE;
+volatile bool tpmIsrFlag = FALSE; //flag to signal Tx timout
+volatile bool incomingTx = FALSE; //flag to signal the transceiver is in Tx state
 
 UINT32 myPacketsTx;
 
@@ -54,7 +55,7 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
 // Load the radio parameters into the radio device
 //*****************************************************************************
 {
-  switch(current_Radio_Conf_Data.freq_Band)
+	switch(current_Radio_Conf_Data.freq_Band)
   {
     case EURO_FREQ_CENTER:      S2lp_Set_Base_Center_Freq(EUROPEAN_FREQ_BAND);  break;
     case AMERICAN_FREQ_CENTER:  S2lp_Set_Base_Center_Freq(AMERICAN_FREQ_BAND);  break;
@@ -103,7 +104,7 @@ void Radio_Manager_Init(void)
 }
 
 //****************************************************************************
-void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *payload, UINT8 payloadLength, UINT8 ack)
+void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *payload, UINT8 payloadLength, UINT8 msg_type)
 //****************************************************************************
 // Loads the packet into radio transmitter
 //****************************************************************************
@@ -119,14 +120,15 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 
   s2lp_Set_Packet_Length(payloadLength);
 
-  if(ack == ACK_NEEDED)
+  //TODO ACK management
+  /*if(ack == ACK_NEEDED)
   {
     s2lp_Enable_Ack_For_Tx_Packet();
   }
   else
   {
     s2lp_Disable_Ack_For_Tx_Packet();
-  }
+  }*/
 }
 
 //****************************************************************************
@@ -151,7 +153,7 @@ void Radio_Manager_Tx_Motor(void)
         //check if radio is not busy
         current_state = s2lp_Get_Operating_State();
 
-        //decide what to do depending of the radio device
+        //decide what to do depending of the radio device state
         switch(current_state)
         {
           //------------------------------------------------------------------------------------
@@ -169,7 +171,7 @@ void Radio_Manager_Tx_Motor(void)
                 radio_packet_to_Tx.header.destination_node,
                 radio_packet_to_Tx.payload,
                 radio_packet_to_Tx.header.frame_payload_length,
-                radio_packet_to_Tx.header.ackNeeded);
+                radio_packet_to_Tx.header.msg_type);
 
             //2 - load send time timer
             Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
@@ -198,8 +200,11 @@ void Radio_Manager_Tx_Motor(void)
           //------------------------------------------------------------------------------------
           case STATE_RX:
             radio_manager_Tx_state = RADIO_MANAGER_WAIT_FOR_TX_STATE;
-            current_state = s2lp_Set_Operating_State(SABORT);
-            break;
+
+            //signaling that transceiver should be kept in Tx state until Tx is finished
+            incomingTx = TRUE;
+            s2lp_Set_Operating_State(SABORT);
+          break;
 
           //------------------------------------------------------------------------------------
           // UNKNOWN state?
@@ -212,7 +217,8 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_WAIT_FOR_TX_STATE:
-      if(current_state = s2lp_Get_Operating_State() == STATE_READY)
+    	current_state = s2lp_Get_Operating_State();
+      if(s2lp_Get_Operating_State() == STATE_READY)
       {
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
       }
@@ -235,7 +241,7 @@ void Radio_Manager_Tx_Motor(void)
               radio_packet_to_Tx.header.destination_node,
               radio_packet_to_Tx.payload,
               radio_packet_to_Tx.header.frame_payload_length,
-              radio_packet_to_Tx.header.ackNeeded);
+              radio_packet_to_Tx.header.msg_type);
 
           //Tx timeout window not reached, start Tx again
           s2lp_Clear_IrqStatus();
@@ -255,6 +261,8 @@ void Radio_Manager_Tx_Motor(void)
         s2lp_Clear_IrqStatus();
         s2lp_ResetPacketsTx();
 
+        incomingTx = FALSE; //Tx has been performed, unlocking Radio Rx motor for Rx again
+
         //TODO just for debug until automated internal Rx timer is set
         s2lp_Set_Operating_State(RX);
 
@@ -268,33 +276,34 @@ void Radio_Manager_Tx_Motor(void)
 }
 
 //*****************************************************************************
-//TODO:
-TR_packet From_Radio_Frame_To_Packet(UINT8 *dataBuffer)
+Tpacket From_Radio_Frame_To_Packet(UINT8 *dataBuffer, UINT8 origin_node, UINT8 destination_node, UINT8 payloadLength)
 //*****************************************************************************
 // translating radio buffer data received into radio packet
 //*****************************************************************************
 {
   UINT8 i=0;
-  TR_packet radio_rx_packet;
+  UINT8	j=0;
+  Tpacket radio_rx_packet;
 
+  //TODO
 
   //marshalling
-  radio_rx_packet.header.origin_node = s2lp_Get_Source_Address();
-  radio_rx_packet.header.destination_node = s2lp_Get_Destination_Address();
-  radio_rx_packet.header.send_time = 0;
+  radio_rx_packet.header.origin_node = origin_node;
+  radio_rx_packet.header.destination_node = destination_node;
 
-  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
+  //TODO to be defined in radio node configuration
+  radio_rx_packet.header.send_time = 1;
+
+  radio_rx_packet.header.msg_type = dataBuffer[0];
   radio_rx_packet.header.msg_type <<= 8;
-  radio_rx_packet.header.msg_type |= dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET + 1];*/
+  radio_rx_packet.header.msg_type |= dataBuffer[1];
 
-  /*radio_rx_packet.header.msg_type = dataBuffer[DATA_BUFFER_MSG_TYPE_OFFSET];
-
-  radio_rx_packet.header.frame_payload_length = dataBuffer[DATA_BUFFER_PAYLOAD_LENGTH_OFFSET];
-
-  for(i=0; i<radio_rx_packet.header.frame_payload_length; i++)
+  for(i=2; i<payloadLength; i++)
   {
-  	radio_rx_packet.payload[i] = dataBuffer[DATA_BUFFER_PAYLOAD_START_OFFSET + i];
-  }*/
+  	radio_rx_packet.payload[j++] = dataBuffer[i];
+  }
+
+  radio_rx_packet.header.frame_payload_length = j;
 
   return radio_rx_packet;
 }
@@ -327,7 +336,11 @@ void Radio_Manager_Rx_Motor(void)
 
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
-        s2lp_Set_Operating_State(RX);
+      	//only set th Rx state if there are no Tx being performed
+      	if(incomingTx == FALSE)
+      	{
+          s2lp_Set_Operating_State(RX);
+      	}
         radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE;
       }
       else
@@ -370,16 +383,24 @@ void Radio_Manager_Rx_Motor(void)
 			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
 			if(current_state == STATE_READY)
 			{
-				//set again in RX MODE
-				s2lp_Set_Operating_State(RX);
+				//check if Tx is not bieng performed
+        if(incomingTx == FALSE)
+        {
+        	//set again in RX MODE
+        	s2lp_Set_Operating_State(RX);
+        }
 			}
 			//END TEST
 
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
 
-				destinationAddrReceived = s2lp_Get_Packet_Received_Address();
-				sourceAddrReceived = s2lp_Get_Source_Address();
+				UINT8 sourceAddr = 0;
+				UINT8 destAddr = 0;
+
+				//extract destination and origin from radio packet received
+				sourceAddr = S2lp_Read_Register(RX_ADDRE_FIELD1);
+				destAddr = S2lp_Read_Register(RX_ADDRE_FIELD0);
 
 				//extract the packet lenght from the registers
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
@@ -387,7 +408,7 @@ void Radio_Manager_Rx_Motor(void)
 				//TODO test
 				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
 
-				//Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData));
+				Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData, sourceAddr, destAddr, radioBytesReceived));
 
 				//it gets here
 				s2lp_Clear_PacketReceivedFlag();

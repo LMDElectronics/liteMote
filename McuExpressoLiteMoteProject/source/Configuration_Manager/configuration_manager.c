@@ -213,7 +213,6 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
     retVal = FAILED;
   }
 
-  //TODO
   Radio_Interface_Load_Parameters(current_Radio_Conf_Data);
 
   return retVal;
@@ -259,6 +258,15 @@ UINT16 CnfManager_Get_Health_Msg_Period(void)
 //*****************************************************************************
 {
   return current_Health_Config.healthPeriod;
+}
+
+//*****************************************************************************
+UINT16 CnfManager_Get_My_Node_Type(void)
+//*****************************************************************************
+// gets the current node type
+//*****************************************************************************
+{
+	return current_Identity_Config.NodeType;
 }
 
 //*****************************************************************************

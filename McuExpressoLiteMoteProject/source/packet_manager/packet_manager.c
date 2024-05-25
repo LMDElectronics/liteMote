@@ -6,9 +6,20 @@
  */
 
 #include "globals.h"
-#include "packet_manager.h"
+#include <packet_manager/packet_manager.h>
+
+#include "packet_ack/packet_ack.h"
+#include "packet_ping/packet_ping.h"
+#include "packet_identity/packet_identity.h"
+#include "packet_health/packet_health.h"
+#include "packet_health_conf/packet_health_conf.h"
+#include "packet_adc_calibration/packet_adc_cal_val.h"
+#include "packet_radio_conf/packet_radio_conf.h"
+
 #include "Configuration_Manager/configuration_manager.h"
 #include "Health_Manager/health_manager.h"
+
+#include "RadioManager/Radio_Packet_FIFOs.h"
 
 UINT8 packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
 
@@ -96,10 +107,10 @@ TS_packet Build_Packet_Serial(...)
    formatted serial packet
 
 *******************************************************************************/
-TS_packet Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
+Tpacket Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
 {
   UINT8 i=0;
-  TS_packet serial_packet;
+  Tpacket serial_packet;
 
   serial_packet.header.origin_node = CnfManager_Get_My_Address();
   serial_packet.header.destination_node = HOST_SERIAL_ADDR;
@@ -116,7 +127,7 @@ TS_packet Build_Packet_Serial(UINT8 *payload, UINT16 msgType)
 }
 
 /******************************************************************************
-TR_packet Build_Packet_Radio(...)
+Tpacket Build_Packet_Radio(...)
    Builds radio packet [radio format]
 
   Pre condition:
@@ -132,11 +143,11 @@ TR_packet Build_Packet_Radio(...)
    formatted radio packet
 
 *******************************************************************************/
-TR_packet Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT16 send_time, UINT8 ackNeeded, UINT16 msgType, UINT8 *payload)
+Tpacket Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UINT16 send_time, UINT16 msgType, UINT8 *payload)
 {
   UINT8 i=0;
   UINT8 j=0;
-  TR_packet radio_packet;
+  Tpacket radio_packet;
 
   //TEST clear buffer for debug purposes
   /*for(i=0; i < radio_packet.header.frame_payload_length; i++)
@@ -147,12 +158,14 @@ TR_packet Build_Packet_Radio(UINT8 origin_address, UINT8 destination_Address, UI
   radio_packet.header.origin_node = origin_address;
   radio_packet.header.destination_node = destination_Address;
   radio_packet.header.send_time = send_time;
-  radio_packet.header.ackNeeded = ackNeeded;
+  radio_packet.header.msg_type = msgType;
   radio_packet.header.frame_payload_length = Get_Canonical_Payload_length(msgType) + 2; /*msg type length*/
 
+  //adding msg type to radio payload
   radio_packet.payload[0] = (UINT8)((msgType & 0xFF00) >> 8);
   radio_packet.payload[1] = (UINT8)(msgType & 0x00FF);
 
+  //adding msg data to radio payload
   for(i=2; i < radio_packet.header.frame_payload_length; i++)
   {
     radio_packet.payload[i] = payload[j++];
@@ -177,9 +190,9 @@ void Process_Packet(TS_packet packet_to_process)
    None
 
 *******************************************************************************/
-void Process_Packet(TS_packet packet_to_process)
+void Process_Packet(Tpacket packet_to_process)
 {
-  TS_packet packet_aux;
+	Tpacket packet_aux;
 
   //check msg payload length
   if(packet_to_process.header.frame_payload_length != Get_Canonical_Payload_length(packet_to_process.header.msg_type))
@@ -189,8 +202,8 @@ void Process_Packet(TS_packet packet_to_process)
   else
   {
     //check destination
-    if( (packet_to_process.header.destination_node == (UINT8)(CnfManager_Get_My_Address()) ) /*||
-    		(packet_to_process.header.origin_node == BACKDOOR_BASE_ADDR)*/)
+    if( (packet_to_process.header.destination_node == (UINT8)(CnfManager_Get_My_Address()) ) ||
+    		(packet_to_process.header.origin_node == BACKDOOR_BASE_ADDR))
     {
       //serial packet is for this node or comes from host, process the packet
       //check the crc
@@ -198,7 +211,25 @@ void Process_Packet(TS_packet packet_to_process)
       switch(packet_to_process.header.msg_type)
       {
         case MSG_PING:
-          Push_Serial_Tx_FIFO_Packet(Build_Packet_Serial(packet_to_process.payload, MSG_PING));
+
+        	if(CnfManager_Get_My_Node_Type() == NODE_TYPE)
+        	{
+            Push_Radio_Tx_FIFO_Packet(
+            		Build_Packet_Radio(
+            					packet_to_process.header.destination_node,
+											packet_to_process.header.origin_node,
+											1050,
+											packet_to_process.header.msg_type,
+											packet_to_process.payload)
+											);
+        	}
+        	else
+        	{
+        		if(CnfManager_Get_My_Node_Type() == BASE_TYPE)
+        		{
+              Push_Serial_Tx_FIFO_Packet(Build_Packet_Serial(packet_to_process.payload, MSG_PING));
+        		}
+        	}
         break;
 
         case MSG_IDENTITY_SEND:
@@ -314,7 +345,7 @@ void Process_Packet(TS_packet packet_to_process)
         //fill radio packet [packet_length, origin, destination,ACK needed byte, payload]
         //store radio packet into Tx fifo to be sent
 
-      Push_Radio_Tx_FIFO_Packet(Build_Packet_Radio(packet_to_process.header.origin_node, packet_to_process.header.destination_node, packet_to_process.header.send_time, NO_ACK_NEEDED, packet_to_process.header.msg_type, packet_to_process.payload));
+      Push_Radio_Tx_FIFO_Packet(Build_Packet_Radio(packet_to_process.header.origin_node, packet_to_process.header.destination_node, packet_to_process.header.send_time, packet_to_process.header.msg_type, packet_to_process.payload));
     }
   }
 }
@@ -352,19 +383,31 @@ void Packet_Manager_Process_Motor(void)
       }
       else
       {
-        //serial fifo is not empty, get packet and process it
-        Process_Packet(Get_Serial_Rx_FIFO_Packet());
-
         //check for Rx radio packets if a any
         packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_RADIO_RX_PACKETS;
+
+        //serial fifo is not empty, get packet and process it
+        Process_Packet(Get_Serial_Rx_FIFO_Packet());
       }
     break;
 
     case PACKET_MANAGER_CHECK_FOR_RADIO_RX_PACKETS:
+      //check if serial fifo is empty
+      if(Is_Radio_Rx_FIFO_Empty())
+      {
+        //radio fifo empty, check the next Rx peripheral
+        packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
+      }
+      else
+      {
+      	//check for Rx serial packets if a any
+      	packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
 
-      //TODO:
-      packet_Manager_Motor_State = PACKET_MANAGER_CHECK_FOR_SERIAL_RX_PACKETS;
+      	//TODO ver porque no llega:
 
+        //radio fifo is not empty, get packet and process it
+        Process_Packet(Get_Radio_Rx_FIFO_Packet());
+      }
     break;
   }
 }

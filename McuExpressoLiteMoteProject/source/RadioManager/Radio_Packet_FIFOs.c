@@ -13,13 +13,13 @@
 UINT8 stored_radio_Rx_packets_index = 0;
 UINT8 index_Rx_Radio_FIFO_Tail = 0;
 UINT8 index_Rx_Radio_FIFO_Head = 0;
-TR_packet packet_Radio_Rx_FIFO[MAX_RADIO_PACKETS_ALLOWED];
+Tpacket packet_Radio_Rx_FIFO[MAX_PACKETS_ALLOWED];
 
 //TX serial packet FIFO
 UINT8 stored_radio_Tx_packets_index = 0;
 UINT8 index_Radio_Tx_FIFO_Tail = 0;
 UINT8 index_Radio_Tx_FIFO_Head = 0;
-TR_packet packet_Radio_Tx_FIFO[MAX_RADIO_PACKETS_ALLOWED];
+Tpacket packet_Radio_Tx_FIFO[MAX_PACKETS_ALLOWED];
 
 /*******************************************************************************
   RX Radio FIFO FUNCTIONS
@@ -49,7 +49,7 @@ void Radio_Packet_Rx_FIFO_Init(void)
   index_Rx_Radio_FIFO_Tail = 0;
   index_Rx_Radio_FIFO_Head = 0;
 
-  for(i=0; i<MAX_RADIO_PACKETS_ALLOWED; i++)
+  for(i=0; i<MAX_PACKETS_ALLOWED; i++)
   {
     memset(&packet_Radio_Rx_FIFO[i].header, sizeof(packet_Radio_Rx_FIFO[i].header), 0);
     memset(packet_Radio_Rx_FIFO[i].payload, sizeof(packet_Radio_Rx_FIFO[i].payload), 0);
@@ -100,9 +100,9 @@ UINT8 Is_Radio_Rx_FIFO_Empty(void)
     Radio packet if any, if no packet present, returns a 0 packet
 
 ********************************************************************************/
-TR_packet Get_Radio_Rx_FIFO_Packet(void)
+Tpacket Get_Radio_Rx_FIFO_Packet(void)
 {
-  TR_packet radio_packet;
+	Tpacket radio_packet;
   UINT8 i=0;
 
   ENTER_ATOMIC();
@@ -113,7 +113,7 @@ TR_packet Get_Radio_Rx_FIFO_Packet(void)
       radio_packet.header.origin_node = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.origin_node;
       radio_packet.header.destination_node = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.destination_node;
       radio_packet.header.send_time = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.send_time;
-      radio_packet.header.ackNeeded = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.ackNeeded;
+      radio_packet.header.msg_type = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.msg_type;
       radio_packet.header.frame_payload_length = packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Tail].header.frame_payload_length;
 
       for(i=0; i<radio_packet.header.frame_payload_length; i++)
@@ -125,7 +125,7 @@ TR_packet Get_Radio_Rx_FIFO_Packet(void)
       stored_radio_Rx_packets_index--;
       index_Rx_Radio_FIFO_Tail++;
 
-      if(index_Rx_Radio_FIFO_Tail == MAX_RADIO_PACKETS_ALLOWED)
+      if(index_Rx_Radio_FIFO_Tail == MAX_PACKETS_ALLOWED)
       {
         index_Rx_Radio_FIFO_Tail = 0;
       }
@@ -158,7 +158,7 @@ TR_packet Get_Radio_Rx_FIFO_Packet(void)
     None, pushes the radio data received into a packet
 
 ********************************************************************************/
-void Push_Radio_Rx_FIFO_Packet(TR_packet radio_packet_To_Push)
+void Push_Radio_Rx_FIFO_Packet(Tpacket radio_packet_To_Push)
 {
   UINT8 i=0;
 
@@ -167,7 +167,7 @@ void Push_Radio_Rx_FIFO_Packet(TR_packet radio_packet_To_Push)
     packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.origin_node = radio_packet_To_Push.header.origin_node;
     packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.destination_node = radio_packet_To_Push.header.destination_node;
     packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.send_time = radio_packet_To_Push.header.send_time;
-    packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.ackNeeded = radio_packet_To_Push.header.ackNeeded;
+    packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.msg_type = radio_packet_To_Push.header.msg_type;
     packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.frame_payload_length = radio_packet_To_Push.header.frame_payload_length;
 
     for(i=0; i<packet_Radio_Rx_FIFO[index_Rx_Radio_FIFO_Head].header.frame_payload_length; i++)
@@ -179,7 +179,7 @@ void Push_Radio_Rx_FIFO_Packet(TR_packet radio_packet_To_Push)
     stored_radio_Rx_packets_index++;
     index_Rx_Radio_FIFO_Head++;
 
-    if(index_Rx_Radio_FIFO_Head == MAX_RADIO_PACKETS_ALLOWED)
+    if(index_Rx_Radio_FIFO_Head == MAX_PACKETS_ALLOWED)
     {
       index_Rx_Radio_FIFO_Head=0;
     }
@@ -216,7 +216,7 @@ void Radio_Packet_Tx_FIFO_Init(void)
   index_Radio_Tx_FIFO_Tail = 0;
   index_Radio_Tx_FIFO_Head = 0;
 
-  for(i=0; i<MAX_RADIO_PACKETS_ALLOWED; i++)
+  for(i=0; i<MAX_PACKETS_ALLOWED; i++)
   {
     memset(&packet_Radio_Tx_FIFO[i].header, sizeof(packet_Radio_Tx_FIFO[i].header), 0);
     memset(packet_Radio_Tx_FIFO[i].payload, sizeof(packet_Radio_Tx_FIFO[i].payload), 0);
@@ -267,9 +267,9 @@ UINT8 Is_Radio_Tx_FIFO_Empty(void)
     Radio packet if any, if no packet present, returns a 0 packet
 
 ********************************************************************************/
-TR_packet Get_Radio_Tx_FIFO_Packet(void)
+Tpacket Get_Radio_Tx_FIFO_Packet(void)
 {
-  TR_packet radio_packet;
+	Tpacket radio_packet;
   UINT8 i=0;
 
   ENTER_ATOMIC();
@@ -280,7 +280,7 @@ TR_packet Get_Radio_Tx_FIFO_Packet(void)
       radio_packet.header.origin_node = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.origin_node;
       radio_packet.header.destination_node = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.destination_node;
       radio_packet.header.send_time = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.send_time;
-      radio_packet.header.ackNeeded = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.ackNeeded;
+      radio_packet.header.msg_type = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.msg_type;
       radio_packet.header.frame_payload_length = packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Tail].header.frame_payload_length;
 
       for(i=0; i<radio_packet.header.frame_payload_length; i++)
@@ -292,7 +292,7 @@ TR_packet Get_Radio_Tx_FIFO_Packet(void)
       stored_radio_Tx_packets_index--;
       index_Radio_Tx_FIFO_Tail++;
 
-      if(index_Radio_Tx_FIFO_Tail == MAX_RADIO_PACKETS_ALLOWED)
+      if(index_Radio_Tx_FIFO_Tail == MAX_PACKETS_ALLOWED)
       {
         index_Radio_Tx_FIFO_Tail = 0;
       }
@@ -325,7 +325,7 @@ TR_packet Get_Radio_Tx_FIFO_Packet(void)
     None, pushes the radio data received into a packet
 
 ********************************************************************************/
-void Push_Radio_Tx_FIFO_Packet(TR_packet radio_packet_To_Push)
+void Push_Radio_Tx_FIFO_Packet(Tpacket radio_packet_To_Push)
 {
   UINT8 i=0;
 
@@ -334,7 +334,7 @@ void Push_Radio_Tx_FIFO_Packet(TR_packet radio_packet_To_Push)
     packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.origin_node = radio_packet_To_Push.header.origin_node;
     packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.destination_node = radio_packet_To_Push.header.destination_node;
     packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.send_time = radio_packet_To_Push.header.send_time;
-    packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.ackNeeded = radio_packet_To_Push.header.ackNeeded;
+    packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.msg_type = radio_packet_To_Push.header.msg_type;
     packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.frame_payload_length = radio_packet_To_Push.header.frame_payload_length;
 
     for(i=0; i<packet_Radio_Tx_FIFO[index_Radio_Tx_FIFO_Head].header.frame_payload_length; i++)
@@ -346,7 +346,7 @@ void Push_Radio_Tx_FIFO_Packet(TR_packet radio_packet_To_Push)
     stored_radio_Tx_packets_index++;
     index_Radio_Tx_FIFO_Head++;
 
-    if(index_Radio_Tx_FIFO_Head == MAX_RADIO_PACKETS_ALLOWED)
+    if(index_Radio_Tx_FIFO_Head == MAX_PACKETS_ALLOWED)
     {
       index_Radio_Tx_FIFO_Head=0;
     }

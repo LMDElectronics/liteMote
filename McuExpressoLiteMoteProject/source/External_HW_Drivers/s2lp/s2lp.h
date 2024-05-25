@@ -245,7 +245,7 @@
 #define FLUSHTXFIFO         0x72
 #define SEQUENCE_UPDATE     0x73
 
-//state codes
+//state codes to check s2lp status
 #define STATE_SLEEP_A     0x01
 #define STATE_STANDBY     0x02
 #define STATE_SLEEP_B     0x03
@@ -316,6 +316,8 @@ SINT8 s2lp_Get_Tx_Power_Config(void);
 void s2lp_Set_Packet_Format_BASIC(void);
 void s2lp_Set_Packet_Format_StAck(void);
 
+void s2lp_Config_CSMACD(UINT8 activationFlag);
+
 void s2lp_Set_Source_Address(UINT8 sourceAddr);
 UINT8 s2lp_Get_Source_Address(void);
 
@@ -371,7 +373,6 @@ void s2lp_ResetPacketsTx(void);
 UINT8 s2lp_Get_PacketReceivedFlag(void);
 void s2lp_Clear_PacketReceivedFlag(void);
 
-void s2lp_Config_Test_Registers(void);
 void S2lp_Test(void);
 
 #endif /* MCU_DRIVERS_S2LP_S2LP_H_ */

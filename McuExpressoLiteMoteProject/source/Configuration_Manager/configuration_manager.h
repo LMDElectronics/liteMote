@@ -10,6 +10,14 @@
 
 #include "globals.h"
 
+#include <packet_manager/packet_ack/packet_ack.h>
+#include <packet_manager/packet_ping/packet_ping.h>
+#include <packet_manager/packet_identity/packet_identity.h>
+#include <packet_manager/packet_health/packet_health.h>
+#include <packet_manager/packet_health_conf/packet_health_conf.h>
+#include <packet_manager/packet_adc_calibration/packet_adc_cal_val.h>
+#include <packet_manager/packet_radio_conf/packet_radio_conf.h>
+
 #include "packet_manager/packet_manager.h"
 
 #define BACKDOOR_BASE_ADDR 0
@@ -29,12 +37,17 @@
 #define ADC_CONFIG_CALIBRATION_DATA 2
 #define RADIO_CONFIG_NODE_DATA      3
 
+#define BASE_TYPE 0
+#define NODE_TYPE 1
+#define REPEATER_TYPE 2
+
 void CnfManager_Init(void);
 
 UINT8 CnfManager_Load_Mote_Default_Config(void);
 
 UINT16 CnfManager_Get_My_Address(void);
 UINT16 CnfManager_Get_Health_Msg_Period(void);
+UINT16 CnfManager_Get_My_Node_Type(void);
 
 void CnfManager_Save_Data(void *dataBuffer, UINT16 msgType);
 UINT8 CnfManager_Load_Data(void *dataBuffer, UINT16 msgType);

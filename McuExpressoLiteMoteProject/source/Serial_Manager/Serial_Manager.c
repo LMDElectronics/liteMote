@@ -7,6 +7,7 @@
 
 #include <Serial_Manager/base64_codec.h>
 #include <Serial_Manager/Serial_Manager.h>
+#include <Serial_Manager/Serial_Packet_FIFOs.h>
 #include <CRC_tools/crc_tools.h>
 #include <MCU_Drivers/pit_timer/pit.h>
 #include <MCU_Drivers/uart/lpuart.h>
@@ -119,10 +120,10 @@ void Serial_Manager_Flush_Encoded_Frame(void)
     serial packet TS_packet
 
 *******************************************************************************/
-TS_packet From_Serial_Frame_To_Packet(UINT8 *dataBuffer)
+Tpacket From_Serial_Frame_To_Packet(UINT8 *dataBuffer)
 {
   UINT8 i=0;
-  TS_packet serial_rx_packet;
+  Tpacket serial_rx_packet;
 
   //marshalling
   serial_rx_packet.header.origin_node = dataBuffer[DATA_BUFFER_ORIGIN_NODE_OFFSET];
@@ -168,7 +169,7 @@ UINT8 From_Packet_To_Serial_Frame(TS_packet serial_tx_packet, UINT8 *dataBuffer)
     number of bytes forming the frame
 
 *******************************************************************************/
-UINT8 From_Packet_To_Serial_Frame(TS_packet serial_tx_packet, UINT8 *dataBuffer)
+UINT8 From_Packet_To_Serial_Frame(Tpacket serial_tx_packet, UINT8 *dataBuffer)
 {
   UINT8 i=0;
   UINT8 length = 0;
