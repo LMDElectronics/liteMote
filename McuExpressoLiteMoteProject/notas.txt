@@ -359,6 +359,7 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 					-> aumentar velocidad en OOK
 						-> aumentando la velocidad ya no hay comunicación.
 						-> se revisa la funcion de calculo de la velocidad de radio en el driver del s2lp -> EN ELLO
+							-> usar funciones para calcular M y E y ver si son los mismos calculados con las funciones de litemote
 						
 			3.1 -> EN ELLO	  
 			3.2 -> EN ELLO 

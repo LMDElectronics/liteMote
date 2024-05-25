@@ -18,7 +18,10 @@
 #define COMMAND_SEND_HEADER     0x80
 
 //define Freq of the HW XO mounted in MHz
-#define XTAL_FREQ       50
+#define XTAL_FREQ       				50
+
+//define digital domain stal freq
+#define DIG_DOMAIN_XTAL_THRESH	30
 
 //register addresses
 #define GPIO0_CONF      0x00

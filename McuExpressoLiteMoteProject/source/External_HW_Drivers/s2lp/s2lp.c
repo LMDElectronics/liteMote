@@ -320,6 +320,111 @@ UINT8 s2lp_Get_Modulation_Type(void)
 }
 
 //*****************************************************************************
+uint32_t S2LPRadioComputeDatarate(uint16_t cM, uint8_t cE)
+//*****************************************************************************
+// pick from s2lpLibrary just for check
+//*****************************************************************************
+{
+  uint32_t f_dig = (XTAL_FREQ * 1000000);
+  uint64_t dr;
+
+  if(f_dig>DIG_DOMAIN_XTAL_THRESH * 1000000) {
+    f_dig >>= 1;
+  }
+
+  if(cE==0) {
+    dr=((uint64_t)f_dig*cM);
+    return (uint32_t)(dr>>32);
+  }
+
+  dr=((uint64_t)f_dig)*((uint64_t)cM+65536);
+
+  return (uint32_t)(dr>>(33-cE));
+}
+
+//*****************************************************************************
+void S2LPRadioSearchDatarateME(uint32_t lDatarate, uint16_t* pcM, uint8_t* pcE)
+//*****************************************************************************
+// pick from s2lpLibrary just for check
+//*****************************************************************************
+{
+  uint32_t lDatarateTmp, f_dig=XTAL_FREQ * 1000000;
+  uint8_t uDrE;
+  uint64_t tgt1,tgt2,tgt;
+
+  if(f_dig>DIG_DOMAIN_XTAL_THRESH * 1000000) {
+    f_dig >>= 1;
+  }
+
+  /* Search the exponent value */
+  for(uDrE = 0; uDrE != 12; uDrE++) {
+    lDatarateTmp = S2LPRadioComputeDatarate(0xFFFF, uDrE);
+    if(lDatarate<=lDatarateTmp)
+      break;
+  }
+  (*pcE) = (uint8_t)uDrE;
+
+  if(uDrE==0) {
+    tgt=((uint64_t)lDatarate)<<32;
+    (*pcM) = (uint16_t)(tgt/f_dig);
+    tgt1=(uint64_t)f_dig*(*pcM);
+    tgt2=(uint64_t)f_dig*((*pcM)+1);
+  }
+  else {
+    tgt=((uint64_t)lDatarate)<<(33-uDrE);
+    (*pcM) = (uint16_t)((tgt/f_dig)-65536);
+    tgt1=(uint64_t)f_dig*((*pcM)+65536);
+    tgt2=(uint64_t)f_dig*((*pcM)+1+65536);
+  }
+
+
+  (*pcM)=((tgt2-tgt)<(tgt-tgt1))?((*pcM)+1):(*pcM);
+}
+
+//*****************************************************************************
+void s2lp_Set_PA_FC(UINT32 currentDataRate)
+//*****************************************************************************
+// IMPORTANT: execute always after or inside setting data rate with s2lp_Set_DataRate
+// power control bandwith selection
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	//cutoff freq = 12.5Khz
+	if((currentDataRate <= 16200) && (currentDataRate > 0))
+	{
+		data = S2lp_Read_Register(PA_CONFIG0);
+		data = data & 0xFC;
+		data |= 0x00;
+	}
+
+	//cutoff freq = 25Khz
+	if((currentDataRate <= 32000) && (currentDataRate > 16200))
+	{
+		data = S2lp_Read_Register(PA_CONFIG0);
+		data = data & 0xFC;
+		data |= 0x01;
+	}
+
+	//cutoff freq = 50Khz
+	if((currentDataRate <= 62500) && (currentDataRate > 32000))
+	{
+		data = S2lp_Read_Register(PA_CONFIG0);
+		data = data & 0xFC;
+		data |= 0x02;
+	}
+
+	//cutoff freq = 100Khz
+	if(currentDataRate > 62500)
+	{
+		data = S2lp_Read_Register(PA_CONFIG0);
+		data = data & 0xFC;
+		data |= 0x03;
+	}
+
+}
+
+//*****************************************************************************
 void s2lp_Set_DataRate(UINT32 dataRate)
 //*****************************************************************************
 // Sets the data rate (kbits per second) forcing DATARATE_E = 15
@@ -330,7 +435,9 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   float dataRate_m_f = 1;
   UINT8 modulation = 0;
   UINT8 xMultiplier = 1;
+
   float dataRateRead=0;
+
   UINT8 datarate_e=0;
   UINT32 exp=1;
   float numerator = 0;
@@ -346,8 +453,12 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 afc1 = 0;
   UINT8 afc0 = 0;
 
+  UINT32 dataRateRead2 = 0;
+  UINT16 mval = 0;
+  UINT8 eval = 0;
+
   //Get modulation to check if its 2 or 4 FSK or GFSK to produce the kbps from symbol per second former datarate
-  modulation = s2lp_Get_Modulation_Type();
+  /*modulation = s2lp_Get_Modulation_Type();
 
   //using 2 bytes to represent the four symbols
   if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
@@ -404,7 +515,29 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   //end test
 
   dataRateRead = s2lp_Get_DataRate();
-  dataRateRead=0;
+  dataRateRead=0;*/
+
+  //TEST dataRate2 should be in bps
+  dataRateRead2 = dataRate;
+  S2LPRadioSearchDatarateME(dataRate * 1000, &mval, &eval);
+  dataRateRead2 = S2LPRadioComputeDatarate(mval, eval);
+
+  mod4 = (UINT8)((mval & 0xFF00)>>8);
+  mod3 = (UINT8)(mval & 0x00FF);
+  mod2 = S2lp_Read_Register(MOD2);
+
+  mod2 = mod2 & 0xF0;
+  mod2 |= eval & 0x0F;
+
+  S2lp_Write_Register(MOD4, mod4);
+  S2lp_Write_Register(MOD3, mod3);
+  S2lp_Write_Register(MOD2, mod2);
+
+  //change the power control bandwith selection according to the datarate
+  s2lp_Set_PA_FC(dataRateRead2);
+
+  dataRateRead2 = 0;
+  //END TEST
 }
 
 //*****************************************************************************
@@ -993,10 +1126,10 @@ void s2lp_default_settings(void)
   S2lp_Write_Register(PA_POWER3,0x48);
   S2lp_Write_Register(PA_POWER2,0x60);
   S2lp_Write_Register(PA_POWER1,0x00);
-  S2lp_Write_Register(PA_POWER0,0x87);
+  S2lp_Write_Register(PA_POWER0,0x07);
 
-  S2lp_Write_Register(0x63,0x01);     //PA_CONFIG1
-  S2lp_Write_Register(0x64,0x88);     //PA_CONFIG0
+  S2lp_Write_Register(PA_CONFIG1,0x01);     //PA_CONFIG1
+  S2lp_Write_Register(PA_CONFIG0,0x89);     //PA_CONFIG0
 }
 
 //*****************************************************************************
