@@ -86,6 +86,7 @@
 
 #define MC_STATE0   0x8E
 
+
 #define PA_POWER0   0x62
 #define PA_POWER1   0x61
 #define PA_POWER2   0x60
@@ -327,7 +328,7 @@ UINT8 s2lp_Get_Source_Address(void);
 void s2lp_Set_Destination_Address(UINT8 destinationAddr);
 UINT8 s2lp_Get_Destination_Address(void);
 
-void s2lp_Set_Packet_Length(UINT16 dataPacketLength);
+UINT8 s2lp_Set_Packet_Length(UINT16 dataPayloadToTxLength);
 UINT16 s2lp_Get_Tx_Packet_Length(void);
 UINT16 s2lp_Get_Received_Packet_Length(void);
 UINT8 s2lp_Get_Packet_Received_Address(void);

@@ -350,16 +350,40 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 		    								        			
 		5- configurar el periodo de Rx automatico en los nodos	-> HOLD
     
-	Tarea actual:
+	Tarea actual:	
 		3 -> EN ELLO
 			3.-2 -> OK			
-			3.-1 -> Normal, en el nodo el tiempo está prefijado a 1050 ms, ya lo cambiaremos después si es necesario -> OK 			 
-			3.0 -> EN ELLO
+			3.-1 -> Normal, en el nodo el tiempo está prefijado a 1050 ms, ya lo cambiaremos después si es necesario -> OK
+			
+------------> Estado actual <------------------------- 			 
+			3.0 -> EN ELLO			
+				-> fallan bytes recibidos, mirar porque
 				-> mirar si es por culpa de la velocidad o de la modulacion
 					-> aumentar velocidad en OOK
 						-> aumentando la velocidad ya no hay comunicación.
 						-> se revisa la funcion de calculo de la velocidad de radio en el driver del s2lp -> EN ELLO
 							-> usar funciones para calcular M y E y ver si son los mismos calculados con las funciones de litemote
+							
+				-> funciona solo de la siguiente forma:
+					Tx: nodo 2
+					Rx: pcb ST
+					kbps: 50Kbps
+					mod: 4GFSK T1 
+					
+					En la longitud de payload hay que sumarle uno cuando cargamos los datos en la cola de envio del transceiver
+					porque???? 
+					
+						mirar que no sea porque el packet lenght es el payload + address field, eso cuadraría, mirar otro 
+						codigo para ver si se tiene esto en cuenta, cuando se setea el PCKTLEN0 y PCKTLEN1 en stackpacket 
+						hay que decirle que la longitud del paquete de radio es de 2 bytes + payload, así funciona pero porque?
+							-> comprobar
+								-> LEN_WID
+									es un problema del calculo de estas 2 funciones s2lp_Set_Packet_Length, en la FIFO solo se carga 
+									el PAYLOAD el gestor de paquetes interno del s2lp, hará el resto segun los bits de PCKTCTRL4
+-------------------------------------> esta es la pista BUENA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1				
+						
+					
+					seguir con 3.0	
 						
 			3.1 -> EN ELLO	  
 			3.2 -> EN ELLO 

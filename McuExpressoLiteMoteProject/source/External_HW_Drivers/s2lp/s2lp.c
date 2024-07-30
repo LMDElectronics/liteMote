@@ -657,9 +657,10 @@ SINT8 s2lp_Get_Tx_Power_Config(void)
 }
 
 //*****************************************************************************
-void s2lp_Set_Packet_Length(UINT16 dataPacketLength)
+UINT8 s2lp_Set_Packet_Length(UINT16 dataPayloadToTxLength)
 //*****************************************************************************
-// Sets the TX packet length
+// Sets the TX packet length, and returns the radio datalength of the radio packet
+// according to the LEN_WID if the radio packet length datafield is 1 or 2 bytes
 //*****************************************************************************
 {
   UINT8 regData=0;
@@ -673,17 +674,20 @@ void s2lp_Set_Packet_Length(UINT16 dataPacketLength)
     if((regData & 0x80) == 0x80)
     {
       //need to add 2 bytes of address to payloadlenght
-      dataPacketLength = dataPacketLength + 2;
+    	dataPayloadToTxLength = dataPayloadToTxLength + 2;
     }
     else
     {
       //need to add 1 bytes of address to payloadlenght
-      dataPacketLength = dataPacketLength + 1;
+    	dataPayloadToTxLength = dataPayloadToTxLength + 1 + 1;
     }
   }
 
-  S2lp_Write_Register(PCKTLEN1, (UINT8)((dataPacketLength & 0xFF00) >> 8));
-  S2lp_Write_Register(PCKTLEN0, (UINT8)(dataPacketLength & 0x00FF));
+  S2lp_Write_Register(PCKTLEN1, (UINT8)((dataPayloadToTxLength & 0xFF00) >> 8));
+  S2lp_Write_Register(PCKTLEN0, (UINT8)(dataPayloadToTxLength & 0x00FF));
+
+  //returning in the same variable the radio packet effective length accordingly
+  return (UINT8)dataPayloadToTxLength;
 }
 
 //*****************************************************************************
@@ -836,28 +840,18 @@ void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount)
   UINT8 elements = 0;
   UINT8 bytesToRead=10;
 
-  //check current data in the fifo
-  /*for(i=0; i < bytesToRead; i++)
+  //check current data to be loaded
+  for(i=0; i < byteCount; i++)
   {
-    data[i] = S2lp_Read_Register(REG_FIFO);
+    data[i] = dataBuffer[i];
   }
-
-  elements = s2lp_Get_Tx_FIFO_Elements();*/
 
   //fill fifo
   for(i=0; i < byteCount; i++)
   {
+  	elements = dataBuffer[i];
     S2lp_Write_Register(REG_FIFO, dataBuffer[i]);
   }
-
-  /*elements = s2lp_Get_Tx_FIFO_Elements();
-
-  //check current data in the fifo
-  for(i=0; i < bytesToRead; i++)
-  {
-    data[i] = S2lp_Read_Register(REG_FIFO);
-  }
-  i=0;*/
 }
 
 //*****************************************************************************
@@ -1262,7 +1256,6 @@ void S2lp_Write_Register(UINT8 registerToWrite, UINT8 dataToWrite)
   SPI_Send_NonBlocking(SPI0, radioBufferDataTxRx, 3);
   while(S2lp_Operation_Finished() == FALSE);
 }
-
 
 //*****************************************************************************
 UINT8 S2lp_Read_Register(UINT8 registerToRead)
