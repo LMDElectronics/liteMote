@@ -12,6 +12,15 @@
 
 #define DATA_RADIO_BUFFER_LENGTH 130 //check the s2-lp manual page 63, giving enough room to receive all data sent by device
 
+//radio packet types
+#define RADIO_BASIC_PACKET 		0
+#define RADIO_8021514G_PACKET	1
+#define RADIO_UARTOTA_PACKET	2
+#define RADIO_STACK_PACKET		3
+
+//radio packet types mask
+#define RADIO_PACKET_TYPE(x)	((x & 0xc0) >> 6)
+
 //action to perform interfacing s2lp
 #define ADDRESS_READ_HEADER     0x01
 #define ADDRESS_WRITE_HEADER    0x00
@@ -102,7 +111,11 @@
 #define PCKTCTRL1   0x30
 #define PCKTCTRL2   0x2F
 #define PCKTCTRL3   0x2E
+
 #define PCKTCTRL4   0x2D
+#define IS_ADDR_FIELD_INCLUDED_IN_RADIOPACKET(x) 					((x & 0x08) >> 3)
+#define HOW_MANY_BYTES_FOR_LENGTH_DATA_IN_RADIOPACKET(x) 	(((x & 0x80) >> 7) ? 2:1 )
+
 #define PCKTCTRL5   0x2C
 #define PCKTCTRL6   0x2B
 
@@ -328,7 +341,7 @@ UINT8 s2lp_Get_Source_Address(void);
 void s2lp_Set_Destination_Address(UINT8 destinationAddr);
 UINT8 s2lp_Get_Destination_Address(void);
 
-UINT8 s2lp_Set_Packet_Length(UINT16 dataPayloadToTxLength);
+UINT16 s2lp_Set_Packet_Length(UINT16 dataPayloadToTxLength);
 UINT16 s2lp_Get_Tx_Packet_Length(void);
 UINT16 s2lp_Get_Received_Packet_Length(void);
 UINT8 s2lp_Get_Packet_Received_Address(void);

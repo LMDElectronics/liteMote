@@ -657,37 +657,48 @@ SINT8 s2lp_Get_Tx_Power_Config(void)
 }
 
 //*****************************************************************************
-UINT8 s2lp_Set_Packet_Length(UINT16 dataPayloadToTxLength)
+UINT16 s2lp_Set_Packet_Length(UINT16 radioPayloadLength)
 //*****************************************************************************
 // Sets the TX packet length, and returns the radio datalength of the radio packet
 // according to the LEN_WID if the radio packet length datafield is 1 or 2 bytes
 //*****************************************************************************
 {
-  UINT8 regData=0;
+	UINT16 radioPacketLength = 0;
 
-  regData = S2lp_Read_Register(PCKTCTRL4);
+  UINT8 radioPacketType = RADIO_PACKET_TYPE(S2lp_Read_Register(PCKTCTRL3));
+  UINT8 addrIncludedInRadioPacket = IS_ADDR_FIELD_INCLUDED_IN_RADIOPACKET(S2lp_Read_Register(PCKTCTRL4)); //1 true, 0 false
+  UINT8 radioPacketLengthBytes = HOW_MANY_BYTES_FOR_LENGTH_DATA_IN_RADIOPACKET(PCKTCTRL4);
 
-  //check if address is included in the radio packet
-  if((regData & 0x08) == 0x08)
+  //check if 1 byte for addr data is needed to be added in radioPacketlength data
+  switch(radioPacketType)
   {
-    //check the address bytes
-    if((regData & 0x80) == 0x80)
-    {
-      //need to add 2 bytes of address to payloadlenght
-    	dataPayloadToTxLength = dataPayloadToTxLength + 2;
-    }
-    else
-    {
-      //need to add 1 bytes of address to payloadlenght
-    	dataPayloadToTxLength = dataPayloadToTxLength + 1 + 1;
-    }
+  	case RADIO_BASIC_PACKET:
+  			radioPacketLength = (UINT16)(radioPayloadLength + addrIncludedInRadioPacket);
+  		break;
+
+  	case RADIO_8021514G_PACKET:
+  		//???
+  		radioPacketLength = radioPayloadLength;
+  		break;
+
+  	case RADIO_UARTOTA_PACKET:
+  		radioPacketLength = radioPayloadLength;
+  		break;
+
+  	case RADIO_STACK_PACKET:
+  		//addr field should always be included
+  		radioPacketLength = radioPayloadLength + 1;
+  		break;
   }
 
-  S2lp_Write_Register(PCKTLEN1, (UINT8)((dataPayloadToTxLength & 0xFF00) >> 8));
-  S2lp_Write_Register(PCKTLEN0, (UINT8)(dataPayloadToTxLength & 0x00FF));
+  //add 1 or 2 bytes for length data is to be added to radiopacket length data
+  radioPacketLength = radioPacketLength + radioPacketLengthBytes;
+
+  S2lp_Write_Register(PCKTLEN1, (UINT8)((radioPacketLength & 0xFF00) >> 8));
+  S2lp_Write_Register(PCKTLEN0, (UINT8)(radioPacketLength & 0x00FF));
 
   //returning in the same variable the radio packet effective length accordingly
-  return (UINT8)dataPayloadToTxLength;
+  return radioPacketLength;
 }
 
 //*****************************************************************************
@@ -836,20 +847,10 @@ void s2lp_Load_Tx_FIFO(UINT8 *dataBuffer, UINT8 byteCount)
 //*****************************************************************************
 {
   UINT8 i=0;
-  UINT8 data[10];
-  UINT8 elements = 0;
-  UINT8 bytesToRead=10;
 
-  //check current data to be loaded
+  //fill Tx fifo
   for(i=0; i < byteCount; i++)
   {
-    data[i] = dataBuffer[i];
-  }
-
-  //fill fifo
-  for(i=0; i < byteCount; i++)
-  {
-  	elements = dataBuffer[i];
     S2lp_Write_Register(REG_FIFO, dataBuffer[i]);
   }
 }

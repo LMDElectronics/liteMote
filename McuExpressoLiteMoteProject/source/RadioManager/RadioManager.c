@@ -111,8 +111,8 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 {
   UINT8 regData = 0;
   UINT8 i=0;
-
   UINT8 mydata[128];
+  UINT16 radioPacketLength = 0;
 
   S2lp_Send_Command(FLUSHTXFIFO);
 
@@ -120,9 +120,9 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
   s2lp_Set_Destination_Address(destination_addr);
 
   //calculates the radio packet length accordingly
-  s2lp_Set_Packet_Length(payloadLength);
+  radioPacketLength = s2lp_Set_Packet_Length(payloadLength);
 
-  s2lp_Load_Tx_FIFO(payload, payloadLength);
+  s2lp_Load_Tx_FIFO(payload, radioPacketLength);
   //TODO ACK management
   /*if(ack == ACK_NEEDED)
   {
