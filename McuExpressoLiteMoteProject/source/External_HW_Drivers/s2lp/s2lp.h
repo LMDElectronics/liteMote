@@ -18,9 +18,6 @@
 #define RADIO_UARTOTA_PACKET	2
 #define RADIO_STACK_PACKET		3
 
-//radio packet types mask
-#define RADIO_PACKET_TYPE(x)	((x & 0xc0) >> 6)
-
 //action to perform interfacing s2lp
 #define ADDRESS_READ_HEADER     0x01
 #define ADDRESS_WRITE_HEADER    0x00
@@ -109,8 +106,12 @@
 #define SYNTH_CONFIG2 0x65
 
 #define PCKTCTRL1   0x30
+
 #define PCKTCTRL2   0x2F
+#define IS_VARIABLE_ADDRESS_LEN_DEFINED(x)							 	(x & 0x01)
+
 #define PCKTCTRL3   0x2E
+#define RADIO_PACKET_TYPE(x)															((x & 0xc0) >> 6)
 
 #define PCKTCTRL4   0x2D
 #define IS_ADDR_FIELD_INCLUDED_IN_RADIOPACKET(x) 					((x & 0x08) >> 3)

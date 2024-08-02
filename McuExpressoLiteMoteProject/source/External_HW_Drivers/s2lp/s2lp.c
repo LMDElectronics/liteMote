@@ -686,7 +686,7 @@ UINT16 s2lp_Set_Packet_Length(UINT16 radioPayloadLength)
   		break;
 
   	case RADIO_STACK_PACKET:
-  		//addr field should always be included
+  		//addr field byte always must be included in stack radio packet
   		radioPacketLength = radioPayloadLength + 1;
   		break;
   }
@@ -719,36 +719,51 @@ UINT16 s2lp_Get_Tx_Packet_Length(void)
 //*****************************************************************************
 UINT16 s2lp_Get_Received_Packet_Length(void)
 //*****************************************************************************
-// Gets the Tx packetLength in bytes per packet
+// Gets the Rx effective data payload in bytes from radio packet
 //*****************************************************************************
 {
   UINT16 packetDataLength = 0;
-  UINT8 regData=0;
-  UINT8 bytesToSubstractFromLenght = 0;
 
-  regData = S2lp_Read_Register(PCKTCTRL4);
+  UINT8 variablePacketLengthDefined = IS_VARIABLE_ADDRESS_LEN_DEFINED(S2lp_Read_Register(PCKTCTRL2));
+  UINT8 radioPacketType = RADIO_PACKET_TYPE(S2lp_Read_Register(PCKTCTRL3));
+  UINT8 radioPacketLengthBytes = HOW_MANY_BYTES_FOR_LENGTH_DATA_IN_RADIOPACKET(PCKTCTRL4);
 
-  //check if address is included in the radio packet
-  if((regData & 0x08) == 0x08)
+  switch(radioPacketType)
   {
-    //check the address bytes
-    if((regData & 0x80) == 0x80)
-    {
-      //need to substract 2 bytes of address to payloadlenght
-      bytesToSubstractFromLenght = 2;
-    }
-    else
-    {
-      //need to substract 1 bytes of address to payloadlenght
-      bytesToSubstractFromLenght = 1;
-    }
+  	case RADIO_BASIC_PACKET:
+  		break;
+
+  	case RADIO_8021514G_PACKET:
+  		break;
+
+  	case RADIO_UARTOTA_PACKET:
+  		break;
+
+  	case RADIO_STACK_PACKET:
+
+  		//check variable packet data length
+  	  if(variablePacketLengthDefined)
+  	  {
+  	  	//if the length is not fixed, the length of the payload is extracted from registers
+  	    packetDataLength = S2lp_Read_Register(RX_PCKT_LEN1);
+  	    packetDataLength <<= 8;
+  	    packetDataLength |= S2lp_Read_Register(RX_PCKT_LEN0);
+
+  	    //check if packet length data bytes info is 1 or two bytes, substract length bytes from packet payload
+  	    if(radioPacketLengthBytes == 1)
+  	    {
+  	    	packetDataLength = packetDataLength - 1;
+  	    }
+  	    else
+  	    {
+  	    	packetDataLength = packetDataLength - 2;
+  	    }
+
+  	    //always substract the address field data in stackpacket
+  	    packetDataLength = packetDataLength - 1;
+  	  }
+  		break;
   }
-
-  packetDataLength = S2lp_Read_Register(RX_PCKT_LEN1);
-  packetDataLength <<= 8;
-  packetDataLength |= S2lp_Read_Register(RX_PCKT_LEN0);
-
-  packetDataLength = packetDataLength - bytesToSubstractFromLenght;
 
   return(packetDataLength);
 }

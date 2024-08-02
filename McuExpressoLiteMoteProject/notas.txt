@@ -342,6 +342,7 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 		3- Test para temporizar correctamente el envio despues de recibir por radio -> EN ELLO
 			3.-2 -> modificar velocidad Tx rx de puerto serie a 115000 -> OK
 			3.-1 -> revisar porque el timeout de envio por radio en los nodos va un paquete atrasado -> OK
+			3.1.1 -> validar Tx y Rx y feedback de Rx hacia Tx -> EN ELLO
 			3.0 -> cambio a 868Mhz, 4GFSK BT=1, 400Kbps datarate -> EN ELLO
 			3.1 -> usar CSMA CD para enviar -> EN ELLO
 			3.2 -> probar LDC timer en nodo para colocar el timeout de recepcion -> EN ELLO
@@ -380,14 +381,26 @@ TAREA ACTUAL: 4- Realizar una Tx,Rx desde dos dispositivos liteMote <<<-- EN ELL
 								-> LEN_WID
 									es un problema del calculo de estas 2 funciones s2lp_Set_Packet_Length, en la FIFO solo se carga 
 									el PAYLOAD el gestor de paquetes interno del s2lp, hará el resto segun los bits de PCKTCTRL4
--------------------------------------> esta es la pista BUENA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1				
+-------------------------------------> esta es la pista BUENA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+
+							-> OK, hacer lo mismo en la recepcion 				
+							-> OK solvenetado, 
+								-> es necesario:
+									-> tal como están PCKTCTRL2, PCKTCTRL3, PCKTCTRL4
+										-> restar 1 bytes de length (el paquete radio contiene 1 solo byte para indicar su longitud)
+										-> restar 1 byte SIEMPRE debido a que en STACK PACKET siempre se añade el campo de address										
 						
-					
-					seguir con 3.0	
-						
-			3.1 -> EN ELLO	  
-			3.2 -> EN ELLO 
-    
+-------------------------------------------------------------------------------------------------------------------------------------
+3.1.1 
+Validar Tx -> Rx, Rx -> feedback a Tx						
+	Tx -> RX 							-> OK
+	Rx procesar y enviar 				-> OK
+	recepcion respuesta de Rx en Tx 	-> EN ELLO
+	
+	el origen de Tx Recibe ok, pero mientras está enviando, el nodo que recibe empezará a enviar también, es necesario solventar esto
+	
+	de momento se puede probar el sistema usando como Tx el programa de ST y como Rx el nodo 250 simulando recibir la respuesta de ping   			
+		
     
 
 
