@@ -155,6 +155,7 @@
 #define CSMA_CONFIG0        0x4F
 
 #define PROTOCOL0   0x3B
+
 #define PROTOCOL1   0x3A
 #define PROTOCOL2   0x39
 
@@ -165,6 +166,8 @@
 
 #define TX_FIFO_STATUS  0x8F
 #define RX_FIFO_STATUS  0x90
+
+#define TX_PCKT_INFO		0x9C
 
 #define RX_PCKT_LEN1 0xA4
 #define RX_PCKT_LEN0 0xA5
@@ -225,7 +228,8 @@
 #define SYNC_2_DATA                         0xF0
 #define SYNC_3_DATA                         0xF0
 
-#define TX_ACK_MASK                         0x04
+#define TX_ACK_MASK                         0x08
+#define RX_AUTO_ACK_MASK                    0x04
 
 #define CRC_MODE_MASK 0xE0
 #define CRCMODE0    0
@@ -352,6 +356,13 @@ UINT8 s2lp_Get_Src_Addr_Filt_Addr(void);
 
 void s2lp_Enable_Ack_For_Tx_Packet(void);
 void s2lp_Disable_Ack_For_Tx_Packet(void);
+
+void s2lp_EnableAutomaticACK_ifPacketReceived(void);
+void s2lp_DisableAutomaticACK_ifPacketReceived(void);
+
+void s2lp_Set_Tx_Retries_For_ACK(UINT8 retriesNum);
+
+UINT8 s2lp_Get_ReTxACK_Packets(void);
 
 void s2lp_Set_CRC_Mode(UINT8 crcMode);
 UINT8 s2lp_Get_CRC_Mode(void);

@@ -401,6 +401,11 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 	
 	de momento se puede probar el sistema usando como Tx el programa de ST y como Rx el nodo 250 simulando recibir la respuesta de ping   			
 		
-    
+	probar autoack:
+	
+	- solo probando Tx viendo si envia los Tx retries al no recibir nada
+		-> se queda en Rx despues de enviar el primer paquete con ack
+	    
+	
 
 

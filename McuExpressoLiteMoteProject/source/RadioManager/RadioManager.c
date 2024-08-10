@@ -188,7 +188,7 @@ void Radio_Manager_Tx_Motor(void)
             s2lp_Start_Tx();
 
             //test to Tx just one packet
-            //tpmIsrFlag = true;
+            tpmIsrFlag = true;
           break;
 
           //------------------------------------------------------------------------------------
@@ -247,6 +247,7 @@ void Radio_Manager_Tx_Motor(void)
               radio_packet_to_Tx.header.msg_type);
 
           //Tx timeout window not reached, start Tx again
+
           s2lp_Clear_IrqStatus();
           s2lp_Start_Tx();
         }
@@ -255,7 +256,10 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_TX_FINISHED:
+    	UINT8 data=0;
       radioTransceiverState = s2lp_Get_Operating_State();
+
+      data = s2lp_Get_ReTxACK_Packets();
       if(radioTransceiverState == STATE_READY)
       {
         myPacketsTx = s2lp_GetPacketsTx();
@@ -267,7 +271,8 @@ void Radio_Manager_Tx_Motor(void)
         incomingTx = FALSE; //Tx has been performed, unlocking Radio Rx motor for Rx again
 
         //TODO just for debug until automated internal Rx timer is set
-        s2lp_Set_Operating_State(RX);
+        //TODO commented for auto ack reTx check
+        //s2lp_Set_Operating_State(RX);
 
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
       }

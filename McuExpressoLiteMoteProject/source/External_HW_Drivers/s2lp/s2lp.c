@@ -811,7 +811,7 @@ void s2lp_Enable_Ack_For_Tx_Packet(void)
   UINT8 data = 0;
 
   data = S2lp_Read_Register(PROTOCOL0);
-  data |= TX_ACK_MASK;
+  data &= ~TX_ACK_MASK;
 
   S2lp_Write_Register(PROTOCOL0, data);
 }
@@ -825,9 +825,69 @@ void s2lp_Disable_Ack_For_Tx_Packet(void)
   UINT8 data = 0;
 
   data = S2lp_Read_Register(PROTOCOL0);
-  data &= ~TX_ACK_MASK;
+  data |= TX_ACK_MASK;
 
   S2lp_Write_Register(PROTOCOL0, data);
+}
+
+//*****************************************************************************
+void s2lp_EnableAutomaticACK_ifPacketReceived(void)
+//*****************************************************************************
+// Enables the Automatic ACK response from Rx
+//*****************************************************************************
+{
+  UINT8 data = 0;
+
+  data = S2lp_Read_Register(PROTOCOL0);
+  data |= RX_AUTO_ACK_MASK;
+
+  S2lp_Write_Register(PROTOCOL0, data);
+}
+
+//*****************************************************************************
+void s2lp_DisableAutomaticACK_ifPacketReceived(void)
+//*****************************************************************************
+// Disables the Automatic ACK response from Rx
+//*****************************************************************************
+{
+  UINT8 data = 0;
+
+  data = S2lp_Read_Register(PROTOCOL0);
+  data &= RX_AUTO_ACK_MASK;
+
+  S2lp_Write_Register(PROTOCOL0, data);
+}
+
+//*****************************************************************************
+void s2lp_Set_Tx_Retries_For_ACK(UINT8 retriesNum)
+//*****************************************************************************
+// Sets Tx retries for ACK non received
+//*****************************************************************************
+{
+  UINT8 data = 0;
+  UINT8 swap=0;
+
+  if(retriesNum > 15) return 0;
+
+  data = S2lp_Read_Register(PROTOCOL0);
+
+  //clear retries data
+  data &= 0x0F;
+
+  swap = (retriesNum & 0x0F) << 4;
+
+  data |= swap;
+
+  S2lp_Write_Register(PROTOCOL0, data);
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_ReTxACK_Packets(void)
+//*****************************************************************************
+// Reads the register to obtain the current Re-Tx packets
+//*****************************************************************************
+{
+  return S2lp_Read_Register(TX_PCKT_INFO);
 }
 
 //*****************************************************************************
@@ -1516,7 +1576,12 @@ void s2lp_Set_Packet_Format_StAck(void)
 
   //automatic ack DISABLED
   //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
-  S2lp_Write_Register(PROTOCOL0,0x08);
+  //S2lp_Write_Register(PROTOCOL0,0x08);
+  s2lp_Set_Tx_Retries_For_ACK(10);
+  //s2lp_EnableAutomaticACK_ifPacketReceived();
+  s2lp_Enable_Ack_For_Tx_Packet();
+
+  data = S2lp_Read_Register(PROTOCOL0);
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
   S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
