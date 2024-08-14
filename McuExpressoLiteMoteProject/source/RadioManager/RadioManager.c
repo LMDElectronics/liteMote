@@ -188,7 +188,7 @@ void Radio_Manager_Tx_Motor(void)
             s2lp_Start_Tx();
 
             //test to Tx just one packet
-            tpmIsrFlag = true;
+            //tpmIsrFlag = true;
           break;
 
           //------------------------------------------------------------------------------------

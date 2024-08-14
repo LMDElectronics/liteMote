@@ -1577,9 +1577,9 @@ void s2lp_Set_Packet_Format_StAck(void)
   //automatic ack DISABLED
   //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
   //S2lp_Write_Register(PROTOCOL0,0x08);
-  s2lp_Set_Tx_Retries_For_ACK(10);
+  //s2lp_Set_Tx_Retries_For_ACK(10);
   //s2lp_EnableAutomaticACK_ifPacketReceived();
-  s2lp_Enable_Ack_For_Tx_Packet();
+  //s2lp_Enable_Ack_For_Tx_Packet();
 
   data = S2lp_Read_Register(PROTOCOL0);
 
