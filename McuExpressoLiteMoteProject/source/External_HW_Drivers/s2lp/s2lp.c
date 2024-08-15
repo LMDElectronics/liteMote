@@ -60,33 +60,14 @@ void S2lp_Config_Power_Management(void)
 {
   UINT8 data=0;
 
-  //SMPS output voltage 1.2V
   //sleep mode B (with FIFO retention)
-  //retrieving d value
-  //keep reserved bit 3:1 as 1
+  S2lp_Write_Register(PM_CONFIG0, 0x43);
 
-  //commented for test
-  data = S2lp_Read_Register(PM_CONFIG0) & 0x1F;
-  S2lp_Write_Register(PM_CONFIG0, data | 0x11);
-
-  //BLD voltage 2.1V
-  //disable battery detector circuit
-  //bypass LDO for low power mode
-  //SMPS output level depends on PM_CONFIG0 SMPS_LVL_MPODE
-  data = S2lp_Read_Register(PM_CONFIG1);
-  S2lp_Write_Register(PM_CONFIG1, data & 0xF1);
-
-  data = S2lp_Read_Register(PM_CONFIG1);
-  S2lp_Write_Register(PM_CONFIG1, data & 0xF1);
-
-  data = S2lp_Read_Register(PM_CONFIG0);
-
-  //test
-  S2lp_Write_Register(PM_CONFIG0, 0x42);
+  //do not bypass SMPS LDO
+  //Tx v level is fixed by PM_CONFIG0
+  //Rx level voltage is fixed to 1.4v
+  //BLD Battery Level Detector circuitry is not activated
   S2lp_Write_Register(PM_CONFIG1, 0x39);
-  S2lp_Write_Register(PM_CONFIG2, 0xF4);
-  S2lp_Write_Register(PM_CONFIG3, 0x9B);
-  //end test
 }
 
 //****************************************************************************
@@ -1287,8 +1268,6 @@ void S2lp_Init(void)
 
   //by default internal radio settings
   s2lp_default_settings();
-
-  //test
   s2lp_Clear_IrqStatus();
   s2lp_Check_IrqStatus();
   S2lp_Config_Interrupt(RX_DATA_READY /*VALID_PREAMBLE_DETECTED*/ /*SYNC_WORD_DETECTED*/);
@@ -1299,6 +1278,9 @@ void S2lp_Init(void)
 
   //config STACK packet type by default
   s2lp_Set_Packet_Format_StAck();
+
+  //config LDC timer
+  s2lp_Set_LCD_Timer();
 
   //config CSMACD Tx link layer protocol
   //s2lp_Config_CSMACD(TRUE);
@@ -1585,6 +1567,16 @@ void s2lp_Set_Packet_Format_StAck(void)
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
   S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
+}
+
+//*****************************************************************************
+void s2lp_Set_LCD_Timer(void)
+//*****************************************************************************
+// Configs the LDC s2lp timer for low duty Rx cicle
+//*****************************************************************************
+{
+	//configuration for LCD timer
+
 }
 
 //*****************************************************************************

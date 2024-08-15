@@ -403,9 +403,11 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 		
 	probar autoack:
 	
-	- solo probando Tx viendo si envia los Tx retries al no recibir nada
-		-> se queda en Rx despues de enviar el primer paquete con ack
-	    
+	-> si activamos el ACK en el paquete de Tx, vemos que despues del estado de Tx, no vuelve solo a READY, se pone en Rx (se supone que para
+	recibir el ack, como no hay LDC timeout, se queda en Rx para siempre.) si lo forzamos a ready, hace las x retransmisiones
+	
+		-> activar el LDC para ver si retransmite automaticamente cuando acabe el tiempo de LDC configurado para escucha		
+		-> configurando LDC    
 	
 
 
