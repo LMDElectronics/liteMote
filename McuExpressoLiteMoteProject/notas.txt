@@ -407,7 +407,11 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 	recibir el ack, como no hay LDC timeout, se queda en Rx para siempre.) si lo forzamos a ready, hace las x retransmisiones
 	
 		-> activar el LDC para ver si retransmite automaticamente cuando acabe el tiempo de LDC configurado para escucha		
-		-> configurando LDC    
-	
+			-> configurando LDC    
+				-> despues de configurar el LDC en el motor de Rx, al realizar un Tx, al terminar la Tx, vemos que al comprobar el estado
+				   del s2lp, este esta en SLEEP_B
+				   
+				   -> calibrar el RCO antes de entrar en LDC mode -> EN ELLO
+				  	
 
 

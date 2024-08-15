@@ -1272,18 +1272,6 @@ void S2lp_Init(void)
   s2lp_Check_IrqStatus();
   S2lp_Config_Interrupt(RX_DATA_READY /*VALID_PREAMBLE_DETECTED*/ /*SYNC_WORD_DETECTED*/);
   S2lp_Config_Power_Management();
-
-  //config BASIC packet format
-  //s2lp_Set_Packet_Format_BASIC();
-
-  //config STACK packet type by default
-  s2lp_Set_Packet_Format_StAck();
-
-  //config LDC timer
-  s2lp_Set_LCD_Timer();
-
-  //config CSMACD Tx link layer protocol
-  //s2lp_Config_CSMACD(TRUE);
 }
 
 //*****************************************************************************
@@ -1570,13 +1558,82 @@ void s2lp_Set_Packet_Format_StAck(void)
 }
 
 //*****************************************************************************
-void s2lp_Set_LCD_Timer(void)
+void s2lp_Configure_LCD_Timer(void)
 //*****************************************************************************
-// Configs the LDC s2lp timer for low duty Rx cicle
+// Configs the LDC s2lp timer for low duty Rx cicle of 1sec
+// each second the s2lp should awake and check for a packet reception
 //*****************************************************************************
 {
-	//configuration for LCD timer
+	UINT8 data = 0;
+	//s2lp reference manual chapter 8.2
 
+	//fdig = 50Mhz -> frco = 33Khz
+	//(frco/2) * (prescaler + 1) * (counter + 1) = 0.98 seconds
+
+	//reload the LDC timer on sync with synch word of the rx packet
+	data = S2lp_Read_Register(PROTOCOL1);
+	data = data | 0x40;
+	S2lp_Write_Register(PROTOCOL1, data);
+
+	//configuration for LCD timer to x2
+	data = S2lp_Read_Register(PROTOCOL2);
+	data = data & 0xFC;
+	S2lp_Write_Register(PROTOCOL2, data);
+
+	//set the preescaler and the preescaler reload value for LDC timer
+	//prescaler for wakeup timer = 128
+	S2lp_Write_Register(TIMERS3, data);
+	S2lp_Write_Register(TIMERS1, 0x80);
+
+	//set the counter and counter reload value for LDC timer
+	//counter for wakeup timer = 128
+	S2lp_Write_Register(TIMERS2, 0x80);
+	S2lp_Write_Register(TIMERS0, 0x80);
+}
+
+//*****************************************************************************
+void s2lp_start_LDC_Timer(void)
+//*****************************************************************************
+// start the LDC timer, blocks until calibration ends
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	//before start the LDC timer, calibrating RCO, s2lp reference manual end of page 54
+	s2lp_RCO_Calibration_Blocking();
+
+	data = S2lp_Read_Register(PROTOCOL1);
+	data |= 0x80;
+	S2lp_Write_Register(PROTOCOL1, data);
+}
+
+//*****************************************************************************
+void s2lp_RCO_Calibration_Blocking(void)
+//*****************************************************************************
+// calibrates the s2lp internal RCO, blocks until the RCO is calibrated successfully
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	data = S2lp_Read_Register(XO_RCO_CONF0);
+	data |= 0x01;
+	S2lp_Write_Register(XO_RCO_CONF0,data);
+
+	while((S2lp_Read_Register(MC_STATE1) & 0x10) != 0x10);
+	data=0;
+}
+
+//*****************************************************************************
+void s2lp_stop_LDC_Timer(void)
+//*****************************************************************************
+// stop the LDC timer
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	data = S2lp_Read_Register(PROTOCOL1);
+	data &= 0x7F;
+	S2lp_Write_Register(PROTOCOL1, data);
 }
 
 //*****************************************************************************

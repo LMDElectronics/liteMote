@@ -91,7 +91,7 @@
 #define CLKREC1 0x21
 
 #define MC_STATE0   0x8E
-
+#define MC_STATE1   0x8D
 
 #define PA_POWER0   0x62
 #define PA_POWER1   0x61
@@ -339,6 +339,10 @@ void s2lp_Set_Packet_Format_BASIC(void);
 void s2lp_Set_Packet_Format_StAck(void);
 
 void s2lp_Config_CSMACD(UINT8 activationFlag);
+
+void s2lp_Configure_LCD_Timer(void);
+void s2lp_start_LDC_Timer(void);
+void s2lp_stop_LDC_Timer(void);
 
 void s2lp_Set_Source_Address(UINT8 sourceAddr);
 UINT8 s2lp_Get_Source_Address(void);

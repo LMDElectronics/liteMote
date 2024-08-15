@@ -14,7 +14,7 @@
 #include "fsl_gpio.h"
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
-UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_INIT_STEP_STATE;
 
 Tpacket radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
@@ -98,9 +98,13 @@ void Radio_Manager_Init(void)
 //****************************************************************************
 {
   S2lp_Init();
-  Radio_Tx_Window_Timer_Init();
 
+  //config STACK packet type
+  s2lp_Set_Packet_Format_StAck();
+
+  //setup the init states for Tx and Rx Motors
   radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+  radio_manager_Rx_state = RADIO_MANAGER_RX_INIT_STEP_STATE;
 }
 
 //****************************************************************************
@@ -177,11 +181,11 @@ void Radio_Manager_Tx_Motor(void)
                 radio_packet_to_Tx.header.msg_type);
 
             //2 - load send time timer
-            Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+            //Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
             //3 - start timer
-            tpmIsrFlag = FALSE; //reset isr flag
-            Radio_Tx_Window_Timer_Start_Timer();
+            //tpmIsrFlag = FALSE; //reset isr flag
+            //Radio_Tx_Window_Timer_Start_Timer();
 
             //4 - start tx
             s2lp_Clear_IrqStatus();
@@ -340,7 +344,29 @@ void Radio_Manager_Rx_Motor(void)
 
   switch(radio_manager_Rx_state)
   {
-    case RADIO_MANAGER_RX_WAIT_FOR_READY_STATE:
+  	case RADIO_MANAGER_RX_INIT_STEP_STATE:
+
+  		//setup and start the LDC operation
+  		s2lp_Configure_LCD_Timer();
+
+  		//set and stay until ready
+  		s2lp_Set_Operating_State(READY);
+  		while(s2lp_Get_Operating_State() != STATE_READY);
+
+  		//sets the LDC timer running
+  		s2lp_start_LDC_Timer();
+
+  		//start first Rx operation and wait to end
+  		s2lp_Set_Operating_State(RX);
+  		while(s2lp_Get_Operating_State() != STATE_RX);
+
+  		//reload the LDC timer
+  		S2lp_Send_Command(LDC_RELOAD);
+
+  		radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
+  		break;
+
+    /*case RADIO_MANAGER_RX_WAIT_FOR_READY_STATE:
 
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
@@ -382,14 +408,16 @@ void Radio_Manager_Rx_Motor(void)
         }
       }
 
-    break;
+    break;*/
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
-			current_state = s2lp_Get_Operating_State();
+    	UINT8 testVar=0;
+
+			/*current_state = s2lp_Get_Operating_State();
 
 			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
-			/*if(current_state == STATE_READY)
+			if(current_state == STATE_READY)
 			{
 				//check if Tx is not bieng performed
         if(incomingTx == FALSE)
@@ -399,6 +427,19 @@ void Radio_Manager_Rx_Motor(void)
         }
 			}*/
 			//END TEST
+
+    	//TEST
+    	//Check if LDC Rx is ciclying from Rx to SLEEP
+
+    	while(s2lp_Get_Operating_State() == STATE_SLEEP_B)
+    	{
+    		testVar = 0;
+    	}
+
+    	while(s2lp_Get_Operating_State() == STATE_RX)
+    	{
+    		testVar = 0;
+    	}
 
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
@@ -427,7 +468,7 @@ void Radio_Manager_Rx_Motor(void)
 				irqStatus = s2lp_Check_IrqStatus();
 				s2lp_Clear_IrqStatus();
 
-				radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+				radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
 			}
 
     break;
