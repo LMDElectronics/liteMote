@@ -118,24 +118,14 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
   UINT8 mydata[128];
   UINT16 radioPacketLength = 0;
 
-  S2lp_Send_Command(FLUSHTXFIFO);
-
   s2lp_Set_Source_Address(myAddress);
   s2lp_Set_Destination_Address(destination_addr);
 
   //calculates the radio packet length accordingly
   radioPacketLength = s2lp_Set_Packet_Length(payloadLength);
 
+  S2lp_Send_Command(FLUSHTXFIFO);
   s2lp_Load_Tx_FIFO(payload, radioPacketLength);
-  //TODO ACK management
-  /*if(ack == ACK_NEEDED)
-  {
-    s2lp_Enable_Ack_For_Tx_Packet();
-  }
-  else
-  {
-    s2lp_Disable_Ack_For_Tx_Packet();
-  }*/
 }
 
 //****************************************************************************
@@ -186,6 +176,11 @@ void Radio_Manager_Tx_Motor(void)
             //3 - start timer
             //tpmIsrFlag = FALSE; //reset isr flag
             //Radio_Tx_Window_Timer_Start_Timer();
+
+            //TEST
+            //start Rx timer for reTx 100ms
+            	s2lp_Configure_RxTimer();
+            //TEST END
 
             //4 - start tx
             s2lp_Clear_IrqStatus();
@@ -261,24 +256,13 @@ void Radio_Manager_Tx_Motor(void)
 
     case RADIO_MANAGER_TX_FINISHED:
     	UINT8 data=0;
-      radioTransceiverState = s2lp_Get_Operating_State();
 
-      data = s2lp_Get_ReTxACK_Packets();
+      radioTransceiverState = s2lp_Get_Operating_State();
       if(radioTransceiverState == STATE_READY)
       {
-        /*myPacketsTx = s2lp_GetPacketsTx();
-
-        intStatus = s2lp_Check_IrqStatus();
-        s2lp_Clear_IrqStatus();
-        s2lp_ResetPacketsTx();
-
-        incomingTx = FALSE; //Tx has been performed, unlocking Radio Rx motor for Rx again
-
-        //TODO just for debug until automated internal Rx timer is set
-        //TODO commented for auto ack reTx check
-        //s2lp_Set_Operating_State(RX);*/
-
         radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+      	data = s2lp_Get_ReTxACK_Packets();
+      	data=0;
       }
     break;
 
@@ -347,7 +331,7 @@ void Radio_Manager_Rx_Motor(void)
   	case RADIO_MANAGER_RX_INIT_STEP_STATE:
 
   		//setup and start the LDC operation
-  		s2lp_Configure_LCD_Timer();
+  		/*s2lp_Configure_LCD_Timer();
 
   		//set and stay until ready
   		s2lp_Set_Operating_State(READY);
@@ -361,7 +345,7 @@ void Radio_Manager_Rx_Motor(void)
   		while(s2lp_Get_Operating_State() != STATE_RX);
 
   		//reload the LDC timer
-  		S2lp_Send_Command(LDC_RELOAD);
+  		S2lp_Send_Command(LDC_RELOAD);*/
 
   		radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
   		break;
@@ -431,15 +415,15 @@ void Radio_Manager_Rx_Motor(void)
     	//TEST
     	//Check if LDC Rx is ciclying from Rx to SLEEP
 
-    	while(s2lp_Get_Operating_State() == STATE_SLEEP_B)
+    	/*while(s2lp_Get_Operating_State() == STATE_SLEEP_B)
     	{
     		testVar = 0;
-    	}
+    	}*/
 
-    	while(s2lp_Get_Operating_State() == STATE_RX)
+    	/*while(s2lp_Get_Operating_State() == STATE_RX)
     	{
     		testVar = 0;
-    	}
+    	}*/
 
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{

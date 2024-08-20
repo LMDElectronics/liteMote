@@ -1547,14 +1547,30 @@ void s2lp_Set_Packet_Format_StAck(void)
   //automatic ack DISABLED
   //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
   //S2lp_Write_Register(PROTOCOL0,0x08);
-  //s2lp_Set_Tx_Retries_For_ACK(10);
+  s2lp_Set_Tx_Retries_For_ACK(10);
   //s2lp_EnableAutomaticACK_ifPacketReceived();
-  //s2lp_Enable_Ack_For_Tx_Packet();
+  s2lp_Enable_Ack_For_Tx_Packet();
 
   data = S2lp_Read_Register(PROTOCOL0);
 
   //PCKT_FLTR_OPTIONS //filter rx packet accepted id crc is ok
   S2lp_Write_Register(PCKT_FLT_OPTIONS,0x42); //receiving when Tx destination addr equals Rx source addr
+}
+
+//*****************************************************************************
+void s2lp_RCO_Calibration_Blocking(void)
+//*****************************************************************************
+// calibrates the s2lp internal RCO, blocks until the RCO is calibrated successfully
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	data = S2lp_Read_Register(XO_RCO_CONF0);
+	data |= 0x01;
+	S2lp_Write_Register(XO_RCO_CONF0,data);
+
+	while((S2lp_Read_Register(MC_STATE1) & 0x10) != 0x10);
+	data=0;
 }
 
 //*****************************************************************************
@@ -1608,22 +1624,6 @@ void s2lp_start_LDC_Timer(void)
 }
 
 //*****************************************************************************
-void s2lp_RCO_Calibration_Blocking(void)
-//*****************************************************************************
-// calibrates the s2lp internal RCO, blocks until the RCO is calibrated successfully
-//*****************************************************************************
-{
-	UINT8 data=0;
-
-	data = S2lp_Read_Register(XO_RCO_CONF0);
-	data |= 0x01;
-	S2lp_Write_Register(XO_RCO_CONF0,data);
-
-	while((S2lp_Read_Register(MC_STATE1) & 0x10) != 0x10);
-	data=0;
-}
-
-//*****************************************************************************
 void s2lp_stop_LDC_Timer(void)
 //*****************************************************************************
 // stop the LDC timer
@@ -1634,6 +1634,21 @@ void s2lp_stop_LDC_Timer(void)
 	data = S2lp_Read_Register(PROTOCOL1);
 	data &= 0x7F;
 	S2lp_Write_Register(PROTOCOL1, data);
+}
+
+//*****************************************************************************
+void s2lp_Configure_RxTimer(void)
+//*****************************************************************************
+// configuring Rx timer first iteration 100ms
+//*****************************************************************************
+{
+	//set the preescaler and counter for RxTimeout
+  //effective Rx time = (1/fsource) * (((prescaler + 1)*(counter)) - 1)
+	//fsource = fdig/1210
+	//fdig -> if xtal [48 - 52] = fdig = fxtal/2
+	//fdig -> if xtal [24 - 26] = fdig = fxtal
+	S2lp_Write_Register(TIMERS5, 0x40);
+	S2lp_Write_Register(TIMERS4, 0x20);
 }
 
 //*****************************************************************************

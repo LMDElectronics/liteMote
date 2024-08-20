@@ -344,6 +344,8 @@ void s2lp_Configure_LCD_Timer(void);
 void s2lp_start_LDC_Timer(void);
 void s2lp_stop_LDC_Timer(void);
 
+void s2lp_Configure_RxTimer(void);
+
 void s2lp_Set_Source_Address(UINT8 sourceAddr);
 UINT8 s2lp_Get_Source_Address(void);
 

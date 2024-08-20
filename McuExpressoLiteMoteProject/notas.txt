@@ -412,6 +412,20 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 				   del s2lp, este esta en SLEEP_B
 				   
 				   -> calibrar el RCO antes de entrar en LDC mode -> EN ELLO
+				   
+		-> usar 2gfsk1 50 kbps para las pruebas, ya mas tarde se mirara como optimizar los problemas de datarate
 				  	
+		-> aqui hay un par de ejmplos
+			C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
+		
+		-> el RxTimer va con el ldc (se configurará con los siguientes valores)
+			-> ldc timer marca el periodo de iniciar Rx [1000 ms]			
+			-> rx timer marca el tiempo efectivo en Rx [100ms]				
 
+		-> 1a prueba de RxTimer a 100ms configurado antes de tx un paquete con ACK, ok, hace la recepcion, tira como maximo 16 paquetes en Tx
+			si no recibe el aCK -> OK
 
+------------------------------------------------------------------------------------------------------------------------------------------
+		-> tener en cuenta que el datarate se debe calcular con fdig que en este caso si el clock es de 50Mhz -> fdig = 50M/2
+		
+		
