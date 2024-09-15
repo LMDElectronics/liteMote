@@ -5,7 +5,7 @@
  *      Author: MAX PC
  */
 
-//hardcoding STACK radio packet usage for Tx and Rx
+//hardcoding  radio packet usage for Tx and Rx
 
 #include <External_HW_Drivers/s2lp/s2lp.h>
 #include <MCU_Drivers/spi/spi.h>
@@ -848,18 +848,29 @@ void s2lp_Set_Tx_Retries_For_ACK(UINT8 retriesNum)
   UINT8 data = 0;
   UINT8 swap=0;
 
-  if(retriesNum > 15) return 0;
+  if(retriesNum <= 15)
+  {
+    data = S2lp_Read_Register(PROTOCOL0);
 
-  data = S2lp_Read_Register(PROTOCOL0);
+    //clear retries data
+    data &= 0x0F;
 
-  //clear retries data
-  data &= 0x0F;
+    swap = (retriesNum & 0x0F) << 4;
 
-  swap = (retriesNum & 0x0F) << 4;
+    data |= swap;
 
-  data |= swap;
+    S2lp_Write_Register(PROTOCOL0, data);
 
-  S2lp_Write_Register(PROTOCOL0, data);
+  }
+}
+
+//*****************************************************************************
+UINT8 s2lp_Get_Tx_Retries_For_ACK(void)
+//*****************************************************************************
+// Sets Tx retries for ACK non received
+//*****************************************************************************
+{
+	return ((S2lp_Read_Register(PROTOCOL0) & 0xF0) >> 4);
 }
 
 //*****************************************************************************
@@ -1544,12 +1555,12 @@ void s2lp_Set_Packet_Format_StAck(void)
   //packet filtering ENABLED
   S2lp_Write_Register(PROTOCOL1,0x01);
 
-  //automatic ack DISABLED
+  //automatic ack DISABLED currently under test
   //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
   //S2lp_Write_Register(PROTOCOL0,0x08);
-  s2lp_Set_Tx_Retries_For_ACK(10);
+  //s2lp_Set_Tx_Retries_For_ACK(10);
   //s2lp_EnableAutomaticACK_ifPacketReceived();
-  s2lp_Enable_Ack_For_Tx_Packet();
+  //s2lp_Enable_Ack_For_Tx_Packet();
 
   data = S2lp_Read_Register(PROTOCOL0);
 
@@ -1647,8 +1658,62 @@ void s2lp_Configure_RxTimer(void)
 	//fsource = fdig/1210
 	//fdig -> if xtal [48 - 52] = fdig = fxtal/2
 	//fdig -> if xtal [24 - 26] = fdig = fxtal
-	S2lp_Write_Register(TIMERS5, 0x40);
-	S2lp_Write_Register(TIMERS4, 0x20);
+	S2lp_Write_Register(TIMERS4, 0x40); //prescaler
+	S2lp_Write_Register(TIMERS5, 0x10); //counter
+}
+
+//*****************************************************************************
+void s2lp_StartLDC_RxMode(void)
+//*****************************************************************************
+// starts the LDC mode for Rx
+//*****************************************************************************
+{
+	//configure Rx window timer for reTx 100ms
+	s2lp_Configure_RxTimer();
+
+	//setup and start the LDC operation
+	s2lp_Configure_LCD_Timer();
+
+	//set and stay until ready
+	s2lp_Set_Operating_State(READY);
+	while(s2lp_Get_Operating_State() != STATE_READY);
+
+	//sets the LDC timer running
+	s2lp_start_LDC_Timer();
+
+	//start first Rx operation and wait to end
+	s2lp_Set_Operating_State(RX);
+	while(s2lp_Get_Operating_State() != STATE_RX);
+
+	//reload the LDC timer
+	S2lp_Send_Command(LDC_RELOAD);
+}
+
+//*****************************************************************************
+void s2lp_StartLDC_TxMode(void)
+//*****************************************************************************
+// starts the LDC mode for Tx
+//*****************************************************************************
+{
+	//configure Rx window timer for reTx 100ms
+	s2lp_Configure_RxTimer();
+
+	//setup and start the LDC operation
+	s2lp_Configure_LCD_Timer();
+
+	//set and stay until ready
+	s2lp_Set_Operating_State(READY);
+	while(s2lp_Get_Operating_State() != STATE_READY);
+
+	//sets the LDC timer running
+	s2lp_start_LDC_Timer();
+
+	//start first Rx operation and wait to end
+	s2lp_Set_Operating_State(RX);
+	while(s2lp_Get_Operating_State() != STATE_RX);
+
+	//reload the LDC timer
+	S2lp_Send_Command(LDC_RELOAD);
 }
 
 //*****************************************************************************

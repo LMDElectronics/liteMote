@@ -346,6 +346,8 @@ void s2lp_stop_LDC_Timer(void);
 
 void s2lp_Configure_RxTimer(void);
 
+void s2lp_StartLDC_Mode(void);
+
 void s2lp_Set_Source_Address(UINT8 sourceAddr);
 UINT8 s2lp_Get_Source_Address(void);
 
@@ -367,6 +369,7 @@ void s2lp_EnableAutomaticACK_ifPacketReceived(void);
 void s2lp_DisableAutomaticACK_ifPacketReceived(void);
 
 void s2lp_Set_Tx_Retries_For_ACK(UINT8 retriesNum);
+UINT8 s2lp_Get_Tx_Retries_For_ACK(void);
 
 UINT8 s2lp_Get_ReTxACK_Packets(void);
 

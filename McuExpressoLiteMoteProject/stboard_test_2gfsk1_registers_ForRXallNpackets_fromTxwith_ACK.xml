@@ -434,7 +434,7 @@
     </Register>
   <Register>
     <Address>32</Address>
-    <Value>0x08</Value>
+    <Value>0x06</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
@@ -469,7 +469,7 @@
     </Register>
   <Register>
     <Address>39</Address>
-    <Value>0x44</Value>
+    <Value>0x40</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
@@ -514,7 +514,7 @@
     </Register>
   <Register>
     <Address>42</Address>
-    <Value>0xFA</Value>
+    <Value>0x02</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
@@ -529,12 +529,12 @@
     </Register>
   <Register>
     <Address>45</Address>
-    <Value>0x02</Value>
+    <Value>0xFA</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
     <Address>46</Address>
-    <Value>0x00</Value>
+    <Value>0xCE</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
@@ -544,12 +544,12 @@
     </Register>
   <Register>
     <Address>48</Address>
-    <Value>0x01</Value>
+    <Value>0x45</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
     <Address>49</Address>
-    <Value>0x33</Value>
+    <Value>0xF6</Value>
     <Hidden>false</Hidden>
     </Register>
   <Register>
@@ -882,7 +882,7 @@
       </Register>
     <Register>
       <Address>6E</Address>
-      <Value>0x62</Value>
+      <Value>0x61</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1059,12 +1059,12 @@
       </Register>
     <Register>
       <Address>76</Address>
-      <Value>0x8F</Value>
+      <Value>0x9B</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
       <Address>77</Address>
-      <Value>0xF9</Value>
+      <Value>0xF4</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1074,7 +1074,7 @@
       </Register>
     <Register>
       <Address>79</Address>
-      <Value>0x42</Value>
+      <Value>0x43</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1153,7 +1153,7 @@
     </Register>
     <Register>
       <Address>94</Address>
-      <Value>0x62</Value>
+      <Value>0x61</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1245,7 +1245,7 @@
       </Register>
     <Register>
       <Address>9E</Address>
-      <Value>0xF8</Value>
+      <Value>0x00</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1255,7 +1255,7 @@
       </Register>
     <Register>
       <Address>A0</Address>
-      <Value>0x1A</Value>
+      <Value>0x00</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>
@@ -1286,7 +1286,7 @@
     </Register>
     <Register>
       <Address>A2</Address>
-      <Value>0x2A</Value>
+      <Value>0x00</Value>
       <Hidden>false</Hidden>
       </Register>
     <Register>

@@ -94,7 +94,7 @@ int main(void)
   {
     //data input motors
     Serial_Manager_RX_Motor(); //Get serial frames sent to this mote
-    //Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
+    Radio_Manager_Rx_Motor(); //Get radio frames sent to this mote
 
     //data process motor
     Packet_Manager_Process_Motor(); // process received packets [serial, radio, etc...]

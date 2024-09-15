@@ -406,24 +406,40 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 	-> si activamos el ACK en el paquete de Tx, vemos que despues del estado de Tx, no vuelve solo a READY, se pone en Rx (se supone que para
 	recibir el ack, como no hay LDC timeout, se queda en Rx para siempre.) si lo forzamos a ready, hace las x retransmisiones
 	
-		-> activar el LDC para ver si retransmite automaticamente cuando acabe el tiempo de LDC configurado para escucha		
+		 activar el LDC para ver si retransmite automaticamente cuando acabe el tiempo de LDC configurado para escucha		
 			-> configurando LDC    
 				-> despues de configurar el LDC en el motor de Rx, al realizar un Tx, al terminar la Tx, vemos que al comprobar el estado
 				   del s2lp, este esta en SLEEP_B
 				   
 				   -> calibrar el RCO antes de entrar en LDC mode -> EN ELLO
 				   
-		-> usar 2gfsk1 50 kbps para las pruebas, ya mas tarde se mirara como optimizar los problemas de datarate
+		 usar 2gfsk1 50 kbps para las pruebas, ya mas tarde se mirara como optimizar los problemas de datarate
 				  	
-		-> aqui hay un par de ejmplos
+		 aqui hay un par de ejmplos
 			C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
 		
-		-> el RxTimer va con el ldc (se configurará con los siguientes valores)
+		el RxTimer va con el ldc (se configurará con los siguientes valores)
 			-> ldc timer marca el periodo de iniciar Rx [1000 ms]			
 			-> rx timer marca el tiempo efectivo en Rx [100ms]				
 
+
+	-> EN ELLO
 		-> 1a prueba de RxTimer a 100ms configurado antes de tx un paquete con ACK, ok, hace la recepcion, tira como maximo 16 paquetes en Tx
-			si no recibe el aCK -> OK
+			si no recibe el ACK -> OK
+			(usando el s2lp vemos que el primer paquete lo recibe bien, pero las retransmiones pierde los 2 primeros bytes, mirar porque )
+			
+		-> 2a prueba, 
+			1-configurar frmdevel board una como Tx y otra Como Rx para poder probar las retransmisiones con ACK cuando el Rx no contesta
+			
+			el nodo Tx: (ejemplo en el siguiente directorio)
+			C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
+				-> no se esta usando correctamente el modo ldc 
+				es necesario programar el LCD para poder retransmitir correctamente el paquete n veces automaticamente
+			 
+			el nodo Rx: (ejemplo en el siguiente directorio)
+			 	C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
+				solo recepción OK S2LP pcb de demo de st
+		 	
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 		-> tener en cuenta que el datarate se debe calcular con fdig que en este caso si el clock es de 50Mhz -> fdig = 50M/2

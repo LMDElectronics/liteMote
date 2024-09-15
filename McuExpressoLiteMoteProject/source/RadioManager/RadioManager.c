@@ -12,12 +12,15 @@
 #include "fsl_common.h"
 #include "fsl_port.h"
 #include "fsl_gpio.h"
+#include <stdio.h>
 
 UINT8 radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
 UINT8 radio_manager_Rx_state = RADIO_MANAGER_RX_INIT_STEP_STATE;
 
 Tpacket radio_packet_to_Tx;
 UINT8 radioTransceiverState = 0;
+
+volatile UINT8 radiopcktRcv = 0;
 
 volatile bool tpmIsrFlag = FALSE; //flag to signal Tx timout
 volatile bool incomingTx = FALSE; //flag to signal the transceiver is in Tx state
@@ -113,17 +116,16 @@ void Radio_Manager_Load_Packet(UINT8 myAddress, UINT8 destination_addr, UINT8 *p
 // Loads the packet into radio transmitter
 //****************************************************************************
 {
-  UINT8 regData = 0;
-  UINT8 i=0;
-  UINT8 mydata[128];
   UINT16 radioPacketLength = 0;
 
+  //setup addresses
   s2lp_Set_Source_Address(myAddress);
   s2lp_Set_Destination_Address(destination_addr);
 
   //calculates the radio packet length accordingly
   radioPacketLength = s2lp_Set_Packet_Length(payloadLength);
 
+  //flushing Tx fifo
   S2lp_Send_Command(FLUSHTXFIFO);
   s2lp_Load_Tx_FIFO(payload, radioPacketLength);
 }
@@ -156,6 +158,7 @@ void Radio_Manager_Tx_Motor(void)
           //------------------------------------------------------------------------------------
           // radio is READY, so, load the radio packet and send it until Tx time window is over
           //------------------------------------------------------------------------------------
+        	case STATE_SLEEP_B:
           case STATE_READY:
 
             radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
@@ -178,8 +181,14 @@ void Radio_Manager_Tx_Motor(void)
             //Radio_Tx_Window_Timer_Start_Timer();
 
             //TEST
-            //start Rx timer for reTx 100ms
-            	s2lp_Configure_RxTimer();
+            	//configure Rx window timer for ACK Rx 100ms //TODO optimize according to radio kbps rate
+            	//s2lp_Configure_RxTimer();
+            //TEST END
+
+            //TEST
+            	//configure the low duty cycle timer to start tx and retx
+              //s2lp_Configure_LCD_Timer();
+              //s2lp_start_LDC_Timer();
             //TEST END
 
             //4 - start tx
@@ -255,15 +264,18 @@ void Radio_Manager_Tx_Motor(void)
     break;
 
     case RADIO_MANAGER_TX_FINISHED:
-    	UINT8 data=0;
+    {
+    	UINT8 retriesProgrammed = s2lp_Get_Tx_Retries_For_ACK();
+    	UINT8 currentRetries = s2lp_Get_ReTxACK_Packets();
+    	UINT8 testVar=0;
 
-      radioTransceiverState = s2lp_Get_Operating_State();
-      if(radioTransceiverState == STATE_READY)
-      {
-        radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
-      	data = s2lp_Get_ReTxACK_Packets();
-      	data=0;
-      }
+
+    	if(currentRetries >= retriesProgrammed)
+    	{
+    		testVar = s2lp_Get_Operating_State();
+      	radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
+    	}
+    }
     break;
 
     default:
@@ -330,27 +342,11 @@ void Radio_Manager_Rx_Motor(void)
   {
   	case RADIO_MANAGER_RX_INIT_STEP_STATE:
 
-  		//setup and start the LDC operation
-  		/*s2lp_Configure_LCD_Timer();
+      radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
 
-  		//set and stay until ready
-  		s2lp_Set_Operating_State(READY);
-  		while(s2lp_Get_Operating_State() != STATE_READY);
-
-  		//sets the LDC timer running
-  		s2lp_start_LDC_Timer();
-
-  		//start first Rx operation and wait to end
-  		s2lp_Set_Operating_State(RX);
-  		while(s2lp_Get_Operating_State() != STATE_RX);
-
-  		//reload the LDC timer
-  		S2lp_Send_Command(LDC_RELOAD);*/
-
-  		radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
   		break;
 
-    /*case RADIO_MANAGER_RX_WAIT_FOR_READY_STATE:
+    case RADIO_MANAGER_RX_WAIT_FOR_READY_STATE:
 
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
@@ -392,15 +388,17 @@ void Radio_Manager_Rx_Motor(void)
         }
       }
 
-    break;*/
+    break;
 
     case RADIO_MANAGER_WAIT_FOR_FRAME:
 
     	UINT8 testVar=0;
 
-			/*current_state = s2lp_Get_Operating_State();
-
+			//***********************************************************************************************************************
 			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
+			//***********************************************************************************************************************
+
+    	current_state = s2lp_Get_Operating_State();
 			if(current_state == STATE_READY)
 			{
 				//check if Tx is not bieng performed
@@ -408,8 +406,15 @@ void Radio_Manager_Rx_Motor(void)
         {
         	//set again in RX MODE
         	s2lp_Set_Operating_State(RX);
+        	while(1)
+        	{
+        		if(s2lp_Get_Operating_State() == STATE_RX)
+        		{
+        			break;
+        		}
+        	}
         }
-			}*/
+			}
 			//END TEST
 
     	//TEST
@@ -424,12 +429,20 @@ void Radio_Manager_Rx_Motor(void)
     	{
     		testVar = 0;
     	}*/
-
+    	current_state = s2lp_Get_Operating_State();
 			if(s2lp_Get_PacketReceivedFlag() == TRUE)
 			{
 
 				UINT8 sourceAddr = 0;
 				UINT8 destAddr = 0;
+
+				//clear radioData
+				for(i=0; i<radioBytesReceived; i++)
+				{
+					radioData[i]=0;
+				}
+
+				radiopcktRcv++;
 
 				//extract destination and origin from radio packet received
 				sourceAddr = S2lp_Read_Register(RX_ADDRE_FIELD1);
@@ -438,23 +451,51 @@ void Radio_Manager_Rx_Motor(void)
 				//extract the packet lenght from the registers
 				radioBytesReceived = s2lp_Get_Received_Packet_Length();
 
-				//TODO test
+				//read RX FIFO
 				s2lp_Retrieve_Rx_FIFO_Data(radioData, radioBytesReceived);
 
-				Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData, sourceAddr, destAddr, radioBytesReceived));
+				//TEST
+				{
+					printf("%d -> ",radiopcktRcv);
+					for(int y=0; y<radioBytesReceived; y++)
+					{
+						printf("[%x] ",radioData[y]);
+					}
+					printf("\r\n");
+				}
+				//END TEST
 
-				//it gets here
-				s2lp_Clear_PacketReceivedFlag();
+				//Push_Radio_Rx_FIFO_Packet(From_Radio_Frame_To_Packet(radioData, sourceAddr, destAddr, radioBytesReceived));
 
 				//fluxh Rx FIFO
- 				S2lp_Send_Command(FLUSHRXFIFO);
+				S2lp_Send_Command(FLUSHRXFIFO);
 
+				//clear Rxc packet reception flag
+				s2lp_Clear_PacketReceivedFlag();
+
+				//clear interrupts
 				irqStatus = s2lp_Check_IrqStatus();
 				s2lp_Clear_IrqStatus();
 
-				radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
-			}
+				if(s2lp_Get_Operating_State() == STATE_READY)
+				{
+					//only set th Rx state if there are no Tx being performed
+					if(incomingTx == FALSE)
+					{
+						s2lp_Set_Operating_State(RX);
+					}
+				}
 
+				while(true)
+				{
+					if(s2lp_Get_Operating_State() == STATE_RX)
+					{
+						break;
+					}
+				}
+
+				//radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
+			}
     break;
   }
 }
