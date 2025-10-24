@@ -434,7 +434,8 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 			el nodo Tx: (ejemplo en el siguiente directorio)
 			C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
 				-> no se esta usando correctamente el modo ldc 
-				es necesario programar el LCD para poder retransmitir correctamente el paquete n veces automaticamente
+				es necesario programar el LCD para poder retransmitir correctamente el paquete n veces automaticamente, el modo ldc parece 
+				que se reseta despues del primer envio de retransmisiones
 			 
 			el nodo Rx: (ejemplo en el siguiente directorio)
 			 	C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp

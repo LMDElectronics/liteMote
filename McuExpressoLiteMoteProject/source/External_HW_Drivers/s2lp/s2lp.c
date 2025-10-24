@@ -883,6 +883,19 @@ UINT8 s2lp_Get_ReTxACK_Packets(void)
 }
 
 //*****************************************************************************
+void s2lp_Reset_ReTxACK_Packets(void)
+//*****************************************************************************
+// Reads the register to obtain the current Re-Tx packets
+//*****************************************************************************
+{
+	UINT8 data=0;
+
+	data = S2lp_Read_Register(TX_PCKT_INFO);
+	data &= 0xCF;
+  S2lp_Write_Register(TX_PCKT_INFO, data);
+}
+
+//*****************************************************************************
 UINT8 s2lp_Get_CRC_Mode(void)
 //*****************************************************************************
 // Sets the CRCMODE for data packet
@@ -1558,9 +1571,9 @@ void s2lp_Set_Packet_Format_StAck(void)
   //automatic ack DISABLED currently under test
   //NO_ACK=1 in Tx packet (the Tx packet do not need for an ACK response from the receiver)
   //S2lp_Write_Register(PROTOCOL0,0x08);
-  //s2lp_Set_Tx_Retries_For_ACK(10);
+  s2lp_Set_Tx_Retries_For_ACK(10);
   //s2lp_EnableAutomaticACK_ifPacketReceived();
-  //s2lp_Enable_Ack_For_Tx_Packet();
+  s2lp_Enable_Ack_For_Tx_Packet();
 
   data = S2lp_Read_Register(PROTOCOL0);
 
@@ -1585,7 +1598,43 @@ void s2lp_RCO_Calibration_Blocking(void)
 }
 
 //*****************************************************************************
-void s2lp_Configure_LCD_Timer(void)
+void s2lp_Configure_LCD_Timer_For_Tx(void)
+//*****************************************************************************
+// Configs the LDC s2lp timer for low duty Rx cicle of 400ms
+// each 400ms the s2lp should awake and check for a packet reception
+//*****************************************************************************
+{
+	UINT8 data = 0;
+	//s2lp reference manual chapter 8.2
+
+	//fdig = 50Mhz -> frco = 33Khz
+	//1/(frco/2) * (prescaler + 1) * (counter + 1) = 400ms
+	//prescaler = 128
+	//counter 	= 128
+
+	//reload the LDC timer on sync with synch word of the rx packet
+	data = S2lp_Read_Register(PROTOCOL1);
+	data = data | 0x40;
+	S2lp_Write_Register(PROTOCOL1, data);
+
+	//configuration for LCD timer to x1
+	data = S2lp_Read_Register(PROTOCOL2);
+	data = data & 0xFC;
+	S2lp_Write_Register(PROTOCOL2, data);
+
+	//set the preescaler and the preescaler reload value for LDC timer
+	//prescaler for wakeup timer = 128
+	S2lp_Write_Register(TIMERS3, 0x80);
+	S2lp_Write_Register(TIMERS1, 0x80);
+
+	//set the counter and counter reload value for LDC timer
+	//counter for wakeup timer = 128
+	S2lp_Write_Register(TIMERS2, 0x80);
+	S2lp_Write_Register(TIMERS0, 0x80);
+}
+
+//*****************************************************************************
+void s2lp_Configure_LCD_Timer_For_Rx(void)
 //*****************************************************************************
 // Configs the LDC s2lp timer for low duty Rx cicle of 1sec
 // each second the s2lp should awake and check for a packet reception
@@ -1595,7 +1644,7 @@ void s2lp_Configure_LCD_Timer(void)
 	//s2lp reference manual chapter 8.2
 
 	//fdig = 50Mhz -> frco = 33Khz
-	//(frco/2) * (prescaler + 1) * (counter + 1) = 0.98 seconds
+	//1/(frco/2) * (prescaler + 1) * (counter + 1) = 0.98 seconds
 
 	//reload the LDC timer on sync with synch word of the rx packet
 	data = S2lp_Read_Register(PROTOCOL1);
@@ -1659,61 +1708,7 @@ void s2lp_Configure_RxTimer(void)
 	//fdig -> if xtal [48 - 52] = fdig = fxtal/2
 	//fdig -> if xtal [24 - 26] = fdig = fxtal
 	S2lp_Write_Register(TIMERS4, 0x40); //prescaler
-	S2lp_Write_Register(TIMERS5, 0x10); //counter
-}
-
-//*****************************************************************************
-void s2lp_StartLDC_RxMode(void)
-//*****************************************************************************
-// starts the LDC mode for Rx
-//*****************************************************************************
-{
-	//configure Rx window timer for reTx 100ms
-	s2lp_Configure_RxTimer();
-
-	//setup and start the LDC operation
-	s2lp_Configure_LCD_Timer();
-
-	//set and stay until ready
-	s2lp_Set_Operating_State(READY);
-	while(s2lp_Get_Operating_State() != STATE_READY);
-
-	//sets the LDC timer running
-	s2lp_start_LDC_Timer();
-
-	//start first Rx operation and wait to end
-	s2lp_Set_Operating_State(RX);
-	while(s2lp_Get_Operating_State() != STATE_RX);
-
-	//reload the LDC timer
-	S2lp_Send_Command(LDC_RELOAD);
-}
-
-//*****************************************************************************
-void s2lp_StartLDC_TxMode(void)
-//*****************************************************************************
-// starts the LDC mode for Tx
-//*****************************************************************************
-{
-	//configure Rx window timer for reTx 100ms
-	s2lp_Configure_RxTimer();
-
-	//setup and start the LDC operation
-	s2lp_Configure_LCD_Timer();
-
-	//set and stay until ready
-	s2lp_Set_Operating_State(READY);
-	while(s2lp_Get_Operating_State() != STATE_READY);
-
-	//sets the LDC timer running
-	s2lp_start_LDC_Timer();
-
-	//start first Rx operation and wait to end
-	s2lp_Set_Operating_State(RX);
-	while(s2lp_Get_Operating_State() != STATE_RX);
-
-	//reload the LDC timer
-	S2lp_Send_Command(LDC_RELOAD);
+	S2lp_Write_Register(TIMERS5, 0x20); //counter
 }
 
 //*****************************************************************************

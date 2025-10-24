@@ -161,7 +161,8 @@ void Radio_Manager_Tx_Motor(void)
         	case STATE_SLEEP_B:
           case STATE_READY:
 
-            radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+            //radio_manager_Tx_state = RADIO_MANAGER_TX_SENDING_PACKET;
+          	radio_manager_Tx_state = RADIO_MANAGER_TX_FINISHED;
 
             radio_packet_to_Tx = Get_Radio_Tx_FIFO_Packet();
 
@@ -180,19 +181,19 @@ void Radio_Manager_Tx_Motor(void)
             //tpmIsrFlag = FALSE; //reset isr flag
             //Radio_Tx_Window_Timer_Start_Timer();
 
-            //TEST
-            	//configure Rx window timer for ACK Rx 100ms //TODO optimize according to radio kbps rate
-            	//s2lp_Configure_RxTimer();
-            //TEST END
-
-            //TEST
-            	//configure the low duty cycle timer to start tx and retx
-              //s2lp_Configure_LCD_Timer();
-              //s2lp_start_LDC_Timer();
-            //TEST END
-
-            //4 - start tx
+            //4 - clear S2LP IRQ's
             s2lp_Clear_IrqStatus();
+
+            //TEST
+            	//in Tx LDC mode to be able to retransmit the packet automatically if ACK is not received
+            	//configure Rx window timer for ACK Rx 100ms
+            	//TODO optimize timer values according to radio kbps rate
+            	s2lp_Configure_RxTimer();
+            	s2lp_Configure_LCD_Timer_For_Tx();
+            	s2lp_start_LDC_Timer();
+            //TEST END
+
+					  //5-send Tx commmand
             s2lp_Start_Tx();
 
             //test to Tx just one packet
@@ -268,11 +269,21 @@ void Radio_Manager_Tx_Motor(void)
     	UINT8 retriesProgrammed = s2lp_Get_Tx_Retries_For_ACK();
     	UINT8 currentRetries = s2lp_Get_ReTxACK_Packets();
     	UINT8 testVar=0;
-
+    	UINT8 fifoTxElements=0;
 
     	if(currentRetries >= retriesProgrammed)
     	{
-    		testVar = s2lp_Get_Operating_State();
+  			s2lp_stop_LDC_Timer();
+  			fifoTxElements = s2lp_Get_Tx_FIFO_Elements();
+    		s2lp_Set_Operating_State(READY);
+    		while(1)
+    		{
+    			if(s2lp_Get_Operating_State() == STATE_READY)
+    			{
+    				break;
+    			}
+    		}
+
       	radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
     	}
     }
@@ -342,7 +353,10 @@ void Radio_Manager_Rx_Motor(void)
   {
   	case RADIO_MANAGER_RX_INIT_STEP_STATE:
 
-      radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
+  		//remove after LDC for Tx
+  		radio_manager_Rx_state = RADIO_MANAGER_WAIT_FOR_FRAME;
+
+      //radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_READY_STATE;
 
   		break;
 
@@ -351,10 +365,10 @@ void Radio_Manager_Rx_Motor(void)
       if(s2lp_Get_Operating_State() == STATE_READY)
       {
       	//only set th Rx state if there are no Tx being performed
-      	if(incomingTx == FALSE)
+      	/*if(incomingTx == FALSE)
       	{
           s2lp_Set_Operating_State(RX);
-      	}
+      	}*/
         radio_manager_Rx_state = RADIO_MANAGER_RX_WAIT_FOR_RECEIVE_STATE;
       }
       else
@@ -398,7 +412,7 @@ void Radio_Manager_Rx_Motor(void)
 			//if s2lp filters any packet it moves to READY state, need to restart RX state until automatic Rx timeout is implemented
 			//***********************************************************************************************************************
 
-    	current_state = s2lp_Get_Operating_State();
+    	/*current_state = s2lp_Get_Operating_State();
 			if(current_state == STATE_READY)
 			{
 				//check if Tx is not bieng performed
@@ -414,7 +428,7 @@ void Radio_Manager_Rx_Motor(void)
         		}
         	}
         }
-			}
+			}*/
 			//END TEST
 
     	//TEST
