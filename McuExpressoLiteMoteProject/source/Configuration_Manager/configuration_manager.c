@@ -195,7 +195,11 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
     //load data from flash
     current_Radio_Conf_Data.freq_Band   = dataRead[0];
     current_Radio_Conf_Data.modulation  = dataRead[1];
-    current_Radio_Conf_Data.dataRate    = dataRead[2];
+
+    current_Radio_Conf_Data.dataRate = dataRead[2];
+    current_Radio_Conf_Data.dataRate <<= 8;
+    current_Radio_Conf_Data.dataRate = dataRead[3];
+
     current_Radio_Conf_Data.channel     = dataRead[3];
     current_Radio_Conf_Data.power       = dataRead[4];
 
@@ -204,10 +208,10 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
   else
   {
     //load mote default parameters if flash data load fails
-    current_Radio_Conf_Data.freq_Band   = 0; //868 Mhz European band
-    current_Radio_Conf_Data.modulation  = 5; //4GFSK- BT=1
-    current_Radio_Conf_Data.dataRate    = 4; //500 Kbps
-    current_Radio_Conf_Data.channel     = 0; //channel 0
+    current_Radio_Conf_Data.freq_Band   = 0;   //868 Mhz European band
+    current_Radio_Conf_Data.modulation  = 5;   //4GFSK- BT=1
+    current_Radio_Conf_Data.dataRate    = 25;  //25 Kbps
+    current_Radio_Conf_Data.channel     = 0;   //channel 0
     current_Radio_Conf_Data.power       = 128; //0 dBm
 
     retVal = FAILED;

@@ -77,18 +77,7 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
     default: break;
   }
 
-  switch(current_Radio_Conf_Data.dataRate)
-  {
-    case INDEXED_DATA_RATE_2_KBPS: s2lp_Set_DataRate(DATA_RATE_2_KBPS);         break;
-    case INDEXED_DATA_RATE_25_KBPS: s2lp_Set_DataRate(DATA_RATE_25_KBPS);       break;
-    case INDEXED_DATA_RATE_50_KBPS: s2lp_Set_DataRate(DATA_RATE_50_KBPS);       break;
-    case INDEXED_DATA_RATE_100_KBPS: s2lp_Set_DataRate(DATA_RATE_100_KBPS);     break;
-    case INDEXED_DATA_RATE_200_KBPS: s2lp_Set_DataRate(DATA_RATE_200_KBPS);     break;
-    case INDEXED_DATA_RATE_300_KBPS: s2lp_Set_DataRate(DATA_RATE_300_KBPS);     break;
-    case INDEXED_DATA_RATE_400_KBPS: s2lp_Set_DataRate(DATA_RATE_400_KBPS);     break;
-    case INDEXED_DATA_RATE_500_KBPS: s2lp_Set_DataRate(DATA_RATE_500_KBPS);     break;
-    default: break;
-  }
+  s2lp_Set_DataRate(current_Radio_Conf_Data.dataRate);
 
   s2lp_Set_Channel_Num(current_Radio_Conf_Data.channel);
   s2lp_Set_Tx_Power_Config(current_Radio_Conf_Data.power);
