@@ -340,8 +340,8 @@ void s2lp_Set_Packet_Format_StAck(void);
 
 void s2lp_Config_CSMACD(UINT8 activationFlag);
 
-void s2lp_Configure_LCD_Timer_For_Tx(void);
-void s2lp_Configure_LCD_Timer_For_Rx(void);
+void s2lp_Configure_LDC_Timer_For_Tx(void);
+void s2lp_Configure_LDCTimer_For_Rx(void);
 void s2lp_start_LDC_Timer(void);
 void s2lp_stop_LDC_Timer(void);
 

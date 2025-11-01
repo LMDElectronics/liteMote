@@ -189,7 +189,7 @@ void Radio_Manager_Tx_Motor(void)
             	//configure Rx window timer for ACK Rx 100ms
             	//TODO optimize timer values according to radio kbps rate
             	s2lp_Configure_RxTimer();
-            	s2lp_Configure_LCD_Timer_For_Tx();
+            	s2lp_Configure_LDC_Timer_For_Tx();
             	s2lp_start_LDC_Timer();
             //TEST END
 
