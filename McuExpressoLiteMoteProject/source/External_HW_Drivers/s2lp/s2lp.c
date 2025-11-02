@@ -333,6 +333,8 @@ void S2LPRadioSearchDatarateME(uint32_t lDatarate, uint16_t* pcM, uint8_t* pcE)
   uint8_t uDrE;
   uint64_t tgt1,tgt2,tgt;
 
+  uint8_t i=0;
+
   if(f_dig>DIG_DOMAIN_XTAL_THRESH * 1000000) {
     f_dig >>= 1;
   }
@@ -360,6 +362,8 @@ void S2LPRadioSearchDatarateME(uint32_t lDatarate, uint16_t* pcM, uint8_t* pcE)
 
 
   (*pcM)=((tgt2-tgt)<(tgt-tgt1))?((*pcM)+1):(*pcM);
+  i=0;
+
 }
 
 //*****************************************************************************
@@ -367,6 +371,8 @@ void s2lp_Set_PA_FC(UINT32 currentDataRate)
 //*****************************************************************************
 // IMPORTANT: execute always after or inside setting data rate with s2lp_Set_DataRate
 // power control bandwith selection
+//
+// currentDataRate in bps
 //*****************************************************************************
 {
 	UINT8 data=0;
@@ -403,12 +409,17 @@ void s2lp_Set_PA_FC(UINT32 currentDataRate)
 		data |= 0x03;
 	}
 
+	S2lp_Write_Register(PA_CONFIG0, data);
+
 }
 
 //*****************************************************************************
 void s2lp_Set_DataRate(UINT32 dataRate)
 //*****************************************************************************
 // Sets the data rate (kbits per second) forcing DATARATE_E = 15
+//
+// Checks and recalculates the resulting datarate accordingly to the modulation
+// programmed
 //*****************************************************************************
 {
   UINT8 data=0;
@@ -434,91 +445,42 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 afc1 = 0;
   UINT8 afc0 = 0;
 
-  UINT32 dataRateRead2 = 0;
+  UINT32 dataRateRead_ToSet = 0;
+  UINT32 dataRate_Read = 0;
+
   UINT16 mval = 0;
   UINT8 eval = 0;
 
-  //Get modulation to check if its 2 or 4 FSK or GFSK to produce the kbps from symbol per second former datarate
-  /*modulation = s2lp_Get_Modulation_Type();
-
-  //using 2 bytes to represent the four symbols
-  if((modulation == FOUR_FSK) || (modulation == FOUR_GFSK_BT_1) || (modulation == FOUR_GFSK_BT_05))
+  //limiting programable datarate
+  if(dataRate < MAX_PROGRAMABLE_DATARATE)
   {
-    xMultiplier = 2;
+  	dataRateRead_ToSet = dataRate;
+  }
+  else
+  {
+  	dataRateRead_ToSet = MAX_PROGRAMABLE_DATARATE;
   }
 
-  //Using equation 2 from 5.4.5 datasheet DATARATE_E > 0 [1-14] the algorithm will loop against DATARATE_E to found the first
-  //valid datarate that match with the datarate input parameter
-  for(datarate_e = 1; datarate_e < 15; datarate_e++)
-  {
-    //calculate datarate_m
-    numerator = (float)((dataRate/xMultiplier) * (float)(1 << (33 - datarate_e)));
-    denominator = (float)(XTAL_FREQ * 500);
-    dataRate_m_f = (float)((numerator / denominator) - (1<<16));
-
-    if((dataRate_m_f < 65535) && (dataRate_m_f > 0))
-    {
-      //valid datarate_m found, exit loop
-      break;
-    }
-  }
-
-  dataRate_m = (UINT16)(dataRate_m_f);
-
-  if((dataRate_m_f / dataRate_m) > 1)
-  {
-    dataRate_m = (UINT16)(dataRate_m_f + 1);
-  }
-
-  S2lp_Write_Register(MOD3, (UINT8)(dataRate_m & 0x00FF));
-  S2lp_Write_Register(MOD4, (UINT8)((dataRate_m & 0xFF00) >> 8));
-
-  data = S2lp_Read_Register(MOD2);
-
-  data &= MODULATION_MASK;
-  data |= datarate_e;
-  S2lp_Write_Register(MOD2, data);
-
-  //test
-  mod0 = S2lp_Read_Register(MOD0);
-  mod1 = S2lp_Read_Register(MOD1);
-  mod2 = S2lp_Read_Register(MOD2);
-  mod3 = S2lp_Read_Register(MOD3);
-  mod4 = S2lp_Read_Register(MOD4);
-
-  S2lp_Write_Register(AFC2, 0xC8);
-  S2lp_Write_Register(AFC1, 0x18);
-  S2lp_Write_Register(AFC0, 0x25);
-
-  afc2 = S2lp_Read_Register(AFC2);
-  afc1 = S2lp_Read_Register(AFC1);
-  afc0 = S2lp_Read_Register(AFC0);
-  //end test
-
-  dataRateRead = s2lp_Get_DataRate();
-  dataRateRead=0;*/
-
-  //TEST dataRate2 should be in bps
-  dataRateRead2 = dataRate;
-  S2LPRadioSearchDatarateME(dataRate * 1000, &mval, &eval);
-  dataRateRead2 = S2LPRadioComputeDatarate(mval, eval);
+  S2LPRadioSearchDatarateME(dataRateRead_ToSet * 1000, &mval, &eval);
 
   mod4 = (UINT8)((mval & 0xFF00)>>8);
   mod3 = (UINT8)(mval & 0x00FF);
-  mod2 = S2lp_Read_Register(MOD2);
 
+  mod2 = S2lp_Read_Register(MOD2);
   mod2 = mod2 & 0xF0;
   mod2 |= eval & 0x0F;
 
+  //setting data read
   S2lp_Write_Register(MOD4, mod4);
   S2lp_Write_Register(MOD3, mod3);
   S2lp_Write_Register(MOD2, mod2);
 
   //change the power control bandwith selection according to the datarate
-  s2lp_Set_PA_FC(dataRateRead2);
+  s2lp_Set_PA_FC(dataRateRead_ToSet);
 
-  dataRateRead2 = 0;
-  //END TEST
+  //DEBUG TEST CHECK DATARATE
+  dataRate_Read = S2LPRadioComputeDatarate(mval, eval);
+  dataRate_Read = 0;
 }
 
 //*****************************************************************************
@@ -1598,7 +1560,7 @@ void s2lp_RCO_Calibration_Blocking(void)
 }
 
 //*****************************************************************************
-void s2lp_Configure_LCD_Timer_For_Tx(void)
+void s2lp_Configure_LDC_Timer_For_Tx(void)
 //*****************************************************************************
 // Configs the LDC s2lp timer for low duty Rx cicle of 400ms
 // each 400ms the s2lp should awake and check for a packet reception
@@ -1634,7 +1596,7 @@ void s2lp_Configure_LCD_Timer_For_Tx(void)
 }
 
 //*****************************************************************************
-void s2lp_Configure_LCD_Timer_For_Rx(void)
+void s2lp_Configure_LDC_Timer_For_Rx(void)
 //*****************************************************************************
 // Configs the LDC s2lp timer for low duty Rx cicle of 1sec
 // each second the s2lp should awake and check for a packet reception

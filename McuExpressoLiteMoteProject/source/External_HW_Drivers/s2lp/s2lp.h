@@ -29,6 +29,9 @@
 //define digital domain stal freq
 #define DIG_DOMAIN_XTAL_THRESH	30
 
+//define MAX programable datarate in kbps
+#define MAX_PROGRAMABLE_DATARATE 250
+
 //register addresses
 #define GPIO0_CONF      0x00
 #define GPIO1_CONF      0x01
@@ -340,8 +343,8 @@ void s2lp_Set_Packet_Format_StAck(void);
 
 void s2lp_Config_CSMACD(UINT8 activationFlag);
 
-void s2lp_Configure_LCD_Timer_For_Tx(void);
-void s2lp_Configure_LCD_Timer_For_Rx(void);
+void s2lp_Configure_LDC_Timer_For_Tx(void);
+void s2lp_Configure_LDCTimer_For_Rx(void);
 void s2lp_start_LDC_Timer(void);
 void s2lp_stop_LDC_Timer(void);
 

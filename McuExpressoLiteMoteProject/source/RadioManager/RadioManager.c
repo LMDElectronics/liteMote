@@ -77,19 +77,7 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
     default: break;
   }
 
-  switch(current_Radio_Conf_Data.dataRate)
-  {
-    case INDEXED_DATA_RATE_2_KBPS: s2lp_Set_DataRate(DATA_RATE_2_KBPS);         break;
-    case INDEXED_DATA_RATE_25_KBPS: s2lp_Set_DataRate(DATA_RATE_25_KBPS);       break;
-    case INDEXED_DATA_RATE_50_KBPS: s2lp_Set_DataRate(DATA_RATE_50_KBPS);       break;
-    case INDEXED_DATA_RATE_100_KBPS: s2lp_Set_DataRate(DATA_RATE_100_KBPS);     break;
-    case INDEXED_DATA_RATE_200_KBPS: s2lp_Set_DataRate(DATA_RATE_200_KBPS);     break;
-    case INDEXED_DATA_RATE_300_KBPS: s2lp_Set_DataRate(DATA_RATE_300_KBPS);     break;
-    case INDEXED_DATA_RATE_400_KBPS: s2lp_Set_DataRate(DATA_RATE_400_KBPS);     break;
-    case INDEXED_DATA_RATE_500_KBPS: s2lp_Set_DataRate(DATA_RATE_500_KBPS);     break;
-    default: break;
-  }
-
+  s2lp_Set_DataRate(current_Radio_Conf_Data.dataRate);
   s2lp_Set_Channel_Num(current_Radio_Conf_Data.channel);
   s2lp_Set_Tx_Power_Config(current_Radio_Conf_Data.power);
 }
@@ -104,6 +92,9 @@ void Radio_Manager_Init(void)
 
   //config STACK packet type
   s2lp_Set_Packet_Format_StAck();
+
+  //init the timer in charge to perform the packet Tx during the Tx window
+  Radio_Tx_Window_Timer_Init();
 
   //setup the init states for Tx and Rx Motors
   radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
@@ -175,11 +166,11 @@ void Radio_Manager_Tx_Motor(void)
                 radio_packet_to_Tx.header.msg_type);
 
             //2 - load send time timer
-            //Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+            Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
             //3 - start timer
-            //tpmIsrFlag = FALSE; //reset isr flag
-            //Radio_Tx_Window_Timer_Start_Timer();
+            tpmIsrFlag = FALSE; //reset isr flag
+            Radio_Tx_Window_Timer_Start_Timer();
 
             //4 - clear S2LP IRQ's
             s2lp_Clear_IrqStatus();
@@ -188,9 +179,9 @@ void Radio_Manager_Tx_Motor(void)
             	//in Tx LDC mode to be able to retransmit the packet automatically if ACK is not received
             	//configure Rx window timer for ACK Rx 100ms
             	//TODO optimize timer values according to radio kbps rate
-            	s2lp_Configure_RxTimer();
-            	s2lp_Configure_LCD_Timer_For_Tx();
-            	s2lp_start_LDC_Timer();
+            	//s2lp_Configure_RxTimer();
+            	//s2lp_Configure_LDC_Timer_For_Tx();
+            	//s2lp_start_LDC_Timer();
             //TEST END
 
 					  //5-send Tx commmand

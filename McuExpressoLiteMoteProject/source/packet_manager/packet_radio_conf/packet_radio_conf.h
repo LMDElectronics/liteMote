@@ -24,22 +24,13 @@
 #define INDEXED_2GFSK_BT_05 5
 #define INDEXED_4GFSK_BT_05 6
 
-#define INDEXED_DATA_RATE_2_KBPS    0
-#define INDEXED_DATA_RATE_25_KBPS   1
-#define INDEXED_DATA_RATE_50_KBPS   2
-#define INDEXED_DATA_RATE_100_KBPS  3
-#define INDEXED_DATA_RATE_200_KBPS  4
-#define INDEXED_DATA_RATE_300_KBPS  5
-#define INDEXED_DATA_RATE_400_KBPS  6
-#define INDEXED_DATA_RATE_500_KBPS  7
-
 typedef struct TMote_Radio_Conf_Data
 {
   UINT8 freq_Band;  //Mhz
   UINT8 modulation; //modulation type
-  UINT8 dataRate;  //KBps
+  UINT16 dataRate;  //KBps
   UINT8 channel;    //radio channel in selected band
-  UINT8 power;     //Tx radio power
+  UINT8 power;      //Tx radio power
 
 }TMote_Radio_Conf_Data;
 
