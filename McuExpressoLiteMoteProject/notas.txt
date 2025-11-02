@@ -441,8 +441,19 @@ Validar Tx -> Rx, Rx -> feedback a Tx
 			 	C:\Program Files (x86)\STMicroelectronics\S2-LP_DK_1.3.1\Projects\Projects_Cube\S2-LP_DK\S2LPLibrary_Examples\Src\StackLlp
 				solo recepción OK S2LP pcb de demo de st
 		 	
-
-------------------------------------------------------------------------------------------------------------------------------------------
 		-> tener en cuenta que el datarate se debe calcular con fdig que en este caso si el clock es de 50Mhz -> fdig = 50M/2
+    
+----------------------------------------------------------------------------------------------------------------------------------------------        
+01/11/2025:
+
+  - Comprobar Tx desde LiteMote
+  - Comprobar Rx desde pcb nucleo
+  
+  
+
+      
+				
+	
+				
 		
 		

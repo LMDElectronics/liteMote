@@ -93,6 +93,9 @@ void Radio_Manager_Init(void)
   //config STACK packet type
   s2lp_Set_Packet_Format_StAck();
 
+  //init the timer in charge to perform the packet Tx during the Tx window
+  Radio_Tx_Window_Timer_Init();
+
   //setup the init states for Tx and Rx Motors
   radio_manager_Tx_state = RADIO_MANAGER_TX_CHECK_TO_SEND;
   radio_manager_Rx_state = RADIO_MANAGER_RX_INIT_STEP_STATE;
@@ -163,11 +166,11 @@ void Radio_Manager_Tx_Motor(void)
                 radio_packet_to_Tx.header.msg_type);
 
             //2 - load send time timer
-            //Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
+            Radio_Window_Timer_Set_Tx_Window(radio_packet_to_Tx.header.send_time);
 
             //3 - start timer
-            //tpmIsrFlag = FALSE; //reset isr flag
-            //Radio_Tx_Window_Timer_Start_Timer();
+            tpmIsrFlag = FALSE; //reset isr flag
+            Radio_Tx_Window_Timer_Start_Timer();
 
             //4 - clear S2LP IRQ's
             s2lp_Clear_IrqStatus();
@@ -176,9 +179,9 @@ void Radio_Manager_Tx_Motor(void)
             	//in Tx LDC mode to be able to retransmit the packet automatically if ACK is not received
             	//configure Rx window timer for ACK Rx 100ms
             	//TODO optimize timer values according to radio kbps rate
-            	s2lp_Configure_RxTimer();
-            	s2lp_Configure_LDC_Timer_For_Tx();
-            	s2lp_start_LDC_Timer();
+            	//s2lp_Configure_RxTimer();
+            	//s2lp_Configure_LDC_Timer_For_Tx();
+            	//s2lp_start_LDC_Timer();
             //TEST END
 
 					  //5-send Tx commmand
