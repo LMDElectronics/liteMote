@@ -78,7 +78,6 @@ void Radio_Interface_Load_Parameters(TMote_Radio_Conf_Data current_Radio_Conf_Da
   }
 
   s2lp_Set_DataRate(current_Radio_Conf_Data.dataRate);
-
   s2lp_Set_Channel_Num(current_Radio_Conf_Data.channel);
   s2lp_Set_Tx_Power_Config(current_Radio_Conf_Data.power);
 }

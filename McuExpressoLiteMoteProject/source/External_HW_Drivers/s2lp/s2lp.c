@@ -417,6 +417,9 @@ void s2lp_Set_PA_FC(UINT32 currentDataRate)
 void s2lp_Set_DataRate(UINT32 dataRate)
 //*****************************************************************************
 // Sets the data rate (kbits per second) forcing DATARATE_E = 15
+//
+// Checks and recalculates the resulting datarate accordingly to the modulation
+// programmed
 //*****************************************************************************
 {
   UINT8 data=0;
@@ -442,30 +445,42 @@ void s2lp_Set_DataRate(UINT32 dataRate)
   UINT8 afc1 = 0;
   UINT8 afc0 = 0;
 
-  UINT32 dataRateRead2 = 0;
+  UINT32 dataRateRead_ToSet = 0;
+  UINT32 dataRate_Read = 0;
+
   UINT16 mval = 0;
   UINT8 eval = 0;
 
-  dataRateRead2 = dataRate;
+  //limiting programable datarate
+  if(dataRate < MAX_PROGRAMABLE_DATARATE)
+  {
+  	dataRateRead_ToSet = dataRate;
+  }
+  else
+  {
+  	dataRateRead_ToSet = MAX_PROGRAMABLE_DATARATE;
+  }
 
-  S2LPRadioSearchDatarateME(dataRate * 1000, &mval, &eval);
-
-  dataRateRead2 = S2LPRadioComputeDatarate(mval, eval);
+  S2LPRadioSearchDatarateME(dataRateRead_ToSet * 1000, &mval, &eval);
 
   mod4 = (UINT8)((mval & 0xFF00)>>8);
   mod3 = (UINT8)(mval & 0x00FF);
-  mod2 = S2lp_Read_Register(MOD2);
 
+  mod2 = S2lp_Read_Register(MOD2);
   mod2 = mod2 & 0xF0;
   mod2 |= eval & 0x0F;
 
+  //setting data read
   S2lp_Write_Register(MOD4, mod4);
   S2lp_Write_Register(MOD3, mod3);
   S2lp_Write_Register(MOD2, mod2);
 
   //change the power control bandwith selection according to the datarate
-  s2lp_Set_PA_FC(dataRateRead2);
+  s2lp_Set_PA_FC(dataRateRead_ToSet);
 
+  //DEBUG TEST CHECK DATARATE
+  dataRate_Read = S2LPRadioComputeDatarate(mval, eval);
+  dataRate_Read = 0;
 }
 
 //*****************************************************************************

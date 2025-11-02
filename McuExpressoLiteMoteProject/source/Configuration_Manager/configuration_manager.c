@@ -196,9 +196,9 @@ UINT8 Cnf_Manager_Load_Radio_Config(void)
     current_Radio_Conf_Data.freq_Band   = dataRead[0];
     current_Radio_Conf_Data.modulation  = dataRead[1];
 
-    current_Radio_Conf_Data.dataRate = dataRead[2];
+    current_Radio_Conf_Data.dataRate = (UINT16)dataRead[2];
     current_Radio_Conf_Data.dataRate <<= 8;
-    current_Radio_Conf_Data.dataRate = dataRead[3];
+    current_Radio_Conf_Data.dataRate |= (UINT16)dataRead[3];
 
     current_Radio_Conf_Data.channel     = dataRead[3];
     current_Radio_Conf_Data.power       = dataRead[4];
