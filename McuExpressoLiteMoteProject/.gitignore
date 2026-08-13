@@ -1,1 +1,42 @@
+# ============================
+# MCUExpresso / Eclipse
+# ============================
+
+# Carpetas de build generadas por el IDE
+/Debug/
 /Release/
+/build/
+/bin/
+/obj/
+
+# Archivos temporales de Eclipse/MCUExpresso
+.metadata/
+.settings/
+.cproject
+.project
+
+# Archivos de configuración del workspace
+*.launch
+*.log
+
+# Archivos de indexado y caché
+*.pydevproject
+*.prefs
+
+# Archivos generados por CDT
+*.d
+*.o
+*.elf
+*.map
+
+# Archivos de depuración
+*.gdb
+*.gdbinit
+
+# Archivos de backup
+*~
+*.bak
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
