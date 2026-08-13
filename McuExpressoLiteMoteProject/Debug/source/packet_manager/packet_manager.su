@@ -1,6 +1,0 @@
-../source/packet_manager/packet_manager.c:42:7:Packet_Manager_Init	8	static
-../source/packet_manager/packet_manager.c:64:7:Get_Canonical_Payload_length	24	static
-../source/packet_manager/packet_manager.c:110:9:Build_Packet_Serial	160	static
-../source/packet_manager/packet_manager.c:146:9:Build_Packet_Radio	160	static
-../source/packet_manager/packet_manager.c:193:6:Process_Packet	1672	static
-../source/packet_manager/packet_manager.c:374:6:Packet_Manager_Process_Motor	384	static
